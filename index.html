@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand-Tracked Solar System Particles</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+
+    <div id="ui-layer">
+        <h1>Celestial Particles</h1>
+        <div id="planet-name">Sun</div>
+        <div class="instructions">
+            <strong>Gestures:</strong><br>
+            &#9995; Move Hand: Rotate Planet<br>
+            &#129295; Open/Close Pinch: Explode/Contract Particles<br>
+            &#9994; Make a Fist: Switch Planet
+        </div>
+    </div>
+
+    <div id="loading">Loading Camera &amp; AI Models...</div>
+    <video id="webcam" autoplay playsinline muted></video>
+
+    <script src="script.js"></script>
+</body>
+</html>
