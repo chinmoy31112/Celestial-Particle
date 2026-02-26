@@ -1,20 +1,73 @@
 // --- 1. THREE.JS SETUP ---
 const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x000005); // Deep space background
+// Removed fog to prevent dimming when zooming/expanding
+
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.position.z = 150;
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.NoToneMapping; // No tone compression — pure vivid colors
 document.body.appendChild(renderer.domElement);
+
+// --- POST-PROCESSING (BLOOM) ---
+const renderScene = new THREE.RenderPass(scene, camera);
+const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+bloomPass.threshold = 0.4;  // High threshold: only Sun & mega-bright stars glow, planets stay crisp
+bloomPass.strength  = 0.9;  // Moderate glow — visible but not washed out
+bloomPass.radius    = 0.3;  // Tight glow spike, not a blurry haze
+
+const composer = new THREE.EffectComposer(renderer);
+composer.addPass(renderScene);
+composer.addPass(bloomPass);
 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+    composer.setSize(window.innerWidth, window.innerHeight);
 });
 
+// --- PARTICLE TEXTURE GENERATOR ---
+function createParticleTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 128;
+    const context = canvas.getContext('2d');
+    const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.05, 'rgba(255,255,255,0.95)');
+    gradient.addColorStop(0.15, 'rgba(255,255,255,0.6)');
+    gradient.addColorStop(0.3, 'rgba(255,255,255,0.25)');
+    gradient.addColorStop(0.5, 'rgba(255,255,255,0.07)');
+    gradient.addColorStop(1, 'rgba(0,0,0,0)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 128, 128);
+    // Add cross-shaped diffraction spikes for star-like look
+    context.globalCompositeOperation = 'lighter';
+    const spikeGrad = context.createLinearGradient(0, 64, 128, 64);
+    spikeGrad.addColorStop(0, 'rgba(255,255,255,0)');
+    spikeGrad.addColorStop(0.4, 'rgba(255,255,255,0.05)');
+    spikeGrad.addColorStop(0.5, 'rgba(255,255,255,0.15)');
+    spikeGrad.addColorStop(0.6, 'rgba(255,255,255,0.05)');
+    spikeGrad.addColorStop(1, 'rgba(255,255,255,0)');
+    context.fillStyle = spikeGrad;
+    context.fillRect(0, 60, 128, 8); // horizontal spike
+    const spikeGradV = context.createLinearGradient(64, 0, 64, 128);
+    spikeGradV.addColorStop(0, 'rgba(255,255,255,0)');
+    spikeGradV.addColorStop(0.4, 'rgba(255,255,255,0.05)');
+    spikeGradV.addColorStop(0.5, 'rgba(255,255,255,0.15)');
+    spikeGradV.addColorStop(0.6, 'rgba(255,255,255,0.05)');
+    spikeGradV.addColorStop(1, 'rgba(255,255,255,0)');
+    context.fillStyle = spikeGradV;
+    context.fillRect(60, 0, 8, 128); // vertical spike
+    return new THREE.CanvasTexture(canvas);
+}
+
 // --- 2. PARTICLE SYSTEM SETUP ---
-const PARTICLE_COUNT = 25000;
+const PARTICLE_COUNT = 70000;
 const geometry = new THREE.BufferGeometry();
 const positions = new Float32Array(PARTICLE_COUNT * 3);
 const colors = new Float32Array(PARTICLE_COUNT * 3);
@@ -36,11 +89,13 @@ sizes.fill(0.8);
 geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
 const material = new THREE.PointsMaterial({
-    size: 1.2,
+    size: 1.5, // Reduced from 2.0 for sharper details
     vertexColors: true,
     transparent: true,
     opacity: 0.95,
     blending: THREE.AdditiveBlending,
+    map: createParticleTexture(),
+    depthWrite: false
 });
 
 const particleSystem = new THREE.Points(geometry, material);
@@ -60,11 +115,13 @@ const BODIES = [
     { name: "Neptune", orbitR: 112, r: 3.8, speed: 0.05, clrs: [0x2255ff, 0x3377ff, 0x4499ff] }
 ];
 
-// Particle budgets per body in solar system view (total: 25000)
-const BODY_BUDGETS = [3800, 350, 500, 650, 450, 2400, 2100, 1100, 900]; // sum = 12250
-const ASTEROID_BUDGET = 4000;
-const ORBIT_LINE_BUDGET = 3200;
-const STAR_BUDGET = 5550; // includes big stars
+// Particle budgets per body in solar system view (total: 50000)
+const BODY_BUDGETS = [5000, 400, 600, 800, 500, 3000, 2500, 1300, 1100]; // sum = 15200
+const ASTEROID_BUDGET = 15000;      // Main belt (Mars–Jupiter)
+const KUIPER_BUDGET = 6000;         // Kuiper belt (beyond Neptune)
+const SCATTERED_BUDGET = 3000;      // Rogue/scattered asteroids throughout space
+const ORBIT_LINE_BUDGET = 4000;
+const STAR_BUDGET = 26800; // massive star field for realistic look
 
 let orbitAngles = BODIES.map(() => Math.random() * Math.PI * 2);
 let bodyRanges = [];
@@ -116,9 +173,11 @@ function generateSolarSystem() {
                 particleBodyId[idx] = b;
                 const c = new THREE.Color(body.clrs[Math.floor(Math.random()*body.clrs.length)]);
                 c.r+=(Math.random()-0.5)*0.05; c.g+=(Math.random()-0.5)*0.05; c.b+=(Math.random()-0.5)*0.05;
-                // Boost saturation for deep visibility
-                c.r = Math.min(1, c.r * 1.6); c.g = Math.min(1, c.g * 1.6); c.b = Math.min(1, c.b * 1.6);
-                colors[i3]=c.r; colors[i3+1]=c.g; colors[i3+2]=c.b;
+                
+                let intensity = (b === 0) ? 3.5 : 1.8;
+                colors[i3]=Math.max(0, c.r * intensity); 
+                colors[i3+1]=Math.max(0, c.g * intensity); 
+                colors[i3+2]=Math.max(0, c.b * intensity);
                 idx++;
             }
             for (let p = 0; p < ringN; p++) {
@@ -132,7 +191,7 @@ function generateSolarSystem() {
                 basePositions[i3]=ox+lx; basePositions[i3+1]=ly; basePositions[i3+2]=oz+lz;
                 particleBodyId[idx] = b;
                 const c = new THREE.Color(body.ringClrs[Math.floor(Math.random()*body.ringClrs.length)]);
-                colors[i3]=c.r; colors[i3+1]=c.g; colors[i3+2]=c.b;
+                colors[i3]=c.r * 1.2; colors[i3+1]=c.g * 1.2; colors[i3+2]=c.b * 1.2;
                 idx++;
             }
         } else {
@@ -149,42 +208,95 @@ function generateSolarSystem() {
                 particleBodyId[idx] = b;
                 const c = new THREE.Color(body.clrs[Math.floor(Math.random()*body.clrs.length)]);
                 c.r+=(Math.random()-0.5)*0.05; c.g+=(Math.random()-0.5)*0.05; c.b+=(Math.random()-0.5)*0.05;
-                // Boost saturation for deep visibility
-                c.r = Math.min(1, c.r * 1.6); c.g = Math.min(1, c.g * 1.6); c.b = Math.min(1, c.b * 1.6);
-                colors[i3]=c.r; colors[i3+1]=c.g; colors[i3+2]=c.b;
+                
+                let intensity = (b === 0) ? 3.5 : 1.8;
+                colors[i3]=Math.max(0, c.r * intensity); 
+                colors[i3+1]=Math.max(0, c.g * intensity); 
+                colors[i3+2]=Math.max(0, c.b * intensity);
                 idx++;
             }
         }
         bodyRanges.push({ start: startIdx, end: idx, bodyIdx: b });
     }
 
-    // --- Asteroid Belt (between Mars 45 and Jupiter 70) - deeper/richer colors ---
+    // --- MAIN Asteroid Belt (between Mars r=45 and Jupiter r=70) ---
     for (let p = 0; p < ASTEROID_BUDGET; p++) {
         const i3 = idx * 3;
         const a = Math.random() * Math.PI * 2;
-        const r = 52 + Math.random() * 14;
-        // Cluster asteroids with varying density
-        const clump = Math.sin(a * 3) * 2;
-        const lx = Math.cos(a) * (r + clump) + (Math.random()-0.5)*2.5;
-        const ly = (Math.random()-0.5)*3.0;
-        const lz = Math.sin(a) * (r + clump) + (Math.random()-0.5)*2.5;
+        const r = 49 + Math.random() * 19;
+        const clump = Math.sin(a * 5) * 3 + Math.sin(a * 11) * 1.5; // denser clumping
+        const spread = (Math.random() > 0.85) ? 9.0 : 2.0;
+        const lx = Math.cos(a) * (r + clump) + (Math.random()-0.5)*spread;
+        const ly = (Math.random()-0.5)*5.0;
+        const lz = Math.sin(a) * (r + clump) + (Math.random()-0.5)*spread;
         localOffsets[i3]=lx; localOffsets[i3+1]=ly; localOffsets[i3+2]=lz;
         basePositions[i3]=lx; basePositions[i3+1]=ly; basePositions[i3+2]=lz;
         particleBodyId[idx] = -2;
-        // Deep rich rocky colors: dark brown, charcoal, rust, slate
         const type = Math.random();
         let cr, cg, cb;
-        if (type < 0.3) { // dark charcoal
-            cr = 0.18 + Math.random()*0.12; cg = 0.16 + Math.random()*0.10; cb = 0.14 + Math.random()*0.08;
-        } else if (type < 0.6) { // deep rust/brown
-            cr = 0.35 + Math.random()*0.2; cg = 0.18 + Math.random()*0.12; cb = 0.08 + Math.random()*0.08;
-        } else if (type < 0.8) { // warm tan
-            cr = 0.45 + Math.random()*0.15; cg = 0.32 + Math.random()*0.12; cb = 0.18 + Math.random()*0.1;
-        } else { // metallic gray
-            const g = 0.3 + Math.random()*0.2;
-            cr = g + 0.04; cg = g; cb = g - 0.02;
-        }
-        colors[i3]=cr; colors[i3+1]=cg; colors[i3+2]=cb;
+        if (type < 0.3) { cr = 0.8+Math.random()*0.2; cg = 0.4+Math.random()*0.2; cb = 0.1+Math.random()*0.1; }
+        else if (type < 0.6) { cr = 0.9+Math.random()*0.1; cg = 0.7+Math.random()*0.2; cb = 0.2+Math.random()*0.2; }
+        else if (type < 0.8) { cr = 0.6+Math.random()*0.2; cg = 0.4+Math.random()*0.2; cb = 0.2+Math.random()*0.1; }
+        else { const g = 0.5+Math.random()*0.3; cr = g+0.1; cg = g; cb = g-0.1; }
+        colors[i3]=cr*3.5; colors[i3+1]=cg*3.5; colors[i3+2]=cb*3.5;
+        sizes[idx] = Math.random() > 0.95 ? 3.0+Math.random()*2.5 : 1.0+Math.random()*0.8;
+        idx++;
+    }
+
+    // --- KUIPER BELT (beyond Neptune r=112) ---
+    for (let p = 0; p < KUIPER_BUDGET; p++) {
+        const i3 = idx * 3;
+        const a = Math.random() * Math.PI * 2;
+        const r = 120 + Math.random() * 40; // 120–160 range
+        const clump = Math.sin(a * 3) * 5;
+        const spread = (Math.random() > 0.8) ? 12.0 : 3.5;
+        const lx = Math.cos(a) * (r + clump) + (Math.random()-0.5)*spread;
+        const ly = (Math.random()-0.5)*8.0; // thicker plane than main belt
+        const lz = Math.sin(a) * (r + clump) + (Math.random()-0.5)*spread;
+        localOffsets[i3]=lx; localOffsets[i3+1]=ly; localOffsets[i3+2]=lz;
+        basePositions[i3]=lx; basePositions[i3+1]=ly; basePositions[i3+2]=lz;
+        particleBodyId[idx] = -3; // -3 = Kuiper belt object
+        // Kuiper belt objects are icy – blue-grey, white, light cyan
+        const kt = Math.random();
+        let cr, cg, cb;
+        if (kt < 0.4) { cr=0.6+Math.random()*0.3; cg=0.7+Math.random()*0.3; cb=0.9+Math.random()*0.1; } // icy blue
+        else if (kt < 0.7) { cr=0.7+Math.random()*0.2; cg=0.75+Math.random()*0.2; cb=0.8+Math.random()*0.2; } // grey-white
+        else if (kt < 0.88){ cr=0.5+Math.random()*0.3; cg=0.8+Math.random()*0.2; cb=0.9+Math.random()*0.1; } // cyan-ice
+        else { cr=0.9+Math.random()*0.1; cg=0.9+Math.random()*0.1; cb=1.0; } // pure white (Pluto-like)
+        colors[i3]=cr*2.5; colors[i3+1]=cg*2.5; colors[i3+2]=cb*2.5;
+        sizes[idx] = Math.random() > 0.97 ? 2.5+Math.random()*2.0 : 0.8+Math.random()*0.7;
+        idx++;
+    }
+
+    // --- DEEP SPACE ASTEROIDS (far outside the solar system, among the stars) ---
+    for (let p = 0; p < SCATTERED_BUDGET; p++) {
+        const i3 = idx * 3;
+        // Placed deep in space beyond the solar system (radius 180–450)
+        // Mixed at all angles, inclinations — fully 3D scatter like a real starfield
+        const dist = 180 + Math.random() * 270;
+        const a    = Math.random() * Math.PI * 2;
+        const elev = (Math.random() - 0.5) * Math.PI; // full 3D sphere
+        const lx = dist * Math.cos(elev) * Math.cos(a);
+        const ly = dist * Math.sin(elev);
+        const lz = dist * Math.cos(elev) * Math.sin(a);
+        localOffsets[i3]=lx; localOffsets[i3+1]=ly; localOffsets[i3+2]=lz;
+        basePositions[i3]=lx; basePositions[i3+1]=ly; basePositions[i3+2]=lz;
+        particleBodyId[idx] = -2;
+        // Bright glowing colors — visible like stars in deep space
+        // Rocky orange, reddish, golden, icy-blue, metallic white
+        const rt = Math.random();
+        let cr, cg, cb;
+        if (rt < 0.2)       { cr=1.0; cg=0.55+Math.random()*0.25; cb=0.1+Math.random()*0.15; } // orange-red molten rock
+        else if (rt < 0.4)  { cr=1.0; cg=0.8+Math.random()*0.2;  cb=0.3+Math.random()*0.2;  } // bright gold / iron
+        else if (rt < 0.6)  { cr=0.6+Math.random()*0.3; cg=0.75+Math.random()*0.2; cb=1.0;  } // icy blue comet
+        else if (rt < 0.75) { cr=1.0; cg=1.0; cb=0.8+Math.random()*0.2;              } // bright white (metallic)
+        else if (rt < 0.88) { cr=0.9+Math.random()*0.1; cg=0.4+Math.random()*0.2; cb=0.2+Math.random()*0.15; } // red dwarf rocky
+        else                { const g=0.7+Math.random()*0.3; cr=g; cg=g; cb=g;      } // silver-grey
+        // Very bright so they pop against the dark background like lit space rocks
+        const brightness = 3.5 + Math.random() * 2.0;
+        colors[i3]=cr*brightness; colors[i3+1]=cg*brightness; colors[i3+2]=cb*brightness;
+        // Varied sizes — some are large enough to look like small glowing bodies
+        sizes[idx] = Math.random() > 0.88 ? 2.5 + Math.random() * 3.5 : 1.2 + Math.random() * 1.3;
         idx++;
     }
 
@@ -202,41 +314,106 @@ function generateSolarSystem() {
             localOffsets[i3]=lx; localOffsets[i3+1]=ly; localOffsets[i3+2]=lz;
             basePositions[i3]=lx; basePositions[i3+1]=ly; basePositions[i3+2]=lz;
             particleBodyId[idx] = -1;
-            colors[i3]=0.10; colors[i3+1]=0.15; colors[i3+2]=0.28;
+            colors[i3]=0.4; colors[i3+1]=0.6; colors[i3+2]=1.0; // Bright blue/white orbit lines
             idx++;
         }
     }
 
-    // --- Background Stars (with some big bright ones) ---
-    const BIG_STAR_COUNT = 60; // number of prominent big stars
+    // --- Background Stars - Realistic Star Field ---
+    // Layer 1: Massive bright stars (very few, very prominent)
+    const MEGA_STAR_COUNT = 20;
+    // Layer 2: Bright visible stars (with color variety like real night sky)
+    const BRIGHT_STAR_COUNT = 200;
+    // Layer 3: Medium stars (many, visible)
+    const MEDIUM_STAR_COUNT = 800;
+    // Layer 4: Dim background star dust (fills the sky like Milky Way)
+    // Rest of the budget
+    
     let starIdx = 0;
     while (idx < PARTICLE_COUNT) {
         const i3 = idx * 3;
-        const isBig = starIdx < BIG_STAR_COUNT;
-        const sr = isBig ? (180 + Math.random()*200) : (250 + Math.random()*350);
-        const st = Math.random()*Math.PI*2;
-        const sp = Math.random()*Math.PI;
-        const lx = sr*Math.sin(sp)*Math.cos(st);
-        const ly = sr*Math.sin(sp)*Math.sin(st);
-        const lz = sr*Math.cos(sp);
-        localOffsets[i3]=lx; localOffsets[i3+1]=ly; localOffsets[i3+2]=lz;
-        basePositions[i3]=lx; basePositions[i3+1]=ly; basePositions[i3+2]=lz;
-        particleBodyId[idx] = isBig ? -4 : -1; // -4 marks big stars
-        if (isBig) {
-            // Big bright star colors: white, blue-white, gold
-            const t = Math.random();
-            if (t < 0.5) { colors[i3]=1.0; colors[i3+1]=1.0; colors[i3+2]=1.0; } // white
-            else if (t < 0.75) { colors[i3]=0.7; colors[i3+1]=0.85; colors[i3+2]=1.0; } // blue
-            else { colors[i3]=1.0; colors[i3+1]=0.9; colors[i3+2]=0.6; } // gold
+        
+        let isMega = starIdx < MEGA_STAR_COUNT;
+        let isBright = !isMega && starIdx < (MEGA_STAR_COUNT + BRIGHT_STAR_COUNT);
+        let isMedium = !isMega && !isBright && starIdx < (MEGA_STAR_COUNT + BRIGHT_STAR_COUNT + MEDIUM_STAR_COUNT);
+        
+        let sr;
+        if (isMega) {
+            sr = 120 + Math.random() * 180; // Closest, most prominent
+        } else if (isBright) {
+            sr = 150 + Math.random() * 250;
+        } else if (isMedium) {
+            sr = 200 + Math.random() * 300;
         } else {
-            const brightness = 0.3 + Math.random()*0.7;
-            colors[i3]=brightness; colors[i3+1]=brightness; colors[i3+2]=brightness*(0.9+Math.random()*0.1);
+            sr = 200 + Math.random() * 500; // Far away dust
         }
+        
+        const st = Math.random() * Math.PI * 2;
+        const sp = Math.random() * Math.PI;
+        const lx = sr * Math.sin(sp) * Math.cos(st);
+        const ly = sr * Math.sin(sp) * Math.sin(st);
+        const lz = sr * Math.cos(sp);
+        localOffsets[i3] = lx; localOffsets[i3+1] = ly; localOffsets[i3+2] = lz;
+        basePositions[i3] = lx; basePositions[i3+1] = ly; basePositions[i3+2] = lz;
+        
+        if (isMega) {
+            // Mega stars - bright white/blue with huge glow
+            particleBodyId[idx] = -4;
+            const t = Math.random();
+            let cr, cg, cb;
+            if (t < 0.4) { cr=1.0; cg=1.0; cb=1.0; } // pure white
+            else if (t < 0.6) { cr=0.8; cg=0.9; cb=1.0; } // blue-white
+            else if (t < 0.8) { cr=1.0; cg=0.95; cb=0.7; } // warm white
+            else { cr=1.0; cg=0.6; cb=0.3; } // orange giant
+            colors[i3] = cr * 8.0; colors[i3+1] = cg * 8.0; colors[i3+2] = cb * 8.0;
+            sizes[idx] = 5.0 + Math.random() * 4.0;
+        } else if (isBright) {
+            // Bright stars - various real star colors
+            particleBodyId[idx] = -4;
+            const t = Math.random();
+            let cr, cg, cb;
+            if (t < 0.25) { cr=1.0; cg=1.0; cb=1.0; }       // White (A-type)
+            else if (t < 0.45) { cr=0.7; cg=0.8; cb=1.0; }   // Blue-white (B-type)
+            else if (t < 0.60) { cr=1.0; cg=0.95; cb=0.8; }   // Yellow-white (F-type)
+            else if (t < 0.75) { cr=1.0; cg=0.85; cb=0.5; }   // Yellow (G-type, like Sun)
+            else if (t < 0.85) { cr=1.0; cg=0.7; cb=0.4; }    // Orange (K-type)
+            else if (t < 0.95) { cr=1.0; cg=0.4; cb=0.3; }    // Red (M-type)
+            else { cr=0.5; cg=0.6; cb=1.0; }                   // Deep blue (O-type)
+            colors[i3] = cr * 5.0; colors[i3+1] = cg * 5.0; colors[i3+2] = cb * 5.0;
+            sizes[idx] = 3.0 + Math.random() * 3.0;
+        } else if (isMedium) {
+            // Medium stars - clearly visible points
+            particleBodyId[idx] = -4;
+            const t = Math.random();
+            let cr, cg, cb;
+            if (t < 0.5) { cr=1.0; cg=1.0; cb=1.0; }
+            else if (t < 0.7) { cr=0.8; cg=0.9; cb=1.0; }
+            else if (t < 0.85) { cr=1.0; cg=0.9; cb=0.7; }
+            else { cr=1.0; cg=0.6; cb=0.4; }
+            colors[i3] = cr * 3.0; colors[i3+1] = cg * 3.0; colors[i3+2] = cb * 3.0;
+            sizes[idx] = 2.0 + Math.random() * 1.5;
+        } else {
+            // Background star dust - tiny but visible, fills the sky
+            particleBodyId[idx] = -1;
+            const brightness = 0.5 + Math.random() * 1.5;
+            // Slight color tint for realism
+            const tint = Math.random();
+            if (tint < 0.6) {
+                colors[i3] = brightness; colors[i3+1] = brightness; colors[i3+2] = brightness;
+            } else if (tint < 0.8) {
+                colors[i3] = brightness * 0.8; colors[i3+1] = brightness * 0.85; colors[i3+2] = brightness;
+            } else {
+                colors[i3] = brightness; colors[i3+1] = brightness * 0.9; colors[i3+2] = brightness * 0.8;
+            }
+            sizes[idx] = 0.5 + Math.random() * 1.0;
+        }
+        
         idx++;
         starIdx++;
     }
 
     geometry.attributes.color.needsUpdate = true;
+    geometry.attributes.size.needsUpdate = true;
     document.getElementById('planet-name').innerText = "Solar System";
     isSolarSystemView = true;
 }
@@ -274,7 +451,7 @@ function generatePlanetView(view) {
             basePositions[i3 + 1] = (Math.random() - 0.5) * 2;
             basePositions[i3 + 2] = Math.sin(angle) * r;
             const ringColor = new THREE.Color(view.ringClr || 0xaaaaaa).lerp(new THREE.Color(0x555555), Math.random());
-            colors[i3] = ringColor.r; colors[i3+1] = ringColor.g; colors[i3+2] = ringColor.b;
+            colors[i3] = ringColor.r * 1.5; colors[i3+1] = ringColor.g * 1.5; colors[i3+2] = ringColor.b * 1.5;
             continue;
         }
 
@@ -299,7 +476,11 @@ function generatePlanetView(view) {
         if (view.third) {
             pColor.lerp(new THREE.Color(view.third), Math.random() * 0.3);
         }
-        colors[i3] = pColor.r; colors[i3 + 1] = pColor.g; colors[i3 + 2] = pColor.b;
+        
+        let intensity = (view.name === "Sun") ? 3.5 : 1.8;
+        colors[i3] = pColor.r * intensity; 
+        colors[i3 + 1] = pColor.g * intensity; 
+        colors[i3 + 2] = pColor.b * intensity;
     }
 
     geometry.attributes.color.needsUpdate = true;
@@ -324,7 +505,7 @@ function updateOrbits() {
     if (!isSolarSystemView) return;
 
     for (let b = 0; b < BODIES.length; b++) {
-        orbitAngles[b] += BODIES[b].speed * 0.003;
+        orbitAngles[b] += BODIES[b].speed * 0.008; // Increased speed
     }
 
     for (const range of bodyRanges) {
@@ -449,7 +630,7 @@ function animate() {
         for (const range of bodyRanges) {
             const b = range.bodyIdx;
             if (b === 0) continue; // Sun handled separately with pulse
-            const spinSpeed = 0.02 + b * 0.003; // each planet spins slightly differently
+            const spinSpeed = 0.05 + b * 0.008; // Increased self-rotation speed
             const cosA = Math.cos(time * spinSpeed);
             const sinA = Math.sin(time * spinSpeed);
             const body = BODIES[b];
@@ -482,18 +663,23 @@ function animate() {
         }
     }
 
-    // Big star twinkling effect
-    const sizeArr = geometry.attributes.position.array; // just for reference
-    // We'll modulate color brightness for big stars to create twinkle
+    // Realistic star twinkling effect - each star twinkles at its own frequency
+    const sizeArr = geometry.attributes.size.array; 
     if (isSolarSystemView) {
         for (let i = 0; i < PARTICLE_COUNT; i++) {
             if (particleBodyId[i] === -4) {
                 const i3 = i * 3;
-                const tw = 0.85 + Math.sin(time * 3 + i * 17.3) * 0.15;
-                // Scale the stored base color by twinkle
-                colors[i3]   = Math.min(1, colors[i3] > 0.5 ? tw : colors[i3]);
-                colors[i3+1] = Math.min(1, colors[i3+1] > 0.5 ? tw * colors[i3+1] : colors[i3+1]);
-                colors[i3+2] = Math.min(1, colors[i3+2] > 0.5 ? tw : colors[i3+2]);
+                // Each star has unique twinkle speed and phase
+                const speed1 = 2.0 + (i % 7) * 0.5;
+                const speed2 = 3.0 + (i % 5) * 0.7;
+                const phase = i * 17.3;
+                // Combine two sine waves for realistic irregular twinkle
+                const tw = 0.7 + Math.sin(time * speed1 + phase) * 0.2 + Math.sin(time * speed2 + phase * 0.7) * 0.1;
+                // Pinpoint stars like picture — bright but not blooming blobs
+                const baseBright = sizeArr[i] > 4.5 ? 3.5 : (sizeArr[i] > 2.8 ? 2.0 : 1.2);
+                colors[i3]   = baseBright * tw;
+                colors[i3+1] = baseBright * tw * 0.95;
+                colors[i3+2] = baseBright * tw * 1.05;
             }
         }
         geometry.attributes.color.needsUpdate = true;
@@ -509,7 +695,17 @@ function animate() {
     particleSystem.rotation.y += (handRotation.y - particleSystem.rotation.y) * 0.18;
 
     // Always add a slow ambient spin
-    particleSystem.rotation.y += 0.003;
+    particleSystem.rotation.y += 0.008; // Increased ambient spin
+
+    // Dynamic brightness for Solar System expansion (zooming/pinching)
+    if (isSolarSystemView) {
+        // On expand/zoom boost bloom slightly to keep brightness, but stay controlled
+        bloomPass.strength = 0.9 + (expansionFactor * 0.8);
+        material.size = 1.5 + (expansionFactor * 0.6);
+    } else {
+        bloomPass.strength = 0.9;
+        material.size = 1.5;
+    }
 
     const pos = geometry.attributes.position.array;
 
@@ -532,7 +728,7 @@ function animate() {
     }
 
     geometry.attributes.position.needsUpdate = true;
-    renderer.render(scene, camera);
+    composer.render();
 }
 
 animate();
