@@ -1008,73 +1008,9 @@ if (isMobile) {
     });
 }
 
-// --- 9C. GYROSCOPE / DEVICE ORIENTATION (MOBILE CAMERA ROTATION) ---
+// --- 9C. GYROSCOPE DISABLED — hand tracking used on all devices ---
 let gyroEnabled   = false;
-let gyroBaseAlpha = null, gyroBaseBeta = null, gyroBaseGamma = null;
 let gyroRotationX = 0, gyroRotationY = 0;
-
-function _activateGyro() {
-    gyroEnabled   = true;
-    gyroBaseAlpha = null; // will be set on next sensor reading
-    const btn = document.getElementById('gyro-btn');
-    if (btn) {
-        btn.textContent = '✅ Gyro Active — Tilt to Rotate';
-        btn.style.background = 'rgba(0, 200, 100, 0.25)';
-        setTimeout(() => { if (btn) btn.style.display = 'none'; }, 2000);
-    }
-}
-
-if (isMobile && typeof DeviceOrientationEvent !== 'undefined') {
-
-    // iOS 13+ requires an explicit user-gesture permission request
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-        const btn = document.createElement('button');
-        btn.id = 'gyro-btn';
-        btn.textContent = '🌐 Enable Gyro Rotation';
-        Object.assign(btn.style, {
-            position:       'fixed',
-            bottom:         '80px',
-            left:           '50%',
-            transform:      'translateX(-50%)',
-            zIndex:         '9999',
-            padding:        '10px 22px',
-            background:     'rgba(255,255,255,0.12)',
-            color:          'white',
-            border:         '1px solid rgba(255,255,255,0.35)',
-            borderRadius:   '24px',
-            fontSize:       '14px',
-            backdropFilter: 'blur(8px)',
-            cursor:         'pointer',
-            whiteSpace:     'nowrap'
-        });
-        btn.addEventListener('click', () => {
-            DeviceOrientationEvent.requestPermission()
-                .then(response => { if (response === 'granted') _activateGyro(); })
-                .catch(console.error);
-        });
-        document.body.appendChild(btn);
-    } else {
-        // Android & non-iOS Safari — permission not required, enable automatically
-        _activateGyro();
-    }
-
-    window.addEventListener('deviceorientation', (e) => {
-        if (!gyroEnabled || e.beta === null || e.gamma === null) return;
-
-        // Capture neutral orientation on first reading so current phone angle = zero
-        if (gyroBaseAlpha === null) {
-            gyroBaseAlpha = e.alpha || 0;
-            gyroBaseBeta  = e.beta  || 0;
-            gyroBaseGamma = e.gamma || 0;
-        }
-
-        // beta  → front/back tilt  → X rotation (pitch)
-        // gamma → left/right tilt  → Y rotation (yaw)
-        const sensitivity = 0.028;
-        gyroRotationX = -(e.beta  - gyroBaseBeta)  * sensitivity;
-        gyroRotationY =  (e.gamma - gyroBaseGamma) * sensitivity;
-    });
-}
 
 // --- 9B. MEDIAPIPE HAND TRACKING ---
 // Left hand thumbs up = previous planet, Right hand thumbs up = next planet
@@ -1449,15 +1385,10 @@ function animate() {
     const targetCamZ = Math.max(10, baseCamZ + userZoomOffset);
     camera.position.z += (targetCamZ - camera.position.z) * 0.06;
 
-    // Use touch controls on mobile, hand tracking on desktop
-    // On mobile: gyro sets the base orientation and touch drag adds an offset on top
-    const activeRotationX = isMobile
-        ? (gyroEnabled ? gyroRotationX + touchRotationX : touchRotationX)
-        : handRotation.x;
-    const activeRotationY = isMobile
-        ? (gyroEnabled ? gyroRotationY + touchRotationY : touchRotationY)
-        : handRotation.y;
-    const activeExpansion = isMobile ? touchExpansion : expansionFactor;
+    // Hand tracking controls rotation on all devices (same as desktop)
+    const activeRotationX = handRotation.x;
+    const activeRotationY = handRotation.y;
+    const activeExpansion = expansionFactor;
 
     // Smooth rotation + base tilt for solar system orbital view
     const baseTiltX = isSolarSystemView ? -0.4 : 0;
