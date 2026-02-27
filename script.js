@@ -1,10 +1,11 @@
 // --- 1. THREE.JS SETUP ---
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000005); // Deep space background
-// Removed fog to prevent dimming when zooming/expanding
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 150;
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1500);
+// Detect mobile device for better initial view
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+camera.position.z = isMobile ? 350 : 280; // Zoom out more to see wider solar system
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -15,9 +16,9 @@ document.body.appendChild(renderer.domElement);
 // --- POST-PROCESSING (BLOOM) ---
 const renderScene = new THREE.RenderPass(scene, camera);
 const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-bloomPass.threshold = 0.4;  // High threshold: only Sun & mega-bright stars glow, planets stay crisp
-bloomPass.strength  = 0.9;  // Moderate glow — visible but not washed out
-bloomPass.radius    = 0.3;  // Tight glow spike, not a blurry haze
+bloomPass.threshold = 0.45;  // Higher threshold for natural colors, sun still glows
+bloomPass.strength  = 0.85;  // Moderate glow strength for natural look
+bloomPass.radius    = 0.3;  // Tight glow for crisp planets
 
 const composer = new THREE.EffectComposer(renderer);
 composer.addPass(renderScene);
@@ -85,14 +86,14 @@ geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
 const sizes = new Float32Array(PARTICLE_COUNT);
-sizes.fill(0.8);
+sizes.fill(1.0); // Slightly larger for better coverage
 geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
 const material = new THREE.PointsMaterial({
-    size: 1.5, // Reduced from 2.0 for sharper details
+    size: 1.8, // Increased for better planet shape definition
     vertexColors: true,
     transparent: true,
-    opacity: 0.95,
+    opacity: 0.98, // More opaque for solid-looking planets
     blending: THREE.AdditiveBlending,
     map: createParticleTexture(),
     depthWrite: false
@@ -105,23 +106,23 @@ scene.add(particleSystem);
 // Deep vivid colors for maximum visibility
 const BODIES = [
     { name: "Sun",     orbitR: 0,   r: 13,  speed: 0,    clrs: [0xff4400, 0xff7700, 0xffbb00, 0xffdd22] },
-    { name: "Mercury", orbitR: 20,  r: 1.8, speed: 0.48, clrs: [0xc0a888, 0xd8c8a8, 0xb09878] },
-    { name: "Venus",   orbitR: 28,  r: 2.6, speed: 0.35, clrs: [0xffcc55, 0xeea830, 0xdd9922] },
-    { name: "Earth",   orbitR: 37,  r: 3.0, speed: 0.30, clrs: [0x0066ff, 0x0099ff, 0x00cc44, 0x0055ee] },
-    { name: "Mars",    orbitR: 45,  r: 2.2, speed: 0.24, clrs: [0xff2200, 0xee3300, 0xdd2200, 0xcc1100] },
-    { name: "Jupiter", orbitR: 70,  r: 7.5, speed: 0.13, clrs: [0xeeaa55, 0xcc7733, 0xffcc88, 0xdd8833] },
-    { name: "Saturn",  orbitR: 86,  r: 6.0, speed: 0.10, clrs: [0xffdd77, 0xeebb44, 0xffcc55], hasRings: true, ringClrs: [0xeedd88, 0xccaa55, 0xaa8844] },
-    { name: "Uranus",  orbitR: 100, r: 4.0, speed: 0.07, clrs: [0x22ccff, 0x55eeff, 0x33bbee] },
-    { name: "Neptune", orbitR: 112, r: 3.8, speed: 0.05, clrs: [0x2255ff, 0x3377ff, 0x4499ff] }
+    { name: "Mercury", orbitR: 20,  r: 1.8, speed: 0.48, clrs: [0x9b9b9b, 0xb8b8b8, 0x888888, 0xa5a5a5] },
+    { name: "Venus",   orbitR: 30,  r: 2.6, speed: 0.35, clrs: [0xffcc55, 0xeea830, 0xdd9922] },
+    { name: "Earth",   orbitR: 40,  r: 3.0, speed: 0.30, clrs: [0x0066ff, 0x0099ff, 0x00cc44, 0x0055ee] },
+    { name: "Mars",    orbitR: 50,  r: 2.2, speed: 0.24, clrs: [0xff2200, 0xee3300, 0xdd2200, 0xcc1100] },
+    { name: "Jupiter", orbitR: 85,  r: 7.5, speed: 0.13, clrs: [0xeeaa55, 0xcc7733, 0xffcc88, 0xdd8833] },
+    { name: "Saturn",  orbitR: 110, r: 6.0, speed: 0.10, clrs: [0xffdd77, 0xeebb44, 0xffcc55], hasRings: true, ringClrs: [0xeedd88, 0xccaa55, 0xaa8844] },
+    { name: "Uranus",  orbitR: 145, r: 4.0, speed: 0.07, clrs: [0x22ccff, 0x55eeff, 0x33bbee] },
+    { name: "Neptune", orbitR: 165, r: 3.8, speed: 0.05, clrs: [0x2255ff, 0x3377ff, 0x4499ff] }
 ];
 
-// Particle budgets per body in solar system view (total: 50000)
-const BODY_BUDGETS = [5000, 400, 600, 800, 500, 3000, 2500, 1300, 1100]; // sum = 15200
-const ASTEROID_BUDGET = 15000;      // Main belt (Mars–Jupiter)
-const KUIPER_BUDGET = 6000;         // Kuiper belt (beyond Neptune)
-const SCATTERED_BUDGET = 3000;      // Rogue/scattered asteroids throughout space
-const ORBIT_LINE_BUDGET = 4000;
-const STAR_BUDGET = 26800; // massive star field for realistic look
+// Particle budgets per body in solar system view - INCREASED for better planet shapes
+const BODY_BUDGETS = [8000, 1200, 1500, 1800, 1000, 5000, 4500, 2500, 2200]; // Much more detailed planets
+const ASTEROID_BUDGET = 12000;      // Main belt (Mars–Jupiter)
+const KUIPER_BUDGET = 5000;         // Kuiper belt (beyond Neptune)
+const SCATTERED_BUDGET = 2500;      // Rogue/scattered asteroids throughout space
+const ORBIT_LINE_BUDGET = 3000;
+const STAR_BUDGET = 25300; // massive star field for realistic look
 
 let orbitAngles = BODIES.map(() => Math.random() * Math.PI * 2);
 let bodyRanges = [];
@@ -130,7 +131,7 @@ let bodyRanges = [];
 const PLANET_VIEWS = [
     { name: "Solar System", isSolarSystem: true },
     { name: "Sun",     radius: 50, main: 0xff5500, second: 0xffbb00, third: 0xff2200 },
-    { name: "Mercury", radius: 15, main: 0xc0a888, second: 0xd8c8a8 },
+    { name: "Mercury", radius: 15, main: 0x9b9b9b, second: 0xb8b8b8, third: 0xa5a5a5 },
     { name: "Venus",   radius: 22, main: 0xffcc55, second: 0xeea830 },
     { name: "Earth",   radius: 25, main: 0x0066ff, second: 0x00cc44 },
     { name: "Mars",    radius: 18, main: 0xff2200, second: 0xee3300 },
@@ -164,7 +165,7 @@ function generateSolarSystem() {
                 const i3 = idx * 3;
                 const phi = Math.acos(-1 + (2 * p) / sphereN);
                 const theta = Math.sqrt(sphereN * Math.PI) * phi;
-                const n = 1 + (Math.random() - 0.5) * 0.08;
+                const n = 1 + (Math.random() - 0.5) * 0.04; // Reduced noise for smoother sphere
                 const lx = body.r * Math.cos(theta) * Math.sin(phi) * n;
                 const ly = body.r * Math.sin(theta) * Math.sin(phi) * n;
                 const lz = body.r * Math.cos(phi) * n;
@@ -172,9 +173,38 @@ function generateSolarSystem() {
                 basePositions[i3]=ox+lx; basePositions[i3+1]=ly; basePositions[i3+2]=oz+lz;
                 particleBodyId[idx] = b;
                 const c = new THREE.Color(body.clrs[Math.floor(Math.random()*body.clrs.length)]);
-                c.r+=(Math.random()-0.5)*0.05; c.g+=(Math.random()-0.5)*0.05; c.b+=(Math.random()-0.5)*0.05;
                 
-                let intensity = (b === 0) ? 3.5 : 1.8;
+                // Add realistic surface detail variations for planets
+                if (b > 0) { // Not Sun - planets get detailed texture
+                    // Multi-layer surface details for realistic appearance
+                    const lat = phi; // latitude position
+                    const lon = theta; // longitude position
+                    
+                    // Layer 1: Latitude bands (Jupiter/Saturn style but subtle on all planets)
+                    const latBand = Math.sin(lat * 12 + lon * 0.3) * 0.08 + Math.sin(lat * 6) * 0.06;
+                    
+                    // Layer 2: Longitude streaks and weather patterns
+                    const lonStreak = Math.sin(lon * 15 + lat * 2) * 0.05;
+                    
+                    // Layer 3: Crater-like features and terrain (more frequent, smaller)
+                    const craterNoise = (Math.random() > 0.88) ? -0.18 : (Math.random() - 0.5) * 0.06;
+                    
+                    // Layer 4: Fine surface texture (grainy detail)
+                    const fineDetail = (Math.random() - 0.5) * 0.04;
+                    
+                    // Layer 5: Polar regions (darker/lighter at poles)
+                    const polarEffect = Math.abs(Math.cos(lat)) * 0.08 * (Math.random() > 0.5 ? 1 : -1);
+                    
+                    const totalDetail = latBand + lonStreak + craterNoise + fineDetail + polarEffect;
+                    c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+                    c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+                    c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+                } else {
+                    // Sun gets subtle color variation (not blinking)
+                    c.r+=(Math.random()-0.5)*0.08; c.g+=(Math.random()-0.5)*0.08; c.b+=(Math.random()-0.5)*0.06;
+                }
+                
+                let intensity = (b === 0) ? 4.5 : 1.4; // Balanced brightness to show real colors
                 colors[i3]=Math.max(0, c.r * intensity); 
                 colors[i3+1]=Math.max(0, c.g * intensity); 
                 colors[i3+2]=Math.max(0, c.b * intensity);
@@ -189,7 +219,7 @@ function generateSolarSystem() {
                 const lz = Math.sin(ra)*rr;
                 localOffsets[i3]=lx; localOffsets[i3+1]=ly; localOffsets[i3+2]=lz;
                 basePositions[i3]=ox+lx; basePositions[i3+1]=ly; basePositions[i3+2]=oz+lz;
-                particleBodyId[idx] = b;
+                particleBodyId[idx] = -5; // Special ID for Saturn's rings
                 const c = new THREE.Color(body.ringClrs[Math.floor(Math.random()*body.ringClrs.length)]);
                 colors[i3]=c.r * 1.2; colors[i3+1]=c.g * 1.2; colors[i3+2]=c.b * 1.2;
                 idx++;
@@ -199,7 +229,7 @@ function generateSolarSystem() {
                 const i3 = idx * 3;
                 const phi = Math.acos(-1 + (2 * p) / budget);
                 const theta = Math.sqrt(budget * Math.PI) * phi;
-                const n = 1 + (Math.random() - 0.5) * 0.08;
+                const n = 1 + (Math.random() - 0.5) * 0.04; // Reduced noise for smoother sphere
                 const lx = body.r * Math.cos(theta) * Math.sin(phi) * n;
                 const ly = body.r * Math.sin(theta) * Math.sin(phi) * n;
                 const lz = body.r * Math.cos(phi) * n;
@@ -207,9 +237,38 @@ function generateSolarSystem() {
                 basePositions[i3]=ox+lx; basePositions[i3+1]=ly; basePositions[i3+2]=oz+lz;
                 particleBodyId[idx] = b;
                 const c = new THREE.Color(body.clrs[Math.floor(Math.random()*body.clrs.length)]);
-                c.r+=(Math.random()-0.5)*0.05; c.g+=(Math.random()-0.5)*0.05; c.b+=(Math.random()-0.5)*0.05;
                 
-                let intensity = (b === 0) ? 3.5 : 1.8;
+                // Add realistic surface detail variations for planets
+                if (b > 0) { // Not Sun - planets get detailed texture
+                    // Multi-layer surface details for realistic appearance
+                    const lat = phi; // latitude position
+                    const lon = theta; // longitude position
+                    
+                    // Layer 1: Latitude bands (Jupiter/Saturn style but subtle on all planets)
+                    const latBand = Math.sin(lat * 12 + lon * 0.3) * 0.08 + Math.sin(lat * 6) * 0.06;
+                    
+                    // Layer 2: Longitude streaks and weather patterns
+                    const lonStreak = Math.sin(lon * 15 + lat * 2) * 0.05;
+                    
+                    // Layer 3: Crater-like features and terrain (more frequent, smaller)
+                    const craterNoise = (Math.random() > 0.88) ? -0.18 : (Math.random() - 0.5) * 0.06;
+                    
+                    // Layer 4: Fine surface texture (grainy detail)
+                    const fineDetail = (Math.random() - 0.5) * 0.04;
+                    
+                    // Layer 5: Polar regions (darker/lighter at poles)
+                    const polarEffect = Math.abs(Math.cos(lat)) * 0.08 * (Math.random() > 0.5 ? 1 : -1);
+                    
+                    const totalDetail = latBand + lonStreak + craterNoise + fineDetail + polarEffect;
+                    c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+                    c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+                    c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+                } else {
+                    // Sun gets subtle color variation (not blinking)
+                    c.r+=(Math.random()-0.5)*0.08; c.g+=(Math.random()-0.5)*0.08; c.b+=(Math.random()-0.5)*0.06;
+                }
+                
+                let intensity = (b === 0) ? 4.5 : 1.4; // Balanced brightness to show real colors
                 colors[i3]=Math.max(0, c.r * intensity); 
                 colors[i3+1]=Math.max(0, c.g * intensity); 
                 colors[i3+2]=Math.max(0, c.b * intensity);
@@ -219,11 +278,11 @@ function generateSolarSystem() {
         bodyRanges.push({ start: startIdx, end: idx, bodyIdx: b });
     }
 
-    // --- MAIN Asteroid Belt (between Mars r=45 and Jupiter r=70) ---
+    // --- MAIN Asteroid Belt (between Mars r=50 and Jupiter r=85) ---
     for (let p = 0; p < ASTEROID_BUDGET; p++) {
         const i3 = idx * 3;
         const a = Math.random() * Math.PI * 2;
-        const r = 49 + Math.random() * 19;
+        const r = 57 + Math.random() * 20;
         const clump = Math.sin(a * 5) * 3 + Math.sin(a * 11) * 1.5; // denser clumping
         const spread = (Math.random() > 0.85) ? 9.0 : 2.0;
         const lx = Math.cos(a) * (r + clump) + (Math.random()-0.5)*spread;
@@ -238,16 +297,16 @@ function generateSolarSystem() {
         else if (type < 0.6) { cr = 0.9+Math.random()*0.1; cg = 0.7+Math.random()*0.2; cb = 0.2+Math.random()*0.2; }
         else if (type < 0.8) { cr = 0.6+Math.random()*0.2; cg = 0.4+Math.random()*0.2; cb = 0.2+Math.random()*0.1; }
         else { const g = 0.5+Math.random()*0.3; cr = g+0.1; cg = g; cb = g-0.1; }
-        colors[i3]=cr*3.5; colors[i3+1]=cg*3.5; colors[i3+2]=cb*3.5;
+        colors[i3]=cr*2.5; colors[i3+1]=cg*2.5; colors[i3+2]=cb*2.5; // Natural asteroid colors
         sizes[idx] = Math.random() > 0.95 ? 3.0+Math.random()*2.5 : 1.0+Math.random()*0.8;
         idx++;
     }
 
-    // --- KUIPER BELT (beyond Neptune r=112) ---
+    // --- KUIPER BELT (beyond Neptune r=165) ---
     for (let p = 0; p < KUIPER_BUDGET; p++) {
         const i3 = idx * 3;
         const a = Math.random() * Math.PI * 2;
-        const r = 120 + Math.random() * 40; // 120–160 range
+        const r = 175 + Math.random() * 45; // 175–220 range
         const clump = Math.sin(a * 3) * 5;
         const spread = (Math.random() > 0.8) ? 12.0 : 3.5;
         const lx = Math.cos(a) * (r + clump) + (Math.random()-0.5)*spread;
@@ -263,7 +322,7 @@ function generateSolarSystem() {
         else if (kt < 0.7) { cr=0.7+Math.random()*0.2; cg=0.75+Math.random()*0.2; cb=0.8+Math.random()*0.2; } // grey-white
         else if (kt < 0.88){ cr=0.5+Math.random()*0.3; cg=0.8+Math.random()*0.2; cb=0.9+Math.random()*0.1; } // cyan-ice
         else { cr=0.9+Math.random()*0.1; cg=0.9+Math.random()*0.1; cb=1.0; } // pure white (Pluto-like)
-        colors[i3]=cr*2.5; colors[i3+1]=cg*2.5; colors[i3+2]=cb*2.5;
+        colors[i3]=cr*2.2; colors[i3+1]=cg*2.2; colors[i3+2]=cb*2.2; // Natural Kuiper colors
         sizes[idx] = Math.random() > 0.97 ? 2.5+Math.random()*2.0 : 0.8+Math.random()*0.7;
         idx++;
     }
@@ -292,8 +351,8 @@ function generateSolarSystem() {
         else if (rt < 0.75) { cr=1.0; cg=1.0; cb=0.8+Math.random()*0.2;              } // bright white (metallic)
         else if (rt < 0.88) { cr=0.9+Math.random()*0.1; cg=0.4+Math.random()*0.2; cb=0.2+Math.random()*0.15; } // red dwarf rocky
         else                { const g=0.7+Math.random()*0.3; cr=g; cg=g; cb=g;      } // silver-grey
-        // Very bright so they pop against the dark background like lit space rocks
-        const brightness = 3.5 + Math.random() * 2.0;
+        // Bright enough to be visible with natural colors
+        const brightness = 2.8 + Math.random() * 1.5; // Natural brightness, visible colors
         colors[i3]=cr*brightness; colors[i3+1]=cg*brightness; colors[i3+2]=cb*brightness;
         // Varied sizes — some are large enough to look like small glowing bodies
         sizes[idx] = Math.random() > 0.88 ? 2.5 + Math.random() * 3.5 : 1.2 + Math.random() * 1.3;
@@ -365,7 +424,7 @@ function generateSolarSystem() {
             else if (t < 0.6) { cr=0.8; cg=0.9; cb=1.0; } // blue-white
             else if (t < 0.8) { cr=1.0; cg=0.95; cb=0.7; } // warm white
             else { cr=1.0; cg=0.6; cb=0.3; } // orange giant
-            colors[i3] = cr * 8.0; colors[i3+1] = cg * 8.0; colors[i3+2] = cb * 8.0;
+            colors[i3] = cr * 5.5; colors[i3+1] = cg * 5.5; colors[i3+2] = cb * 5.5; // Natural star colors
             sizes[idx] = 5.0 + Math.random() * 4.0;
         } else if (isBright) {
             // Bright stars - various real star colors
@@ -379,7 +438,7 @@ function generateSolarSystem() {
             else if (t < 0.85) { cr=1.0; cg=0.7; cb=0.4; }    // Orange (K-type)
             else if (t < 0.95) { cr=1.0; cg=0.4; cb=0.3; }    // Red (M-type)
             else { cr=0.5; cg=0.6; cb=1.0; }                   // Deep blue (O-type)
-            colors[i3] = cr * 5.0; colors[i3+1] = cg * 5.0; colors[i3+2] = cb * 5.0;
+            colors[i3] = cr * 3.5; colors[i3+1] = cg * 3.5; colors[i3+2] = cb * 3.5; // Natural star colors
             sizes[idx] = 3.0 + Math.random() * 3.0;
         } else if (isMedium) {
             // Medium stars - clearly visible points
@@ -390,12 +449,12 @@ function generateSolarSystem() {
             else if (t < 0.7) { cr=0.8; cg=0.9; cb=1.0; }
             else if (t < 0.85) { cr=1.0; cg=0.9; cb=0.7; }
             else { cr=1.0; cg=0.6; cb=0.4; }
-            colors[i3] = cr * 3.0; colors[i3+1] = cg * 3.0; colors[i3+2] = cb * 3.0;
+            colors[i3] = cr * 2.2; colors[i3+1] = cg * 2.2; colors[i3+2] = cb * 2.2; // Natural star colors
             sizes[idx] = 2.0 + Math.random() * 1.5;
         } else {
             // Background star dust - tiny but visible, fills the sky
             particleBodyId[idx] = -1;
-            const brightness = 0.5 + Math.random() * 1.5;
+            const brightness = 0.6 + Math.random() * 1.2; // Natural star dust brightness
             // Slight color tint for realism
             const tint = Math.random();
             if (tint < 0.6) {
@@ -463,7 +522,7 @@ function generatePlanetView(view) {
         const y = view.radius * Math.sin(theta) * Math.sin(phi);
         const z = view.radius * Math.cos(phi);
 
-        const noise = 1 + (Math.random() - 0.5) * 0.1;
+        const noise = 1 + (Math.random() - 0.5) * 0.03; // Less noise for rounder planets
         basePositions[i3]     = x * noise;
         basePositions[i3 + 1] = y * noise;
         basePositions[i3 + 2] = z * noise;
@@ -477,7 +536,25 @@ function generatePlanetView(view) {
             pColor.lerp(new THREE.Color(view.third), Math.random() * 0.3);
         }
         
-        let intensity = (view.name === "Sun") ? 3.5 : 1.8;
+        // Add multi-layer surface details for individual planet view
+        const lat = phi;
+        const lon = theta;
+        
+        // Latitude bands
+        const latBand = Math.sin(lat * 10 + lon * 0.2) * 0.09;
+        // Crater and terrain detail
+        const craterNoise = (Math.random() > 0.86) ? -0.2 : (Math.random() - 0.5) * 0.07;
+        // Fine texture
+        const fineDetail = (Math.random() - 0.5) * 0.05;
+        // Polar variation
+        const polarEffect = Math.abs(Math.cos(lat)) * 0.1 * (Math.random() > 0.5 ? 1 : -1);
+        
+        const totalDetail = latBand + craterNoise + fineDetail + polarEffect;
+        pColor.r = Math.max(0, Math.min(1, pColor.r + totalDetail));
+        pColor.g = Math.max(0, Math.min(1, pColor.g + totalDetail));
+        pColor.b = Math.max(0, Math.min(1, pColor.b + totalDetail));
+        
+        let intensity = (view.name === "Sun") ? 4.5 : 1.6; // Natural colors with visible detail
         colors[i3] = pColor.r * intensity; 
         colors[i3 + 1] = pColor.g * intensity; 
         colors[i3 + 2] = pColor.b * intensity;
@@ -522,7 +599,65 @@ function updateOrbits() {
     }
 }
 
-// --- 9. MEDIAPIPE HAND TRACKING ---
+// --- 9A. MOBILE TOUCH CONTROLS ---
+let touchStartX = 0, touchStartY = 0;
+let touchRotationX = 0, touchRotationY = 0;
+let initialPinchDistance = 0;
+let touchExpansion = 0;
+let lastTapTime = 0;
+
+if (isMobile) {
+    // Hide webcam on mobile as camera might not be accessible/needed
+    document.getElementById('webcam').style.display = 'none';
+    
+    // Touch drag for rotation
+    renderer.domElement.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            initialPinchDistance = Math.sqrt(dx * dx + dy * dy);
+        }
+    });
+    
+    renderer.domElement.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        
+        if (e.touches.length === 1) {
+            // Single finger drag = rotate
+            const deltaX = e.touches[0].clientX - touchStartX;
+            const deltaY = e.touches[0].clientY - touchStartY;
+            touchRotationY += deltaX * 0.01;
+            touchRotationX += deltaY * 0.01;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            // Pinch gesture = expand/contract
+            const dx = e.touches[0].clientX - e.touches[1].clientX;
+            const dy = e.touches[0].clientY - e.touches[1].clientY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            const pinchDelta = (distance - initialPinchDistance) * 0.01;
+            touchExpansion = Math.max(0, Math.min(5, touchExpansion + pinchDelta));
+            initialPinchDistance = distance;
+        }
+    }, { passive: false });
+    
+    renderer.domElement.addEventListener('touchend', (e) => {
+        if (e.touches.length === 0) {
+            // Double tap to cycle views
+            const now = Date.now();
+            if (now - lastTapTime < 300) {
+                currentViewIndex = (currentViewIndex + 1) % PLANET_VIEWS.length;
+                switchView(currentViewIndex);
+            }
+            lastTapTime = now;
+        }
+    });
+}
+
+// --- 9B. MEDIAPIPE HAND TRACKING ---
 // Left hand thumbs up = previous planet, Right hand thumbs up = next planet
 const videoElement = document.getElementById('webcam');
 let handRotation   = { x: 0, y: 0 };
@@ -609,11 +744,17 @@ hands.onResults((results) => {
     }
 });
 
-const cameraUtils = new Camera(videoElement, {
-    onFrame: async () => { await hands.send({ image: videoElement }); },
-    width: 320, height: 240
-});
-cameraUtils.start();
+// Initialize camera and hand tracking only on desktop
+if (!isMobile) {
+    const cameraUtils = new Camera(videoElement, {
+        onFrame: async () => { await hands.send({ image: videoElement }); },
+        width: 320, height: 240
+    });
+    cameraUtils.start();
+} else {
+    // Hide loading message on mobile since we're not loading camera
+    document.getElementById('loading').style.display = 'none';
+}
 
 // --- 10. ANIMATION LOOP ---
 const clock = new THREE.Clock();
@@ -639,6 +780,8 @@ function animate() {
             const oz = Math.sin(a) * body.orbitR;
             for (let idx = range.start; idx < range.end; idx++) {
                 const i3 = idx * 3;
+                // Skip ring particles (they have their own rotation logic)
+                if (particleBodyId[idx] === -5) continue;
                 // Rotate local offset around Y axis for self-spin
                 const lx = localOffsets[i3];
                 const lz = localOffsets[i3 + 2];
@@ -651,10 +794,10 @@ function animate() {
         }
     }
 
-    // Sun glow pulsation in solar system view
+    // Sun gentle pulsation in solar system view (no blinking)
     if (isSolarSystemView && bodyRanges.length > 0) {
         const sunRange = bodyRanges[0];
-        const pulse = Math.sin(time * 3) * 0.03 + 1;
+        const pulse = Math.sin(time * 2) * 0.025 + 1.01; // Gentle size pulsation
         for (let idx = sunRange.start; idx < sunRange.end; idx++) {
             const i3 = idx * 3;
             basePositions[i3]     = localOffsets[i3] * pulse;
@@ -667,44 +810,116 @@ function animate() {
     const sizeArr = geometry.attributes.size.array; 
     if (isSolarSystemView) {
         for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const i3 = i * 3;
+            
+            // Star twinkling
             if (particleBodyId[i] === -4) {
-                const i3 = i * 3;
                 // Each star has unique twinkle speed and phase
                 const speed1 = 2.0 + (i % 7) * 0.5;
                 const speed2 = 3.0 + (i % 5) * 0.7;
                 const phase = i * 17.3;
                 // Combine two sine waves for realistic irregular twinkle
-                const tw = 0.7 + Math.sin(time * speed1 + phase) * 0.2 + Math.sin(time * speed2 + phase * 0.7) * 0.1;
-                // Pinpoint stars like picture — bright but not blooming blobs
-                const baseBright = sizeArr[i] > 4.5 ? 3.5 : (sizeArr[i] > 2.8 ? 2.0 : 1.2);
+                const tw = 0.75 + Math.sin(time * speed1 + phase) * 0.18 + Math.sin(time * speed2 + phase * 0.7) * 0.12;
+                // Natural star brightness with twinkling
+                const baseBright = sizeArr[i] > 4.5 ? 2.8 : (sizeArr[i] > 2.8 ? 1.8 : 1.0);
                 colors[i3]   = baseBright * tw;
                 colors[i3+1] = baseBright * tw * 0.95;
                 colors[i3+2] = baseBright * tw * 1.05;
+                
+                // Subtle star drift movement (very slow rotation around center)
+                const driftSpeed = 0.001 + (i % 11) * 0.0001;
+                const driftAngle = time * driftSpeed + phase;
+                const radius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                basePositions[i3] = Math.cos(driftAngle) * radius;
+                basePositions[i3+2] = Math.sin(driftAngle) * radius;
+                // Keep Y position with slight wave
+                basePositions[i3+1] = localOffsets[i3+1] + Math.sin(time * 0.2 + phase) * 0.5;
+            }
+            
+            // Main Asteroid Belt movement (orbital motion)
+            if (particleBodyId[i] === -2) {
+                const orbitSpeed = 0.008 + (i % 13) * 0.002; // varied speeds
+                const phase = i * 23.7;
+                const angle = time * orbitSpeed + phase;
+                const radius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                basePositions[i3] = Math.cos(angle) * radius;
+                basePositions[i3+2] = Math.sin(angle) * radius;
+                // Slight vertical oscillation
+                basePositions[i3+1] = localOffsets[i3+1] + Math.sin(time * 0.5 + phase) * 1.5;
+            }
+            
+            // Kuiper Belt movement (slower orbital motion)
+            if (particleBodyId[i] === -3) {
+                const orbitSpeed = 0.003 + (i % 17) * 0.001; // slower than main belt
+                const phase = i * 31.4;
+                const angle = time * orbitSpeed + phase;
+                const radius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                basePositions[i3] = Math.cos(angle) * radius;
+                basePositions[i3+2] = Math.sin(angle) * radius;
+                // Slight vertical oscillation
+                basePositions[i3+1] = localOffsets[i3+1] + Math.sin(time * 0.3 + phase) * 2.0;
+            }
+            
+            // Saturn's rings rotation (orbital motion around Saturn)
+            if (particleBodyId[i] === -5) {
+                const saturnAngle = orbitAngles[6]; // Saturn is at index 6
+                const saturnX = Math.cos(saturnAngle) * BODIES[6].orbitR;
+                const saturnZ = Math.sin(saturnAngle) * BODIES[6].orbitR;
+                
+                // Ring rotation speed - faster than Saturn's self-rotation for visible effect
+                const ringRotSpeed = 0.08;
+                const ringAngle = time * ringRotSpeed;
+                
+                // Current particle's local position relative to ring center
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const baseAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                const newAngle = baseAngle + ringAngle;
+                
+                // Rotate ring particle around Saturn's center
+                const newLocalX = Math.cos(newAngle) * localRadius;
+                const newLocalZ = Math.sin(newAngle) * localRadius;
+                
+                // Update position relative to Saturn's current orbit position
+                basePositions[i3] = saturnX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1]; // Keep y position (ring is flat)
+                basePositions[i3+2] = saturnZ + newLocalZ;
             }
         }
         geometry.attributes.color.needsUpdate = true;
     }
 
     // Smooth camera zoom: pull back for solar system, closer for planets
-    const targetCamZ = isSolarSystemView ? 200 : 150;
+    const targetCamZ = isSolarSystemView ? (isMobile ? 350 : 280) : (isMobile ? 180 : 150);
     camera.position.z += (targetCamZ - camera.position.z) * 0.03;
+
+    // Use touch controls on mobile, hand tracking on desktop
+    const activeRotationX = isMobile ? touchRotationX : handRotation.x;
+    const activeRotationY = isMobile ? touchRotationY : handRotation.y;
+    const activeExpansion = isMobile ? touchExpansion : expansionFactor;
 
     // Smooth rotation + base tilt for solar system orbital view
     const baseTiltX = isSolarSystemView ? -0.4 : 0;
-    particleSystem.rotation.x += ((handRotation.x + baseTiltX) - particleSystem.rotation.x) * 0.18;
-    particleSystem.rotation.y += (handRotation.y - particleSystem.rotation.y) * 0.18;
+    particleSystem.rotation.x += ((activeRotationX + baseTiltX) - particleSystem.rotation.x) * 0.18;
+    particleSystem.rotation.y += (activeRotationY - particleSystem.rotation.y) * 0.18;
 
     // Always add a slow ambient spin
     particleSystem.rotation.y += 0.008; // Increased ambient spin
 
-    // Dynamic brightness for Solar System expansion (zooming/pinching)
+    // Dynamic brightness and detail for zooming - planets get more detailed when closer
     if (isSolarSystemView) {
         // On expand/zoom boost bloom slightly to keep brightness, but stay controlled
-        bloomPass.strength = 0.9 + (expansionFactor * 0.8);
-        material.size = 1.5 + (expansionFactor * 0.6);
+        bloomPass.strength = 0.85 + (activeExpansion * 0.6);
+        material.size = 1.8 + (activeExpansion * 0.7);
+        
+        // Enhanced planet detail visibility when zooming
+        if (activeExpansion > 0.3) {
+            // Make planet particles more defined and larger when zooming in
+            const detailBoost = Math.min(activeExpansion * 0.6, 1.2);
+            material.size = 1.8 + (activeExpansion * 0.7) + detailBoost;
+        }
     } else {
-        bloomPass.strength = 0.9;
-        material.size = 1.5;
+        bloomPass.strength = 0.85;
+        material.size = 1.8;
     }
 
     const pos = geometry.attributes.position.array;
@@ -716,11 +931,70 @@ function animate() {
         const vy = basePositions[i3 + 1];
         const vz = basePositions[i3 + 2];
 
-        const wave = Math.sin(time * 2 + i) * 5 * expansionFactor;
+        let targetX, targetY, targetZ;
 
-        const targetX = vx + (vx * expansionFactor * 2) + wave;
-        const targetY = vy + (vy * expansionFactor * 2) + wave;
-        const targetZ = vz + (vz * expansionFactor * 2) + wave;
+        if (isSolarSystemView && activeExpansion > 0.01) {
+            // Improved zooming: maintain orbital spacing properly
+            // Get particle's body ID to determine if it's a planet
+            const bodyId = particleBodyId[i];
+            
+            if (bodyId >= 0 && bodyId < BODIES.length) {
+                // This is a planet particle
+                const body = BODIES[bodyId];
+                const localX = localOffsets[i3];
+                const localY = localOffsets[i3 + 1];
+                const localZ = localOffsets[i3 + 2];
+                
+                // Calculate orbit center position (where the planet orbits)
+                const orbitCenterX = vx - localX;
+                const orbitCenterZ = vz - localZ;
+                
+                // Scale the orbital position (distance from sun) with expansion
+                const scaledOrbitX = orbitCenterX * (1 + activeExpansion * 1.5);
+                const scaledOrbitZ = orbitCenterZ * (1 + activeExpansion * 1.5);
+                
+                // Keep planet size constant (don't expand the planet itself)
+                targetX = scaledOrbitX + localX;
+                targetY = vy + (localY * 0.1 * activeExpansion); // Slight vertical spread
+                targetZ = scaledOrbitZ + localZ;
+            } else if (bodyId === -1) {
+                // Orbit lines - scale with orbital distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -2 || bodyId === -3) {
+                // Asteroid and Kuiper belts - scale radially like orbits
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy + (vy * 0.2 * activeExpansion);
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -5) {
+                // Saturn's rings - scale with Saturn's orbit but keep ring structure
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else {
+                // Stars and other particles - minimal expansion
+                const wave = Math.sin(time * 2 + i) * 2 * activeExpansion;
+                targetX = vx + (vx * activeExpansion * 0.3) + wave;
+                targetY = vy + (vy * activeExpansion * 0.3) + wave;
+                targetZ = vz + (vz * activeExpansion * 0.3) + wave;
+            }
+        } else {
+            // Planet view or no expansion - use original behavior
+            const wave = Math.sin(time * 2 + i) * 5 * activeExpansion;
+            targetX = vx + (vx * activeExpansion * 2) + wave;
+            targetY = vy + (vy * activeExpansion * 2) + wave;
+            targetZ = vz + (vz * activeExpansion * 2) + wave;
+        }
 
         positions[i3]     += (targetX - positions[i3])     * 0.05;
         positions[i3 + 1] += (targetY - positions[i3 + 1]) * 0.05;

@@ -4,3 +4,10 @@ canvas { display: block; }
 #webcam { position: absolute; bottom: 20px; right: 20px; width: 160px; height: 120px; border: 2px solid #333; border-radius: 8px; transform: scaleX(-1); object-fit: cover; }
 #planet-name { font-size: 48px; font-weight: bold; color: #ffaa44; text-shadow: 0 0 15px rgba(255,170,68,0.6), 0 0 30px rgba(255,100,0,0.3); transition: color 0.5s ease; }
 #loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; }
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+    #planet-name { font-size: 32px; }
+    #ui-layer { padding: 10px; }
+    #loading { font-size: 16px; width: 80%; text-align: center; }
+}
