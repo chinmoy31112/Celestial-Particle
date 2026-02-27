@@ -1018,7 +1018,10 @@ const videoElement = document.getElementById('webcam');
 let handRotation    = { x: 0, y: 0 };
 let handVelocity    = { x: 0, y: 0 };  // inertia: coasts after hand leaves
 let lastHandPos     = null;             // previous wrist position for delta calc
+let smoothedWrist   = null;             // EMA-smoothed wrist for jitter removal
+const wristSmooth   = isMobile ? 0.45 : 0.3; // EMA factor (higher = smoother but laggier)
 let expansionFactor = 0;
+let smoothedExpansion = 0;
 let lastSwitchTime  = 0;
 
 // --- SCROLL WHEEL ZOOM ---
@@ -1036,9 +1039,9 @@ const hands = new Hands({ locateFile: (file) => {
 
 hands.setOptions({
     maxNumHands: 2,
-    modelComplexity: 1,
-    minDetectionConfidence: 0.6,
-    minTrackingConfidence: 0.6
+    modelComplexity: isMobile ? 0 : 1,          // lite model on mobile for speed
+    minDetectionConfidence: isMobile ? 0.5 : 0.6,
+    minTrackingConfidence: isMobile ? 0.4 : 0.6  // lower = fewer re-detections = smoother
 });
 
 function isThumbsUp(landmarks) {
@@ -1065,7 +1068,15 @@ hands.onResults((results) => {
         const landmarks = results.multiHandLandmarks[0];
 
         // 1. Delta-based rotation — accumulates on every sweep, unlimited range
-        const wrist = landmarks[0];
+        const rawWrist = landmarks[0];
+        // EMA smoothing on raw wrist position to eliminate jitter
+        if (smoothedWrist === null) {
+            smoothedWrist = { x: rawWrist.x, y: rawWrist.y };
+        } else {
+            smoothedWrist.x += (rawWrist.x - smoothedWrist.x) * (1 - wristSmooth);
+            smoothedWrist.y += (rawWrist.y - smoothedWrist.y) * (1 - wristSmooth);
+        }
+        const wrist = smoothedWrist;
         if (lastHandPos !== null) {
             const rawDx = wrist.y - lastHandPos.y;  // vertical move   → X rotation
             const rawDy = wrist.x - lastHandPos.x;  // horizontal move → Y rotation
@@ -1094,7 +1105,10 @@ hands.onResults((results) => {
         const dx = thumbTip.x - indexTip.x;
         const dy = thumbTip.y - indexTip.y;
         const pinchDistance = Math.sqrt(dx*dx + dy*dy);
-        expansionFactor = Math.max(0, (pinchDistance - 0.05) * 5);
+        const rawExpansion = Math.max(0, (pinchDistance - 0.05) * 5);
+        // Smooth expansion to avoid flickering on mobile
+        smoothedExpansion += (rawExpansion - smoothedExpansion) * (isMobile ? 0.3 : 0.5);
+        expansionFactor = smoothedExpansion;
 
         // 3. Thumbs Up on either hand -> Switch View
         // Check all detected hands for thumbs up + determine left/right
@@ -1124,7 +1138,9 @@ hands.onResults((results) => {
     } else {
         // Reset to defaults if no hand seen
         expansionFactor  *= 0.9;
+        smoothedExpansion *= 0.9;
         lastHandPos       = null;          // reset so no jump on re-entry
+        smoothedWrist     = null;          // reset so no jump on re-entry
         // Coast with inertia, then decay to rest
         handRotation.x   += handVelocity.x;
         handRotation.y   += handVelocity.y;
@@ -1136,8 +1152,8 @@ hands.onResults((results) => {
 // Initialize camera and hand tracking on all devices
 const cameraUtils = new Camera(videoElement, {
     onFrame: async () => { await hands.send({ image: videoElement }); },
-    width: isMobile ? 240 : 320,
-    height: isMobile ? 180 : 240,
+    width: isMobile ? 176 : 320,
+    height: isMobile ? 144 : 240,
     facingMode: 'user'
 });
 cameraUtils.start();
