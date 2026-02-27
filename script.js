@@ -76,6 +76,7 @@ const basePositions = new Float32Array(PARTICLE_COUNT * 3);
 const localOffsets = new Float32Array(PARTICLE_COUNT * 3);
 const particleBodyId = new Int8Array(PARTICLE_COUNT);
 
+const baseColors = new Float32Array(PARTICLE_COUNT * 3); // stores original colors for zoom brightness
 for (let i = 0; i < PARTICLE_COUNT * 3; i++) {
     positions[i] = (Math.random() - 0.5) * 500;
     colors[i] = 1;
@@ -701,6 +702,9 @@ function generateSolarSystem() {
         starIdx++;
     }
 
+    // Store base colors for zoom-based brightness boost
+    baseColors.set(colors);
+
     geometry.attributes.color.needsUpdate = true;
     geometry.attributes.size.needsUpdate = true;
     document.getElementById('planet-name').innerText = "Solar System";
@@ -899,6 +903,9 @@ function generatePlanetView(view) {
         sizes[idx] = 0.5 + Math.random() * 1.0;
         idx++;
     }
+
+    // Store base colors for zoom-based brightness boost
+    baseColors.set(colors);
 
     geometry.attributes.color.needsUpdate = true;
     geometry.attributes.size.needsUpdate = true;
@@ -1276,6 +1283,48 @@ function animate() {
         }
     }
 
+    // === ZOOM-BASED BRIGHTNESS & DETAIL ===
+    // Compute zoomFactor: 0 at default dist (280), 1 at max zoom-in (~40)
+    const defaultCamZ = isMobile ? 350 : 280;
+    const zoomFactor = Math.max(0, Math.min(1, (defaultCamZ - camera.position.z) / (defaultCamZ - 40)));
+
+    // Boost planet, moon, and ring brightness when zoomed in
+    if (isSolarSystemView && zoomFactor > 0.01) {
+        const brightMult = 1.0 + zoomFactor * 1.2; // up to 2.2x brighter at max zoom
+        for (const range of bodyRanges) {
+            for (let idx = range.start; idx < range.end; idx++) {
+                const i3 = idx * 3;
+                const bid = particleBodyId[idx];
+                // Skip stars (they have their own twinkling)
+                if (bid === -4) continue;
+                colors[i3]     = baseColors[i3]     * brightMult;
+                colors[i3 + 1] = baseColors[i3 + 1] * brightMult;
+                colors[i3 + 2] = baseColors[i3 + 2] * brightMult;
+            }
+        }
+        // Also boost moons and Saturn rings
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const bid = particleBodyId[i];
+            if (bid === -5 || (bid <= -6 && bid >= -38)) {
+                const i3 = i * 3;
+                colors[i3]     = baseColors[i3]     * brightMult;
+                colors[i3 + 1] = baseColors[i3 + 1] * brightMult;
+                colors[i3 + 2] = baseColors[i3 + 2] * brightMult;
+            }
+        }
+    } else if (isSolarSystemView) {
+        // Restore base colors when not zoomed
+        for (const range of bodyRanges) {
+            for (let idx = range.start; idx < range.end; idx++) {
+                const i3 = idx * 3;
+                if (particleBodyId[idx] === -4) continue;
+                colors[i3]     = baseColors[i3];
+                colors[i3 + 1] = baseColors[i3 + 1];
+                colors[i3 + 2] = baseColors[i3 + 2];
+            }
+        }
+    }
+
     // Realistic star twinkling effect - each star twinkles at its own frequency
     const sizeArr = geometry.attributes.size.array; 
     if (isSolarSystemView) {
@@ -1335,6 +1384,7 @@ function animate() {
                 const saturnAngle = orbitAngles[6];
                 const saturnX = Math.cos(saturnAngle) * BODIES[6].orbitR;
                 const saturnZ = Math.sin(saturnAngle) * BODIES[6].orbitR;
+                const saturnY = Math.sin(saturnAngle) * BODIES[6].orbitR * Math.sin(BODIES[6].inc || 0);
                 
                 // Rotate in the FLAT ring plane first
                 const flatRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
@@ -1353,7 +1403,7 @@ function animate() {
                 const tiltedZ = flatY * sinT + rotFlatZ * cosT;
                 
                 basePositions[i3]   = saturnX + rotFlatX;
-                basePositions[i3+1] = tiltedY;
+                basePositions[i3+1] = saturnY + tiltedY;
                 basePositions[i3+2] = saturnZ + tiltedZ;
             }
             
@@ -1429,15 +1479,16 @@ function animate() {
     const camDistScale = Math.sqrt(Math.max(10, camera.position.z) / 280);
 
     if (isSolarSystemView) {
-        bloomPass.strength = 0.85;
+        // Bloom and size respond to zoom: brighter glow + refined particles when close
+        bloomPass.strength = 0.85 + zoomFactor * 0.55; // 0.85 → 1.4 at max zoom
+        // Particle size: slightly smaller when zoomed in for sharper surface detail
+        const zoomSizeAdj = 1.0 - zoomFactor * 0.25; // shrink up to 25% for detail
         if (activeExpansion < 0.01) {
-            material.size = 1.8 * camDistScale;
+            material.size = 1.8 * camDistScale * zoomSizeAdj;
         } else {
-            // Ramp up to peak at expansion=0.5, then shrink so individual particles
-            // in planet spheres become distinct (more surface texture visible).
             const ramp = Math.min(activeExpansion / 0.5, 1.0);
             const shrink = Math.max(0, (activeExpansion - 0.5) * 0.55);
-            material.size = (1.8 + ramp * 0.9 - shrink) * camDistScale;
+            material.size = (1.8 + ramp * 0.9 - shrink) * camDistScale * zoomSizeAdj;
         }
     } else {
         // Planet view: keep bloom strength constant regardless of zoom
