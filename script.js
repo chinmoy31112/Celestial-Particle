@@ -118,6 +118,39 @@ const BODIES = [
 
 // Particle budgets per body in solar system view - INCREASED for better planet shapes
 const BODY_BUDGETS = [8000, 1200, 1500, 1800, 1000, 5000, 4500, 2500, 2200]; // Much more detailed planets
+const MOON_BUDGET = 400;            // Earth's Moon
+const PHOBOS_BUDGET = 200;          // Mars' moon Phobos
+const DEIMOS_BUDGET = 150;          // Mars' moon Deimos (smaller)
+const IO_BUDGET = 350;              // Jupiter's moon Io
+const EUROPA_BUDGET = 320;          // Jupiter's moon Europa
+const GANYMEDE_BUDGET = 450;        // Jupiter's moon Ganymede (largest)
+const CALLISTO_BUDGET = 380;        // Jupiter's moon Callisto
+const TITAN_BUDGET = 500;           // Saturn's moon Titan (largest)
+const ENCELADUS_BUDGET = 280;       // Saturn's moon Enceladus (water plumes)
+const RHEA_BUDGET = 320;            // Saturn's moon Rhea
+const IAPETUS_BUDGET = 300;         // Saturn's moon Iapetus
+const DIONE_BUDGET = 270;           // Saturn's moon Dione
+const TETHYS_BUDGET = 260;          // Saturn's moon Tethys
+const MIMAS_BUDGET = 220;           // Saturn's moon Mimas
+const MIRANDA_BUDGET = 240;         // Uranus's moon Miranda (smallest major moon)
+const ARIEL_BUDGET = 340;           // Uranus's moon Ariel
+const UMBRIEL_BUDGET = 340;         // Uranus's moon Umbriel (dark surface)
+const TITANIA_BUDGET = 450;         // Uranus's moon Titania (largest)
+const OBERON_BUDGET = 420;          // Uranus's moon Oberon
+const TRITON_BUDGET = 500;          // Neptune's moon Triton (largest, retrograde)
+const PROTEUS_BUDGET = 350;         // Neptune's moon Proteus (second largest)
+const NEREID_BUDGET = 200;          // Neptune's moon Nereid (eccentric orbit)
+const LARISSA_BUDGET = 240;         // Neptune's moon Larissa
+const DESPINA_BUDGET = 220;         // Neptune's moon Despina
+const GALATEA_BUDGET = 210;         // Neptune's moon Galatea
+const THALASSA_BUDGET = 200;        // Neptune's moon Thalassa
+const NAIAD_BUDGET = 190;           // Neptune's moon Naiad (innermost)
+const HIPPOCAMP_BUDGET = 150;       // Neptune's moon Hippocamp (tiny)
+const HALIMEDE_BUDGET = 160;        // Neptune's moon Halimede (irregular)
+const SAO_BUDGET = 160;             // Neptune's moon Sao (irregular)
+const LAOMEDEIA_BUDGET = 150;       // Neptune's moon Laomedeia (irregular)
+const PSAMATHE_BUDGET = 150;        // Neptune's moon Psamathe (irregular)
+const NESO_BUDGET = 150;            // Neptune's moon Neso (outermost)
 const ASTEROID_BUDGET = 12000;      // Main belt (Mars–Jupiter)
 const KUIPER_BUDGET = 5000;         // Kuiper belt (beyond Neptune)
 const SCATTERED_BUDGET = 2500;      // Rogue/scattered asteroids throughout space
@@ -125,6 +158,39 @@ const ORBIT_LINE_BUDGET = 3000;
 const STAR_BUDGET = 25300; // massive star field for realistic look
 
 let orbitAngles = BODIES.map(() => Math.random() * Math.PI * 2);
+let moonOrbitAngle = Math.random() * Math.PI * 2; // Moon's orbit around Earth
+let phobosOrbitAngle = Math.random() * Math.PI * 2; // Phobos' orbit around Mars
+let deimosOrbitAngle = Math.random() * Math.PI * 2; // Deimos' orbit around Mars
+let ioOrbitAngle = Math.random() * Math.PI * 2; // Io's orbit around Jupiter
+let europaOrbitAngle = Math.random() * Math.PI * 2; // Europa's orbit around Jupiter
+let ganymedeOrbitAngle = Math.random() * Math.PI * 2; // Ganymede's orbit around Jupiter
+let callistoOrbitAngle = Math.random() * Math.PI * 2; // Callisto's orbit around Jupiter
+let titanOrbitAngle = Math.random() * Math.PI * 2; // Titan's orbit around Saturn
+let enceladusOrbitAngle = Math.random() * Math.PI * 2; // Enceladus' orbit around Saturn
+let rheaOrbitAngle = Math.random() * Math.PI * 2; // Rhea's orbit around Saturn
+let iapetusOrbitAngle = Math.random() * Math.PI * 2; // Iapetus' orbit around Saturn
+let dioneOrbitAngle = Math.random() * Math.PI * 2; // Dione's orbit around Saturn
+let tethysOrbitAngle = Math.random() * Math.PI * 2; // Tethys' orbit around Saturn
+let mimasOrbitAngle = Math.random() * Math.PI * 2; // Mimas' orbit around Saturn
+let mirandaOrbitAngle = Math.random() * Math.PI * 2; // Miranda's orbit around Uranus
+let arielOrbitAngle = Math.random() * Math.PI * 2; // Ariel's orbit around Uranus
+let umbrielOrbitAngle = Math.random() * Math.PI * 2; // Umbriel's orbit around Uranus
+let titaniaOrbitAngle = Math.random() * Math.PI * 2; // Titania's orbit around Uranus
+let oberonOrbitAngle = Math.random() * Math.PI * 2; // Oberon's orbit around Uranus
+let tritonOrbitAngle = Math.random() * Math.PI * 2; // Triton's orbit around Neptune
+let proteusOrbitAngle = Math.random() * Math.PI * 2; // Proteus' orbit around Neptune
+let nereidOrbitAngle = Math.random() * Math.PI * 2; // Nereid's orbit around Neptune
+let larissaOrbitAngle = Math.random() * Math.PI * 2; // Larissa's orbit around Neptune
+let despinaOrbitAngle = Math.random() * Math.PI * 2; // Despina's orbit around Neptune
+let galateaOrbitAngle = Math.random() * Math.PI * 2; // Galatea's orbit around Neptune
+let thalassaOrbitAngle = Math.random() * Math.PI * 2; // Thalassa's orbit around Neptune
+let naiadOrbitAngle = Math.random() * Math.PI * 2; // Naiad's orbit around Neptune
+let hippocampOrbitAngle = Math.random() * Math.PI * 2; // Hippocamp's orbit around Neptune
+let halimedeOrbitAngle = Math.random() * Math.PI * 2; // Halimede's orbit around Neptune
+let saoOrbitAngle = Math.random() * Math.PI * 2; // Sao's orbit around Neptune
+let laomedeiaOrbitAngle = Math.random() * Math.PI * 2; // Laomedeia's orbit around Neptune
+let psamatheOrbitAngle = Math.random() * Math.PI * 2; // Psamathe's orbit around Neptune
+let nesoOrbitAngle = Math.random() * Math.PI * 2; // Neso's orbit around Neptune
 let bodyRanges = [];
 
 // --- 4. INDIVIDUAL PLANET VIEW DATA (for fist-switch cycling) ---
@@ -276,6 +342,1580 @@ function generateSolarSystem() {
             }
         }
         bodyRanges.push({ start: startIdx, end: idx, bodyIdx: b });
+    }
+
+    // --- MOON (Earth's natural satellite) ---
+    const moonStartIdx = idx;
+    const earthIdx = 3; // Earth is at index 3
+    const earthAngle = orbitAngles[earthIdx];
+    const earthX = Math.cos(earthAngle) * BODIES[earthIdx].orbitR;
+    const earthZ = Math.sin(earthAngle) * BODIES[earthIdx].orbitR;
+    const moonOrbitRadius = 5.5; // Distance from Earth
+    const moonRadius = 0.9; // Moon size (about 1/4 of Earth's 3.0 radius)
+    
+    for (let p = 0; p < MOON_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / MOON_BUDGET);
+        const theta = Math.sqrt(MOON_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.05;
+        
+        // Moon position relative to Earth
+        const moonX = Math.cos(moonOrbitAngle) * moonOrbitRadius;
+        const moonZ = Math.sin(moonOrbitAngle) * moonOrbitRadius;
+        
+        // Local offset for moon sphere
+        const lx = moonRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = moonRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = moonRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = moonX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = moonZ + lz;
+        
+        basePositions[i3] = earthX + moonX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = earthZ + moonZ + lz;
+        
+        particleBodyId[idx] = -6; // Special ID for Moon
+        
+        // Moon colors - grey/white like real Moon with craters
+        const moonColors = [0xcccccc, 0xbbbbbb, 0xaaaaaa, 0xdddddd];
+        const c = new THREE.Color(moonColors[Math.floor(Math.random() * moonColors.length)]);
+        
+        // Add crater-like surface details
+        const lat = phi;
+        const lon = theta;
+        const craterNoise = (Math.random() > 0.85) ? -0.25 : (Math.random() - 0.5) * 0.08;
+        const fineDetail = (Math.random() - 0.5) * 0.06;
+        const totalDetail = craterNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.3;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- PHOBOS (Mars' inner moon) ---
+    const phobosStartIdx = idx;
+    const marsIdx = 4; // Mars is at index 4
+    const marsAngle = orbitAngles[marsIdx];
+    const marsX = Math.cos(marsAngle) * BODIES[marsIdx].orbitR;
+    const marsZ = Math.sin(marsAngle) * BODIES[marsIdx].orbitR;
+    const phobosOrbitRadius = 3.2; // Distance from Mars (closer)
+    const phobosRadius = 0.45; // Small moon
+    
+    for (let p = 0; p < PHOBOS_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / PHOBOS_BUDGET);
+        const theta = Math.sqrt(PHOBOS_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.08; // More irregular shape
+        
+        // Phobos position relative to Mars
+        const phobosX = Math.cos(phobosOrbitAngle) * phobosOrbitRadius;
+        const phobosZ = Math.sin(phobosOrbitAngle) * phobosOrbitRadius;
+        
+        // Local offset for phobos sphere
+        const lx = phobosRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = phobosRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = phobosRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = phobosX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = phobosZ + lz;
+        
+        basePositions[i3] = marsX + phobosX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = marsZ + phobosZ + lz;
+        
+        particleBodyId[idx] = -7; // Special ID for Phobos
+        
+        // Phobos colors - dark grey/brownish (potato-shaped, dark surface)
+        const phobosColors = [0x8b7355, 0x6b5d4f, 0x7a6a5a, 0x5c4f42];
+        const c = new THREE.Color(phobosColors[Math.floor(Math.random() * phobosColors.length)]);
+        
+        // Add surface details - heavily cratered
+        const craterNoise = (Math.random() > 0.80) ? -0.3 : (Math.random() - 0.5) * 0.1;
+        const fineDetail = (Math.random() - 0.5) * 0.08;
+        const totalDetail = craterNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.2;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- DEIMOS (Mars' outer moon) ---
+    const deimosStartIdx = idx;
+    const deimosOrbitRadius = 5.0; // Distance from Mars (farther)
+    const deimosRadius = 0.35; // Even smaller moon
+    
+    for (let p = 0; p < DEIMOS_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / DEIMOS_BUDGET);
+        const theta = Math.sqrt(DEIMOS_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.1; // Very irregular shape
+        
+        // Deimos position relative to Mars
+        const deimosX = Math.cos(deimosOrbitAngle) * deimosOrbitRadius;
+        const deimosZ = Math.sin(deimosOrbitAngle) * deimosOrbitRadius;
+        
+        // Local offset for deimos sphere
+        const lx = deimosRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = deimosRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = deimosRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = deimosX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = deimosZ + lz;
+        
+        basePositions[i3] = marsX + deimosX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = marsZ + deimosZ + lz;
+        
+        particleBodyId[idx] = -8; // Special ID for Deimos
+        
+        // Deimos colors - lighter grey/sandy (smoother surface)
+        const deimosColors = [0x9a8975, 0xa89580, 0x8d7d6b, 0xb0a090];
+        const c = new THREE.Color(deimosColors[Math.floor(Math.random() * deimosColors.length)]);
+        
+        // Add surface details - less cratered than Phobos
+        const craterNoise = (Math.random() > 0.88) ? -0.2 : (Math.random() - 0.5) * 0.07;
+        const fineDetail = (Math.random() - 0.5) * 0.06;
+        const totalDetail = craterNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.2;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- IO (Jupiter's innermost Galilean moon) ---
+    const jupiterIdx = 5; // Jupiter is at index 5
+    const jupiterAngle = orbitAngles[jupiterIdx];
+    const jupiterX = Math.cos(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+    const jupiterZ = Math.sin(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+    
+    const ioOrbitRadius = 10.0; // Distance from Jupiter (closest)
+    const ioRadius = 1.0; // Io size
+    
+    for (let p = 0; p < IO_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / IO_BUDGET);
+        const theta = Math.sqrt(IO_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.04;
+        
+        // Io position relative to Jupiter
+        const ioX = Math.cos(ioOrbitAngle) * ioOrbitRadius;
+        const ioZ = Math.sin(ioOrbitAngle) * ioOrbitRadius;
+        
+        // Local offset for io sphere
+        const lx = ioRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = ioRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = ioRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = ioX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = ioZ + lz;
+        
+        basePositions[i3] = jupiterX + ioX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = jupiterZ + ioZ + lz;
+        
+        particleBodyId[idx] = -9; // Special ID for Io
+        
+        // Io colors - yellow/orange (volcanic, sulfur surface)
+        const ioColors = [0xffdd44, 0xffaa22, 0xff8800, 0xffcc33];
+        const c = new THREE.Color(ioColors[Math.floor(Math.random() * ioColors.length)]);
+        
+        // Add volcanic surface details
+        const volcanicNoise = (Math.random() > 0.82) ? 0.2 : (Math.random() - 0.5) * 0.1;
+        const fineDetail = (Math.random() - 0.5) * 0.06;
+        const totalDetail = volcanicNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.4;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- EUROPA (Jupiter's second Galilean moon) ---
+    const europaOrbitRadius = 13.5; // Distance from Jupiter
+    const europaRadius = 0.85; // Europa size (slightly smaller than Io)
+    
+    for (let p = 0; p < EUROPA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / EUROPA_BUDGET);
+        const theta = Math.sqrt(EUROPA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.03; // Very smooth
+        
+        // Europa position relative to Jupiter
+        const europaX = Math.cos(europaOrbitAngle) * europaOrbitRadius;
+        const europaZ = Math.sin(europaOrbitAngle) * europaOrbitRadius;
+        
+        // Local offset for europa sphere
+        const lx = europaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = europaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = europaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = europaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = europaZ + lz;
+        
+        basePositions[i3] = jupiterX + europaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = jupiterZ + europaZ + lz;
+        
+        particleBodyId[idx] = -10; // Special ID for Europa
+        
+        // Europa colors - white/blue-white (icy surface with cracks)
+        const europaColors = [0xeeeeff, 0xddeeff, 0xccddff, 0xffffff];
+        const c = new THREE.Color(europaColors[Math.floor(Math.random() * europaColors.length)]);
+        
+        // Add ice crack details
+        const crackNoise = (Math.random() > 0.90) ? -0.15 : (Math.random() - 0.5) * 0.04;
+        const fineDetail = (Math.random() - 0.5) * 0.03;
+        const totalDetail = crackNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.5;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- GANYMEDE (Jupiter's largest moon - largest in solar system) ---
+    const ganymedeOrbitRadius = 17.5; // Distance from Jupiter
+    const ganymedeRadius = 1.2; // Ganymede size (largest moon)
+    
+    for (let p = 0; p < GANYMEDE_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / GANYMEDE_BUDGET);
+        const theta = Math.sqrt(GANYMEDE_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.04;
+        
+        // Ganymede position relative to Jupiter
+        const ganymedeX = Math.cos(ganymedeOrbitAngle) * ganymedeOrbitRadius;
+        const ganymedeZ = Math.sin(ganymedeOrbitAngle) * ganymedeOrbitRadius;
+        
+        // Local offset for ganymede sphere
+        const lx = ganymedeRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = ganymedeRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = ganymedeRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = ganymedeX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = ganymedeZ + lz;
+        
+        basePositions[i3] = jupiterX + ganymedeX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = jupiterZ + ganymedeZ + lz;
+        
+        particleBodyId[idx] = -11; // Special ID for Ganymede
+        
+        // Ganymede colors - grey/brown (mixed ice and rock)
+        const ganymedeColors = [0x998877, 0xaa9988, 0x887766, 0xbbaa99];
+        const c = new THREE.Color(ganymedeColors[Math.floor(Math.random() * ganymedeColors.length)]);
+        
+        // Add surface texture
+        const terrainNoise = (Math.random() > 0.85) ? -0.2 : (Math.random() - 0.5) * 0.08;
+        const fineDetail = (Math.random() - 0.5) * 0.06;
+        const totalDetail = terrainNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.3;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- CALLISTO (Jupiter's outermost Galilean moon) ---
+    const callistoOrbitRadius = 22.0; // Distance from Jupiter (farthest)
+    const callistoRadius = 1.1; // Callisto size
+    
+    for (let p = 0; p < CALLISTO_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / CALLISTO_BUDGET);
+        const theta = Math.sqrt(CALLISTO_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.05;
+        
+        // Callisto position relative to Jupiter
+        const callistoX = Math.cos(callistoOrbitAngle) * callistoOrbitRadius;
+        const callistoZ = Math.sin(callistoOrbitAngle) * callistoOrbitRadius;
+        
+        // Local offset for callisto sphere
+        const lx = callistoRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = callistoRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = callistoRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = callistoX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = callistoZ + lz;
+        
+        basePositions[i3] = jupiterX + callistoX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = jupiterZ + callistoZ + lz;
+        
+        particleBodyId[idx] = -12; // Special ID for Callisto
+        
+        // Callisto colors - dark grey/brown (heavily cratered ancient surface)
+        const callistoColors = [0x6b5d50, 0x7a6d5f, 0x5c4f42, 0x8a7d6f];
+        const c = new THREE.Color(callistoColors[Math.floor(Math.random() * callistoColors.length)]);
+        
+        // Add heavily cratered surface
+        const craterNoise = (Math.random() > 0.80) ? -0.3 : (Math.random() - 0.5) * 0.1;
+        const fineDetail = (Math.random() - 0.5) * 0.07;
+        const totalDetail = craterNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.2;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- TITAN (Saturn's largest moon) ---
+    const saturnIdx = 6; // Saturn is at index 6
+    const saturnAngle = orbitAngles[saturnIdx];
+    const saturnX = Math.cos(saturnAngle) * BODIES[saturnIdx].orbitR;
+    const saturnZ = Math.sin(saturnAngle) * BODIES[saturnIdx].orbitR;
+    
+    const titanOrbitRadius = 15.0; // Distance from Saturn
+    const titanRadius = 1.15; // Titan size (larger than Moon)
+    
+    for (let p = 0; p < TITAN_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / TITAN_BUDGET);
+        const theta = Math.sqrt(TITAN_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.04;
+        
+        const titanX = Math.cos(titanOrbitAngle) * titanOrbitRadius;
+        const titanZ = Math.sin(titanOrbitAngle) * titanOrbitRadius;
+        
+        const lx = titanRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = titanRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = titanRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = titanX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = titanZ + lz;
+        
+        basePositions[i3] = saturnX + titanX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = saturnZ + titanZ + lz;
+        
+        particleBodyId[idx] = -13; // Special ID for Titan
+        
+        // Titan colors - orange/brown (thick atmosphere with methane)
+        const titanColors = [0xdd8844, 0xcc7733, 0xee9955, 0xbb6622];
+        const c = new THREE.Color(titanColors[Math.floor(Math.random() * titanColors.length)]);
+        
+        // Add atmospheric haze effect
+        const hazeNoise = (Math.random() - 0.5) * 0.08;
+        const fineDetail = (Math.random() - 0.5) * 0.05;
+        const totalDetail = hazeNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.3;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- ENCELADUS (Saturn's moon with water plumes) ---
+    const enceladusOrbitRadius = 9.0;
+    const enceladusRadius = 0.55;
+    
+    for (let p = 0; p < ENCELADUS_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / ENCELADUS_BUDGET);
+        const theta = Math.sqrt(ENCELADUS_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.03; // Very smooth icy surface
+        
+        const enceladusX = Math.cos(enceladusOrbitAngle) * enceladusOrbitRadius;
+        const enceladusZ = Math.sin(enceladusOrbitAngle) * enceladusOrbitRadius;
+        
+        const lx = enceladusRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = enceladusRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = enceladusRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = enceladusX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = enceladusZ + lz;
+        
+        basePositions[i3] = saturnX + enceladusX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = saturnZ + enceladusZ + lz;
+        
+        particleBodyId[idx] = -14; // Special ID for Enceladus
+        
+        // Enceladus colors - bright white/blue-white (clean ice, reflective)
+        const enceladusColors = [0xffffff, 0xf0f8ff, 0xe8f4ff, 0xfcfcfc];
+        const c = new THREE.Color(enceladusColors[Math.floor(Math.random() * enceladusColors.length)]);
+        
+        // Very clean icy surface with minimal detail
+        const iceDetail = (Math.random() - 0.5) * 0.02;
+        c.r = Math.max(0, Math.min(1, c.r + iceDetail));
+        c.g = Math.max(0, Math.min(1, c.g + iceDetail));
+        c.b = Math.max(0, Math.min(1, c.b + iceDetail));
+        
+        const intensity = 1.6; // Very bright
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- RHEA (Saturn's second-largest moon) ---
+    const rheaOrbitRadius = 11.5;
+    const rheaRadius = 0.75;
+    
+    for (let p = 0; p < RHEA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / RHEA_BUDGET);
+        const theta = Math.sqrt(RHEA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.04;
+        
+        const rheaX = Math.cos(rheaOrbitAngle) * rheaOrbitRadius;
+        const rheaZ = Math.sin(rheaOrbitAngle) * rheaOrbitRadius;
+        
+        const lx = rheaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = rheaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = rheaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = rheaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = rheaZ + lz;
+        
+        basePositions[i3] = saturnX + rheaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = saturnZ + rheaZ + lz;
+        
+        particleBodyId[idx] = -15; // Special ID for Rhea
+        
+        // Rhea colors - grey-white (icy with some cratering)
+        const rheaColors = [0xd0d0d0, 0xc8c8c8, 0xe0e0e0, 0xb8b8b8];
+        const c = new THREE.Color(rheaColors[Math.floor(Math.random() * rheaColors.length)]);
+        
+        const craterNoise = (Math.random() > 0.85) ? -0.2 : (Math.random() - 0.5) * 0.06;
+        const fineDetail = (Math.random() - 0.5) * 0.04;
+        const totalDetail = craterNoise + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.4;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- IAPETUS (Saturn's two-toned moon) ---
+    const iapetusOrbitRadius = 19.0; // Farther out
+    const iapetusRadius = 0.72;
+    
+    for (let p = 0; p < IAPETUS_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / IAPETUS_BUDGET);
+        const theta = Math.sqrt(IAPETUS_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.05;
+        
+        const iapetusX = Math.cos(iapetusOrbitAngle) * iapetusOrbitRadius;
+        const iapetusZ = Math.sin(iapetusOrbitAngle) * iapetusOrbitRadius;
+        
+        const lx = iapetusRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = iapetusRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = iapetusRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = iapetusX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = iapetusZ + lz;
+        
+        basePositions[i3] = saturnX + iapetusX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = saturnZ + iapetusZ + lz;
+        
+        particleBodyId[idx] = -16; // Special ID for Iapetus
+        
+        // Iapetus colors - two-toned (one dark side, one light side)
+        const isDarkSide = Math.cos(theta) < 0; // Hemisphere-based coloring
+        const iapetusDarkColors = [0x3a3a3a, 0x2a2a2a, 0x4a4a4a, 0x1a1a1a];
+        const iapetusLightColors = [0xe8e8e8, 0xd8d8d8, 0xf0f0f0, 0xc8c8c8];
+        const iapetusColors = isDarkSide ? iapetusDarkColors : iapetusLightColors;
+        const c = new THREE.Color(iapetusColors[Math.floor(Math.random() * iapetusColors.length)]);
+        
+        const detailNoise = (Math.random() - 0.5) * 0.08;
+        c.r = Math.max(0, Math.min(1, c.r + detailNoise));
+        c.g = Math.max(0, Math.min(1, c.g + detailNoise));
+        c.b = Math.max(0, Math.min(1, c.b + detailNoise));
+        
+        const intensity = isDarkSide ? 1.1 : 1.5;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- DIONE (Saturn's icy moon) ---
+    const dioneOrbitRadius = 10.5;
+    const dioneRadius = 0.62;
+    
+    for (let p = 0; p < DIONE_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / DIONE_BUDGET);
+        const theta = Math.sqrt(DIONE_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.04;
+        
+        const dioneX = Math.cos(dioneOrbitAngle) * dioneOrbitRadius;
+        const dioneZ = Math.sin(dioneOrbitAngle) * dioneOrbitRadius;
+        
+        const lx = dioneRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = dioneRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = dioneRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = dioneX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = dioneZ + lz;
+        
+        basePositions[i3] = saturnX + dioneX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = saturnZ + dioneZ + lz;
+        
+        particleBodyId[idx] = -17; // Special ID for Dione
+        
+        // Dione colors - white-grey (icy with wispy terrain)
+        const dioneColors = [0xe8e8e8, 0xd8d8d8, 0xf0f0f0, 0xc8c8c8];
+        const c = new THREE.Color(dioneColors[Math.floor(Math.random() * dioneColors.length)]);
+        
+        const wispyDetail = (Math.random() - 0.5) * 0.06;
+        c.r = Math.max(0, Math.min(1, c.r + wispyDetail));
+        c.g = Math.max(0, Math.min(1, c.g + wispyDetail));
+        c.b = Math.max(0, Math.min(1, c.b + wispyDetail));
+        
+        const intensity = 1.45;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- TETHYS (Saturn's icy moon) ---
+    const tethysOrbitRadius = 10.0;
+    const tethysRadius = 0.60;
+    
+    for (let p = 0; p < TETHYS_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / TETHYS_BUDGET);
+        const theta = Math.sqrt(TETHYS_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.04;
+        
+        const tethysX = Math.cos(tethysOrbitAngle) * tethysOrbitRadius;
+        const tethysZ = Math.sin(tethysOrbitAngle) * tethysOrbitRadius;
+        
+        const lx = tethysRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = tethysRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = tethysRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = tethysX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = tethysZ + lz;
+        
+        basePositions[i3] = saturnX + tethysX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = saturnZ + tethysZ + lz;
+        
+        particleBodyId[idx] = -18; // Special ID for Tethys
+        
+        // Tethys colors - very bright white (almost pure ice)
+        const tethysColors = [0xfafafa, 0xf0f0f0, 0xffffff, 0xe8e8e8];
+        const c = new THREE.Color(tethysColors[Math.floor(Math.random() * tethysColors.length)]);
+        
+        const iceDetail = (Math.random() - 0.5) * 0.03;
+        c.r = Math.max(0, Math.min(1, c.r + iceDetail));
+        c.g = Math.max(0, Math.min(1, c.g + iceDetail));
+        c.b = Math.max(0, Math.min(1, c.b + iceDetail));
+        
+        const intensity = 1.5;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- MIMAS (Saturn's Death Star moon) ---
+    const mimasOrbitRadius = 8.0; // Closest
+    const mimasRadius = 0.48;
+    
+    for (let p = 0; p < MIMAS_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / MIMAS_BUDGET);
+        const theta = Math.sqrt(MIMAS_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.05;
+        
+        const mimasX = Math.cos(mimasOrbitAngle) * mimasOrbitRadius;
+        const mimasZ = Math.sin(mimasOrbitAngle) * mimasOrbitRadius;
+        
+        const lx = mimasRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = mimasRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = mimasRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = mimasX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = mimasZ + lz;
+        
+        basePositions[i3] = saturnX + mimasX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = saturnZ + mimasZ + lz;
+        
+        particleBodyId[idx] = -19; // Special ID for Mimas
+        
+        // Mimas colors - grey-white (heavily cratered, Herschel crater)
+        const mimasColors = [0xc0c0c0, 0xb0b0b0, 0xd0d0d0, 0xa8a8a8];
+        const c = new THREE.Color(mimasColors[Math.floor(Math.random() * mimasColors.length)]);
+        
+        // Add giant crater detail (Herschel)
+        const giantCrater = (Math.random() > 0.92) ? -0.35 : (Math.random() - 0.5) * 0.08;
+        const fineDetail = (Math.random() - 0.5) * 0.05;
+        const totalDetail = giantCrater + fineDetail;
+        
+        c.r = Math.max(0, Math.min(1, c.r + totalDetail));
+        c.g = Math.max(0, Math.min(1, c.g + totalDetail));
+        c.b = Math.max(0, Math.min(1, c.b + totalDetail));
+        
+        const intensity = 1.3;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // === URANUS MOONS ===
+    const uranusIdx = 7; // Uranus is the 8th body (index 7)
+    const uranusAngle = orbitAngles[uranusIdx];
+    const uranusX = Math.cos(uranusAngle) * BODIES[uranusIdx].orbitR;
+    const uranusZ = Math.sin(uranusAngle) * BODIES[uranusIdx].orbitR;
+
+    // --- MIRANDA (Uranus's smallest major moon) ---
+    const mirandaOrbitRadius = 6.5;
+    const mirandaRadius = 0.50;
+    
+    for (let p = 0; p < MIRANDA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / MIRANDA_BUDGET);
+        const theta = Math.sqrt(MIRANDA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.06;
+        
+        const mirandaX = Math.cos(mirandaOrbitAngle) * mirandaOrbitRadius;
+        const mirandaZ = Math.sin(mirandaOrbitAngle) * mirandaOrbitRadius;
+        
+        const lx = mirandaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = mirandaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = mirandaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = mirandaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = mirandaZ + lz;
+        
+        basePositions[i3] = uranusX + mirandaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = uranusZ + mirandaZ + lz;
+        
+        particleBodyId[idx] = -20; // Special ID for Miranda
+        
+        // Miranda colors - mixed grey-brown with stark features (coronae and cliffs)
+        const mirandaColors = [0x9a8b7a, 0x8a7a6a, 0xa59585, 0x7a6a5a];
+        const c = new THREE.Color(mirandaColors[Math.floor(Math.random() * mirandaColors.length)]);
+        
+        // Add dramatic cliff/corona features
+        const dramaticFeature = (Math.random() > 0.90) ? -0.25 : (Math.random() - 0.5) * 0.10;
+        const roughDetail = (Math.random() - 0.5) * 0.08;
+        
+        c.r = Math.max(0, Math.min(1, c.r + dramaticFeature + roughDetail));
+        c.g = Math.max(0, Math.min(1, c.g + dramaticFeature + roughDetail));
+        c.b = Math.max(0, Math.min(1, c.b + dramaticFeature + roughDetail));
+        
+        const intensity = 1.25;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- ARIEL (Uranus's bright icy moon) ---
+    const arielOrbitRadius = 9.5;
+    const arielRadius = 0.85;
+    
+    for (let p = 0; p < ARIEL_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / ARIEL_BUDGET);
+        const theta = Math.sqrt(ARIEL_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.04;
+        
+        const arielX = Math.cos(arielOrbitAngle) * arielOrbitRadius;
+        const arielZ = Math.sin(arielOrbitAngle) * arielOrbitRadius;
+        
+        const lx = arielRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = arielRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = arielRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = arielX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = arielZ + lz;
+        
+        basePositions[i3] = uranusX + arielX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = uranusZ + arielZ + lz;
+        
+        particleBodyId[idx] = -21; // Special ID for Ariel
+        
+        // Ariel colors - bright white-grey with darker patches (relatively young surface)
+        const arielColors = [0xe8e8e8, 0xf0f0f0, 0xd0d0d0, 0xc8c8c8];
+        const c = new THREE.Color(arielColors[Math.floor(Math.random() * arielColors.length)]);
+        
+        // Add valley/canyon features and darker regions
+        const darkRegion = (Math.random() > 0.87) ? -0.20 : (Math.random() - 0.5) * 0.06;
+        const iceDetail = (Math.random() - 0.5) * 0.05;
+        
+        c.r = Math.max(0, Math.min(1, c.r + darkRegion + iceDetail));
+        c.g = Math.max(0, Math.min(1, c.g + darkRegion + iceDetail));
+        c.b = Math.max(0, Math.min(1, c.b + darkRegion + iceDetail));
+        
+        const intensity = 1.4;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- UMBRIEL (Uranus's dark moon) ---
+    const umbrielOrbitRadius = 13.0;
+    const umbrielRadius = 0.85;
+    
+    for (let p = 0; p < UMBRIEL_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / UMBRIEL_BUDGET);
+        const theta = Math.sqrt(UMBRIEL_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.05;
+        
+        const umbrielX = Math.cos(umbrielOrbitAngle) * umbrielOrbitRadius;
+        const umbrielZ = Math.sin(umbrielOrbitAngle) * umbrielOrbitRadius;
+        
+        const lx = umbrielRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = umbrielRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = umbrielRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = umbrielX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = umbrielZ + lz;
+        
+        basePositions[i3] = uranusX + umbrielX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = uranusZ + umbrielZ + lz;
+        
+        particleBodyId[idx] = -22; // Special ID for Umbriel
+        
+        // Umbriel colors - very dark grey (darkest of Uranus's major moons)
+        const umbrielColors = [0x4a4a4a, 0x555555, 0x3f3f3f, 0x606060];
+        const c = new THREE.Color(umbrielColors[Math.floor(Math.random() * umbrielColors.length)]);
+        
+        // Add heavy cratering (ancient surface)
+        const heavyCrater = (Math.random() > 0.88) ? -0.15 : (Math.random() - 0.5) * 0.07;
+        const darkDetail = (Math.random() - 0.5) * 0.05;
+        
+        c.r = Math.max(0, Math.min(1, c.r + heavyCrater + darkDetail));
+        c.g = Math.max(0, Math.min(1, c.g + heavyCrater + darkDetail));
+        c.b = Math.max(0, Math.min(1, c.b + heavyCrater + darkDetail));
+        
+        // Add Wunda crater (bright spot)
+        if (Math.random() > 0.97) {
+            c.r = Math.min(1, c.r + 0.3);
+            c.g = Math.min(1, c.g + 0.3);
+            c.b = Math.min(1, c.b + 0.3);
+        }
+        
+        const intensity = 1.2;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- TITANIA (Uranus's largest moon) ---
+    const titaniaOrbitRadius = 17.0;
+    const titaniaRadius = 1.15;
+    
+    for (let p = 0; p < TITANIA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / TITANIA_BUDGET);
+        const theta = Math.sqrt(TITANIA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.04;
+        
+        const titaniaX = Math.cos(titaniaOrbitAngle) * titaniaOrbitRadius;
+        const titaniaZ = Math.sin(titaniaOrbitAngle) * titaniaOrbitRadius;
+        
+        const lx = titaniaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = titaniaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = titaniaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = titaniaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = titaniaZ + lz;
+        
+        basePositions[i3] = uranusX + titaniaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = uranusZ + titaniaZ + lz;
+        
+        particleBodyId[idx] = -23; // Special ID for Titania
+        
+        // Titania colors - grey-brown with reddish tint (water ice mixed with rock)
+        const titaniaColors = [0xa89888, 0x988878, 0xb8a898, 0x887868];
+        const c = new THREE.Color(titaniaColors[Math.floor(Math.random() * titaniaColors.length)]);
+        
+        // Add valley systems and mixed terrain
+        const valleyFeature = (Math.random() > 0.89) ? -0.18 : (Math.random() - 0.5) * 0.08;
+        const redTint = (Math.random() - 0.3) * 0.06;
+        
+        c.r = Math.max(0, Math.min(1, c.r + valleyFeature + redTint));
+        c.g = Math.max(0, Math.min(1, c.g + valleyFeature));
+        c.b = Math.max(0, Math.min(1, c.b + valleyFeature - redTint * 0.5));
+        
+        const intensity = 1.3;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- OBERON (Uranus's second-largest moon) ---
+    const oberonOrbitRadius = 23.0; // Farthest
+    const oberonRadius = 1.10;
+    
+    for (let p = 0; p < OBERON_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / OBERON_BUDGET);
+        const theta = Math.sqrt(OBERON_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.05;
+        
+        const oberonX = Math.cos(oberonOrbitAngle) * oberonOrbitRadius;
+        const oberonZ = Math.sin(oberonOrbitAngle) * oberonOrbitRadius;
+        
+        const lx = oberonRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = oberonRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = oberonRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = oberonX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = oberonZ + lz;
+        
+        basePositions[i3] = uranusX + oberonX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = uranusZ + oberonZ + lz;
+        
+        particleBodyId[idx] = -24; // Special ID for Oberon
+        
+        // Oberon colors - dark grey with reddish tint (heavily cratered, ancient)
+        const oberonColors = [0x786868, 0x685858, 0x887878, 0x584848];
+        const c = new THREE.Color(oberonColors[Math.floor(Math.random() * oberonColors.length)]);
+        
+        // Add heavy cratering (old surface) and dark features
+        const largeCrater = (Math.random() > 0.87) ? -0.22 : (Math.random() - 0.5) * 0.09;
+        const darkFeature = (Math.random() - 0.5) * 0.07;
+        const redHue = (Math.random() - 0.3) * 0.05;
+        
+        c.r = Math.max(0, Math.min(1, c.r + largeCrater + darkFeature + redHue));
+        c.g = Math.max(0, Math.min(1, c.g + largeCrater + darkFeature));
+        c.b = Math.max(0, Math.min(1, c.b + largeCrater + darkFeature - redHue * 0.5));
+        
+        const intensity = 1.25;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // === NEPTUNE MOONS ===
+    const neptuneIdx = 8; // Neptune is the 9th body (index 8)
+    const neptuneAngle = orbitAngles[neptuneIdx];
+    const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+    const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+
+    // --- TRITON (Neptune's largest moon, retrograde orbit) ---
+    const tritonOrbitRadius = 15.0;
+    const tritonRadius = 1.20;
+    
+    for (let p = 0; p < TRITON_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / TRITON_BUDGET);
+        const theta = Math.sqrt(TRITON_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.03;
+        
+        const tritonX = Math.cos(tritonOrbitAngle) * tritonOrbitRadius;
+        const tritonZ = Math.sin(tritonOrbitAngle) * tritonOrbitRadius;
+        
+        const lx = tritonRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = tritonRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = tritonRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = tritonX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = tritonZ + lz;
+        
+        basePositions[i3] = neptuneX + tritonX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + tritonZ + lz;
+        
+        particleBodyId[idx] = -25; // Special ID for Triton
+        
+        // Triton colors - pinkish white with nitrogen ice (unique coloring)
+        const tritonColors = [0xf5d5d5, 0xedc5c5, 0xffdada, 0xe8c0c0];
+        const c = new THREE.Color(tritonColors[Math.floor(Math.random() * tritonColors.length)]);
+        
+        // Add nitrogen geyser and polar cap features
+        const geyserFeature = (Math.random() > 0.95) ? 0.15 : (Math.random() - 0.5) * 0.05;
+        const polarCap = (Math.random() > 0.88) ? 0.10 : 0;
+        const iceDetail = (Math.random() - 0.5) * 0.04;
+        
+        c.r = Math.max(0, Math.min(1, c.r + geyserFeature + polarCap + iceDetail));
+        c.g = Math.max(0, Math.min(1, c.g + geyserFeature + polarCap + iceDetail * 0.8));
+        c.b = Math.max(0, Math.min(1, c.b + geyserFeature + polarCap + iceDetail * 0.9));
+        
+        const intensity = 1.45;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- PROTEUS (Neptune's second largest moon) ---
+    const proteusOrbitRadius = 22.0;
+    const proteusRadius = 0.95;
+    
+    for (let p = 0; p < PROTEUS_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / PROTEUS_BUDGET);
+        const theta = Math.sqrt(PROTEUS_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.08;
+        
+        const proteusX = Math.cos(proteusOrbitAngle) * proteusOrbitRadius;
+        const proteusZ = Math.sin(proteusOrbitAngle) * proteusOrbitRadius;
+        
+        const lx = proteusRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = proteusRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = proteusRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = proteusX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = proteusZ + lz;
+        
+        basePositions[i3] = neptuneX + proteusX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + proteusZ + lz;
+        
+        particleBodyId[idx] = -26; // Special ID for Proteus
+        
+        // Proteus colors - very dark grey (one of the darkest moons)
+        const proteusColors = [0x3a3a3a, 0x454545, 0x303030, 0x505050];
+        const c = new THREE.Color(proteusColors[Math.floor(Math.random() * proteusColors.length)]);
+        
+        // Add heavy cratering (irregular shape, large craters)
+        const largeCrater = (Math.random() > 0.85) ? -0.25 : (Math.random() - 0.5) * 0.10;
+        const darkDetail = (Math.random() - 0.5) * 0.06;
+        
+        c.r = Math.max(0, Math.min(1, c.r + largeCrater + darkDetail));
+        c.g = Math.max(0, Math.min(1, c.g + largeCrater + darkDetail));
+        c.b = Math.max(0, Math.min(1, c.b + largeCrater + darkDetail));
+        
+        const intensity = 1.1;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- NEREID (Neptune's third largest moon, eccentric orbit) ---
+    const nereidOrbitRadius = 28.0; // Highly eccentric, using average
+    const nereidRadius = 0.58;
+    
+    for (let p = 0; p < NEREID_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / NEREID_BUDGET);
+        const theta = Math.sqrt(NEREID_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.10;
+        
+        const nereidX = Math.cos(nereidOrbitAngle) * nereidOrbitRadius;
+        const nereidZ = Math.sin(nereidOrbitAngle) * nereidOrbitRadius;
+        
+        const lx = nereidRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = nereidRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = nereidRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = nereidX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = nereidZ + lz;
+        
+        basePositions[i3] = neptuneX + nereidX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + nereidZ + lz;
+        
+        particleBodyId[idx] = -27; // Special ID for Nereid
+        
+        // Nereid colors - grey (may be captured object)
+        const nereidColors = [0x888888, 0x7a7a7a, 0x959595, 0x6c6c6c];
+        const c = new THREE.Color(nereidColors[Math.floor(Math.random() * nereidColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.12;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.2;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- LARISSA (Neptune's inner regular moon) ---
+    const larissaOrbitRadius = 12.5;
+    const larissaRadius = 0.60;
+    
+    for (let p = 0; p < LARISSA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / LARISSA_BUDGET);
+        const theta = Math.sqrt(LARISSA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.09;
+        
+        const larissaX = Math.cos(larissaOrbitAngle) * larissaOrbitRadius;
+        const larissaZ = Math.sin(larissaOrbitAngle) * larissaOrbitRadius;
+        
+        const lx = larissaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = larissaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = larissaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = larissaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = larissaZ + lz;
+        
+        basePositions[i3] = neptuneX + larissaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + larissaZ + lz;
+        
+        particleBodyId[idx] = -28; // Special ID for Larissa
+        
+        // Larissa colors - dark grey (irregular shape)
+        const larissaColors = [0x505050, 0x5a5a5a, 0x484848, 0x606060];
+        const c = new THREE.Color(larissaColors[Math.floor(Math.random() * larissaColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.08;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.15;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- DESPINA (Neptune's inner moon) ---
+    const despinaOrbitRadius = 10.5;
+    const despinaRadius = 0.55;
+    
+    for (let p = 0; p < DESPINA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / DESPINA_BUDGET);
+        const theta = Math.sqrt(DESPINA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.09;
+        
+        const despinaX = Math.cos(despinaOrbitAngle) * despinaOrbitRadius;
+        const despinaZ = Math.sin(despinaOrbitAngle) * despinaOrbitRadius;
+        
+        const lx = despinaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = despinaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = despinaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = despinaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = despinaZ + lz;
+        
+        basePositions[i3] = neptuneX + despinaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + despinaZ + lz;
+        
+        particleBodyId[idx] = -29; // Special ID for Despina
+        
+        // Despina colors - dark grey
+        const despinaColors = [0x484848, 0x525252, 0x404040, 0x5c5c5c];
+        const c = new THREE.Color(despinaColors[Math.floor(Math.random() * despinaColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.08;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.15;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- GALATEA (Neptune's inner moon) ---
+    const galateaOrbitRadius = 11.0;
+    const galateaRadius = 0.53;
+    
+    for (let p = 0; p < GALATEA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / GALATEA_BUDGET);
+        const theta = Math.sqrt(GALATEA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.09;
+        
+        const galateaX = Math.cos(galateaOrbitAngle) * galateaOrbitRadius;
+        const galateaZ = Math.sin(galateaOrbitAngle) * galateaOrbitRadius;
+        
+        const lx = galateaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = galateaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = galateaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = galateaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = galateaZ + lz;
+        
+        basePositions[i3] = neptuneX + galateaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + galateaZ + lz;
+        
+        particleBodyId[idx] = -30; // Special ID for Galatea
+        
+        // Galatea colors - dark grey
+        const galateaColors = [0x4a4a4a, 0x545454, 0x424242, 0x5e5e5e];
+        const c = new THREE.Color(galateaColors[Math.floor(Math.random() * galateaColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.08;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.15;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- THALASSA (Neptune's inner moon) ---
+    const thalassaOrbitRadius = 9.5;
+    const thalassaRadius = 0.51;
+    
+    for (let p = 0; p < THALASSA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / THALASSA_BUDGET);
+        const theta = Math.sqrt(THALASSA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.10;
+        
+        const thalassaX = Math.cos(thalassaOrbitAngle) * thalassaOrbitRadius;
+        const thalassaZ = Math.sin(thalassaOrbitAngle) * thalassaOrbitRadius;
+        
+        const lx = thalassaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = thalassaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = thalassaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = thalassaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = thalassaZ + lz;
+        
+        basePositions[i3] = neptuneX + thalassaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + thalassaZ + lz;
+        
+        particleBodyId[idx] = -31; // Special ID for Thalassa
+        
+        // Thalassa colors - dark grey
+        const thalassaColors = [0x464646, 0x505050, 0x3e3e3e, 0x5a5a5a];
+        const c = new THREE.Color(thalassaColors[Math.floor(Math.random() * thalassaColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.08;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.15;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- NAIAD (Neptune's innermost regular moon) ---
+    const naiadOrbitRadius = 8.0;
+    const naiadRadius = 0.48;
+    
+    for (let p = 0; p < NAIAD_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / NAIAD_BUDGET);
+        const theta = Math.sqrt(NAIAD_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.10;
+        
+        const naiadX = Math.cos(naiadOrbitAngle) * naiadOrbitRadius;
+        const naiadZ = Math.sin(naiadOrbitAngle) * naiadOrbitRadius;
+        
+        const lx = naiadRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = naiadRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = naiadRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = naiadX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = naiadZ + lz;
+        
+        basePositions[i3] = neptuneX + naiadX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + naiadZ + lz;
+        
+        particleBodyId[idx] = -32; // Special ID for Naiad
+        
+        // Naiad colors - dark grey
+        const naiadColors = [0x444444, 0x4e4e4e, 0x3c3c3c, 0x585858];
+        const c = new THREE.Color(naiadColors[Math.floor(Math.random() * naiadColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.08;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.1;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- HIPPOCAMP (Neptune's tiny inner moon) ---
+    const hippocampOrbitRadius = 18.0;
+    const hippocampRadius = 0.35;
+    
+    for (let p = 0; p < HIPPOCAMP_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / HIPPOCAMP_BUDGET);
+        const theta = Math.sqrt(HIPPOCAMP_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.12;
+        
+        const hippocampX = Math.cos(hippocampOrbitAngle) * hippocampOrbitRadius;
+        const hippocampZ = Math.sin(hippocampOrbitAngle) * hippocampOrbitRadius;
+        
+        const lx = hippocampRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = hippocampRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = hippocampRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = hippocampX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = hippocampZ + lz;
+        
+        basePositions[i3] = neptuneX + hippocampX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + hippocampZ + lz;
+        
+        particleBodyId[idx] = -33; // Special ID for Hippocamp
+        
+        // Hippocamp colors - faint grey (very small)
+        const hippocampColors = [0x606060, 0x6a6a6a, 0x585858, 0x707070];
+        const c = new THREE.Color(hippocampColors[Math.floor(Math.random() * hippocampColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.10;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.1;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- HALIMEDE (Neptune's irregular outer moon) ---
+    const halimedeOrbitRadius = 32.0;
+    const halimedeRadius = 0.40;
+    
+    for (let p = 0; p < HALIMEDE_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / HALIMEDE_BUDGET);
+        const theta = Math.sqrt(HALIMEDE_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.15;
+        
+        const halimedeX = Math.cos(halimedeOrbitAngle) * halimedeOrbitRadius;
+        const halimedeZ = Math.sin(halimedeOrbitAngle) * halimedeOrbitRadius;
+        
+        const lx = halimedeRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = halimedeRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = halimedeRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = halimedeX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = halimedeZ + lz;
+        
+        basePositions[i3] = neptuneX + halimedeX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + halimedeZ + lz;
+        
+        particleBodyId[idx] = -34; // Special ID for Halimede
+        
+        // Halimede colors - grey (irregular captured object)
+        const halimedeColors = [0x707070, 0x7a7a7a, 0x686868, 0x808080];
+        const c = new THREE.Color(halimedeColors[Math.floor(Math.random() * halimedeColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.12;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.1;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- SAO (Neptune's irregular outer moon) ---
+    const saoOrbitRadius = 36.0;
+    const saoRadius = 0.38;
+    
+    for (let p = 0; p < SAO_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / SAO_BUDGET);
+        const theta = Math.sqrt(SAO_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.15;
+        
+        const saoX = Math.cos(saoOrbitAngle) * saoOrbitRadius;
+        const saoZ = Math.sin(saoOrbitAngle) * saoOrbitRadius;
+        
+        const lx = saoRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = saoRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = saoRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = saoX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = saoZ + lz;
+        
+        basePositions[i3] = neptuneX + saoX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + saoZ + lz;
+        
+        particleBodyId[idx] = -35; // Special ID for Sao
+        
+        // Sao colors - grey
+        const saoColors = [0x6e6e6e, 0x787878, 0x666666, 0x7e7e7e];
+        const c = new THREE.Color(saoColors[Math.floor(Math.random() * saoColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.12;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.1;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- LAOMEDEIA (Neptune's irregular outer moon) ---
+    const laomedeiaOrbitRadius = 40.0;
+    const laomedeiaRadius = 0.36;
+    
+    for (let p = 0; p < LAOMEDEIA_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / LAOMEDEIA_BUDGET);
+        const theta = Math.sqrt(LAOMEDEIA_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.15;
+        
+        const laomedeiaX = Math.cos(laomedeiaOrbitAngle) * laomedeiaOrbitRadius;
+        const laomedeiaZ = Math.sin(laomedeiaOrbitAngle) * laomedeiaOrbitRadius;
+        
+        const lx = laomedeiaRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = laomedeiaRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = laomedeiaRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = laomedeiaX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = laomedeiaZ + lz;
+        
+        basePositions[i3] = neptuneX + laomedeiaX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + laomedeiaZ + lz;
+        
+        particleBodyId[idx] = -36; // Special ID for Laomedeia
+        
+        // Laomedeia colors - grey
+        const laomedeiaColors = [0x6c6c6c, 0x767676, 0x646464, 0x7c7c7c];
+        const c = new THREE.Color(laomedeiaColors[Math.floor(Math.random() * laomedeiaColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.12;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.1;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- PSAMATHE (Neptune's irregular outer moon) ---
+    const psamatheOrbitRadius = 44.0;
+    const psamatheRadius = 0.36;
+    
+    for (let p = 0; p < PSAMATHE_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / PSAMATHE_BUDGET);
+        const theta = Math.sqrt(PSAMATHE_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.15;
+        
+        const psamatheX = Math.cos(psamatheOrbitAngle) * psamatheOrbitRadius;
+        const psamatheZ = Math.sin(psamatheOrbitAngle) * psamatheOrbitRadius;
+        
+        const lx = psamatheRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = psamatheRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = psamatheRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = psamatheX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = psamatheZ + lz;
+        
+        basePositions[i3] = neptuneX + psamatheX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + psamatheZ + lz;
+        
+        particleBodyId[idx] = -37; // Special ID for Psamathe
+        
+        // Psamathe colors - grey
+        const psamatheColors = [0x6a6a6a, 0x747474, 0x626262, 0x7a7a7a];
+        const c = new THREE.Color(psamatheColors[Math.floor(Math.random() * psamatheColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.12;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.1;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
+    }
+
+    // --- NESO (Neptune's outermost moon) ---
+    const nesoOrbitRadius = 50.0; // Outermost moon
+    const nesoRadius = 0.38;
+    
+    for (let p = 0; p < NESO_BUDGET; p++) {
+        const i3 = idx * 3;
+        const phi = Math.acos(-1 + (2 * p) / NESO_BUDGET);
+        const theta = Math.sqrt(NESO_BUDGET * Math.PI) * phi;
+        const n = 1 + (Math.random() - 0.5) * 0.15;
+        
+        const nesoX = Math.cos(nesoOrbitAngle) * nesoOrbitRadius;
+        const nesoZ = Math.sin(nesoOrbitAngle) * nesoOrbitRadius;
+        
+        const lx = nesoRadius * Math.cos(theta) * Math.sin(phi) * n;
+        const ly = nesoRadius * Math.sin(theta) * Math.sin(phi) * n;
+        const lz = nesoRadius * Math.cos(phi) * n;
+        
+        localOffsets[i3] = nesoX + lx;
+        localOffsets[i3+1] = ly;
+        localOffsets[i3+2] = nesoZ + lz;
+        
+        basePositions[i3] = neptuneX + nesoX + lx;
+        basePositions[i3+1] = ly;
+        basePositions[i3+2] = neptuneZ + nesoZ + lz;
+        
+        particleBodyId[idx] = -38; // Special ID for Neso
+        
+        // Neso colors - grey (farthest moon)
+        const nesoColors = [0x686868, 0x727272, 0x606060, 0x787878];
+        const c = new THREE.Color(nesoColors[Math.floor(Math.random() * nesoColors.length)]);
+        
+        const detail = (Math.random() - 0.5) * 0.12;
+        c.r = Math.max(0, Math.min(1, c.r + detail));
+        c.g = Math.max(0, Math.min(1, c.g + detail));
+        c.b = Math.max(0, Math.min(1, c.b + detail));
+        
+        const intensity = 1.1;
+        colors[i3] = c.r * intensity;
+        colors[i3+1] = c.g * intensity;
+        colors[i3+2] = c.b * intensity;
+        
+        idx++;
     }
 
     // --- MAIN Asteroid Belt (between Mars r=50 and Jupiter r=85) ---
@@ -584,6 +2224,53 @@ function updateOrbits() {
     for (let b = 0; b < BODIES.length; b++) {
         orbitAngles[b] += BODIES[b].speed * 0.008; // Increased speed
     }
+    
+    // Update Moon's orbit around Earth (faster than Earth's orbit around Sun)
+    moonOrbitAngle += 0.04; // Moon orbits Earth relatively fast
+    
+    // Update Phobos' orbit around Mars (very fast - Phobos has one of the fastest orbits)
+    phobosOrbitAngle += 0.08; // Phobos orbits Mars very quickly
+    
+    // Update Deimos' orbit around Mars (slower than Phobos)
+    deimosOrbitAngle += 0.03; // Deimos orbits Mars slower
+    
+    // Update Jupiter's Galilean moons orbits (varied speeds based on distance)
+    ioOrbitAngle += 0.10; // Io orbits very fast (1.77 days in real life)
+    europaOrbitAngle += 0.06; // Europa orbits moderately fast (3.55 days)
+    ganymedeOrbitAngle += 0.04; // Ganymede orbits slower (7.15 days)
+    callistoOrbitAngle += 0.025; // Callisto orbits slowest (16.69 days)
+    
+    // Update Saturn's major moons orbits (varied speeds based on distance)
+    mimasOrbitAngle += 0.12; // Mimas orbits very fast (closest)
+    enceladusOrbitAngle += 0.08; // Enceladus orbits fast
+    tethysOrbitAngle += 0.06; // Tethys orbits moderately
+    dioneOrbitAngle += 0.05; // Dione orbits moderately
+    rheaOrbitAngle += 0.035; // Rhea orbits slower
+    titanOrbitAngle += 0.025; // Titan orbits slowly (15.95 days)
+    iapetusOrbitAngle += 0.015; // Iapetus orbits slowest (79 days, farthest)
+    
+    // Update Uranus's major moons orbits (varied speeds based on distance)
+    mirandaOrbitAngle += 0.10; // Miranda orbits fast (1.41 days, closest)
+    arielOrbitAngle += 0.07; // Ariel orbits moderately (2.52 days)
+    umbrielOrbitAngle += 0.05; // Umbriel orbits moderately (4.14 days)
+    titaniaOrbitAngle += 0.035; // Titania orbits slower (8.71 days)
+    oberonOrbitAngle += 0.025; // Oberon orbits slowest (13.46 days, farthest)
+    
+    // Update Neptune's moons orbits (varied speeds based on distance)
+    tritonOrbitAngle -= 0.04; // Triton orbits retrograde (5.88 days)
+    proteusOrbitAngle += 0.12; // Proteus orbits fast (1.12 days)
+    nereidOrbitAngle += 0.008; // Nereid orbits very slowly (eccentric, 360 days)
+    larissaOrbitAngle += 0.15; // Larissa orbits very fast (0.55 days)
+    despinaOrbitAngle += 0.18; // Despina orbits very fast (0.29 days)
+    galateaOrbitAngle += 0.14; // Galatea orbits very fast (0.43 days)
+    thalassaOrbitAngle += 0.20; // Thalassa orbits very fast (0.31 days)
+    naiadOrbitAngle += 0.22; // Naiad orbits fastest (0.29 days, innermost)
+    hippocampOrbitAngle += 0.10; // Hippocamp orbits moderately (0.95 days)
+    halimedeOrbitAngle += 0.005; // Halimede orbits very slowly (irregular, ~1879 days)
+    saoOrbitAngle += 0.004; // Sao orbits very slowly (irregular, ~2912 days)
+    laomedeiaOrbitAngle += 0.005; // Laomedeia orbits very slowly (irregular, ~3171 days)
+    psamatheOrbitAngle += 0.003; // Psamathe orbits very slowly (irregular, ~9074 days)
+    nesoOrbitAngle += 0.002; // Neso orbits slowest (irregular, ~9740 days, outermost)
 
     for (const range of bodyRanges) {
         const b = range.bodyIdx;
@@ -884,6 +2571,859 @@ function animate() {
                 basePositions[i3+1] = localOffsets[i3+1]; // Keep y position (ring is flat)
                 basePositions[i3+2] = saturnZ + newLocalZ;
             }
+            
+            // Moon orbital motion (orbits around Earth)
+            if (particleBodyId[i] === -6) {
+                const earthIdx = 3; // Earth is at index 3
+                const earthAngle = orbitAngles[earthIdx];
+                const earthX = Math.cos(earthAngle) * BODIES[earthIdx].orbitR;
+                const earthZ = Math.sin(earthAngle) * BODIES[earthIdx].orbitR;
+                
+                const moonOrbitRadius = 5.5;
+                const moonRadius = 0.9;
+                
+                // Get the moon particle's local offset within the moon sphere
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                // Moon's orbital position around Earth
+                const moonOrbitX = Math.cos(moonOrbitAngle) * moonOrbitRadius;
+                const moonOrbitZ = Math.sin(moonOrbitAngle) * moonOrbitRadius;
+                
+                // Moon self-rotation (spin)
+                const moonSpinSpeed = 0.02;
+                const moonSpinAngle = time * moonSpinSpeed;
+                const newLocalAngle = localAngle + moonSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - moonOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - moonOrbitRadius);
+                
+                // Final position: Earth + Moon orbit + Moon particle position
+                basePositions[i3] = earthX + moonOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1]; // Keep original y offset
+                basePositions[i3+2] = earthZ + moonOrbitZ + newLocalZ;
+            }
+            
+            // Phobos orbital motion (orbits around Mars)
+            if (particleBodyId[i] === -7) {
+                const marsIdx = 4; // Mars is at index 4
+                const marsAngle = orbitAngles[marsIdx];
+                const marsX = Math.cos(marsAngle) * BODIES[marsIdx].orbitR;
+                const marsZ = Math.sin(marsAngle) * BODIES[marsIdx].orbitR;
+                
+                const phobosOrbitRadius = 3.2;
+                const phobosRadius = 0.45;
+                
+                // Get the phobos particle's local offset within the phobos sphere
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                // Phobos' orbital position around Mars
+                const phobosOrbitX = Math.cos(phobosOrbitAngle) * phobosOrbitRadius;
+                const phobosOrbitZ = Math.sin(phobosOrbitAngle) * phobosOrbitRadius;
+                
+                // Phobos self-rotation (fast spin)
+                const phobosSpinSpeed = 0.05;
+                const phobosSpinAngle = time * phobosSpinSpeed;
+                const newLocalAngle = localAngle + phobosSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - phobosOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - phobosOrbitRadius);
+                
+                // Final position: Mars + Phobos orbit + Phobos particle position
+                basePositions[i3] = marsX + phobosOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = marsZ + phobosOrbitZ + newLocalZ;
+            }
+            
+            // Deimos orbital motion (orbits around Mars)
+            if (particleBodyId[i] === -8) {
+                const marsIdx = 4; // Mars is at index 4
+                const marsAngle = orbitAngles[marsIdx];
+                const marsX = Math.cos(marsAngle) * BODIES[marsIdx].orbitR;
+                const marsZ = Math.sin(marsAngle) * BODIES[marsIdx].orbitR;
+                
+                const deimosOrbitRadius = 5.0;
+                const deimosRadius = 0.35;
+                
+                // Get the deimos particle's local offset within the deimos sphere
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                // Deimos' orbital position around Mars
+                const deimosOrbitX = Math.cos(deimosOrbitAngle) * deimosOrbitRadius;
+                const deimosOrbitZ = Math.sin(deimosOrbitAngle) * deimosOrbitRadius;
+                
+                // Deimos self-rotation (slower spin)
+                const deimosSpinSpeed = 0.03;
+                const deimosSpinAngle = time * deimosSpinSpeed;
+                const newLocalAngle = localAngle + deimosSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - deimosOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - deimosOrbitRadius);
+                
+                // Final position: Mars + Deimos orbit + Deimos particle position
+                basePositions[i3] = marsX + deimosOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = marsZ + deimosOrbitZ + newLocalZ;
+            }
+            
+            // Io orbital motion (orbits around Jupiter)
+            if (particleBodyId[i] === -9) {
+                const jupiterIdx = 5; // Jupiter is at index 5
+                const jupiterAngle = orbitAngles[jupiterIdx];
+                const jupiterX = Math.cos(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+                const jupiterZ = Math.sin(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+                
+                const ioOrbitRadius = 10.0;
+                const ioRadius = 1.0;
+                
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const ioOrbitX = Math.cos(ioOrbitAngle) * ioOrbitRadius;
+                const ioOrbitZ = Math.sin(ioOrbitAngle) * ioOrbitRadius;
+                
+                const ioSpinSpeed = 0.06;
+                const ioSpinAngle = time * ioSpinSpeed;
+                const newLocalAngle = localAngle + ioSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - ioOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - ioOrbitRadius);
+                
+                basePositions[i3] = jupiterX + ioOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = jupiterZ + ioOrbitZ + newLocalZ;
+            }
+            
+            // Europa orbital motion (orbits around Jupiter)
+            if (particleBodyId[i] === -10) {
+                const jupiterIdx = 5;
+                const jupiterAngle = orbitAngles[jupiterIdx];
+                const jupiterX = Math.cos(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+                const jupiterZ = Math.sin(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+                
+                const europaOrbitRadius = 13.5;
+                const europaRadius = 0.85;
+                
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const europaOrbitX = Math.cos(europaOrbitAngle) * europaOrbitRadius;
+                const europaOrbitZ = Math.sin(europaOrbitAngle) * europaOrbitRadius;
+                
+                const europaSpinSpeed = 0.04;
+                const europaSpinAngle = time * europaSpinSpeed;
+                const newLocalAngle = localAngle + europaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - europaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - europaOrbitRadius);
+                
+                basePositions[i3] = jupiterX + europaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = jupiterZ + europaOrbitZ + newLocalZ;
+            }
+            
+            // Ganymede orbital motion (orbits around Jupiter)
+            if (particleBodyId[i] === -11) {
+                const jupiterIdx = 5;
+                const jupiterAngle = orbitAngles[jupiterIdx];
+                const jupiterX = Math.cos(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+                const jupiterZ = Math.sin(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+                
+                const ganymedeOrbitRadius = 17.5;
+                const ganymedeRadius = 1.2;
+                
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const ganymedeOrbitX = Math.cos(ganymedeOrbitAngle) * ganymedeOrbitRadius;
+                const ganymedeOrbitZ = Math.sin(ganymedeOrbitAngle) * ganymedeOrbitRadius;
+                
+                const ganymedeSpinSpeed = 0.035;
+                const ganymedeSpinAngle = time * ganymedeSpinSpeed;
+                const newLocalAngle = localAngle + ganymedeSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - ganymedeOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - ganymedeOrbitRadius);
+                
+                basePositions[i3] = jupiterX + ganymedeOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = jupiterZ + ganymedeOrbitZ + newLocalZ;
+            }
+            
+            // Callisto orbital motion (orbits around Jupiter)
+            if (particleBodyId[i] === -12) {
+                const jupiterIdx = 5;
+                const jupiterAngle = orbitAngles[jupiterIdx];
+                const jupiterX = Math.cos(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+                const jupiterZ = Math.sin(jupiterAngle) * BODIES[jupiterIdx].orbitR;
+                
+                const callistoOrbitRadius = 22.0;
+                const callistoRadius = 1.1;
+                
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const callistoOrbitX = Math.cos(callistoOrbitAngle) * callistoOrbitRadius;
+                const callistoOrbitZ = Math.sin(callistoOrbitAngle) * callistoOrbitRadius;
+                
+                const callistoSpinSpeed = 0.025;
+                const callistoSpinAngle = time * callistoSpinSpeed;
+                const newLocalAngle = localAngle + callistoSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - callistoOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - callistoOrbitRadius);
+                
+                basePositions[i3] = jupiterX + callistoOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = jupiterZ + callistoOrbitZ + newLocalZ;
+            }
+            
+            // Titan orbital motion (orbits around Saturn)
+            if (particleBodyId[i] === -13) {
+                const saturnIdx = 6;
+                const saturnAngle = orbitAngles[saturnIdx];
+                const saturnX = Math.cos(saturnAngle) * BODIES[saturnIdx].orbitR;
+                const saturnZ = Math.sin(saturnAngle) * BODIES[saturnIdx].orbitR;
+                
+                const titanOrbitRadius = 15.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const titanOrbitX = Math.cos(titanOrbitAngle) * titanOrbitRadius;
+                const titanOrbitZ = Math.sin(titanOrbitAngle) * titanOrbitRadius;
+                
+                const titanSpinSpeed = 0.03;
+                const titanSpinAngle = time * titanSpinSpeed;
+                const newLocalAngle = localAngle + titanSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - titanOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - titanOrbitRadius);
+                
+                basePositions[i3] = saturnX + titanOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = saturnZ + titanOrbitZ + newLocalZ;
+            }
+            
+            // Enceladus orbital motion (orbits around Saturn)
+            if (particleBodyId[i] === -14) {
+                const saturnIdx = 6;
+                const saturnAngle = orbitAngles[saturnIdx];
+                const saturnX = Math.cos(saturnAngle) * BODIES[saturnIdx].orbitR;
+                const saturnZ = Math.sin(saturnAngle) * BODIES[saturnIdx].orbitR;
+                
+                const enceladusOrbitRadius = 9.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const enceladusOrbitX = Math.cos(enceladusOrbitAngle) * enceladusOrbitRadius;
+                const enceladusOrbitZ = Math.sin(enceladusOrbitAngle) * enceladusOrbitRadius;
+                
+                const enceladusSpinSpeed = 0.045;
+                const enceladusSpinAngle = time * enceladusSpinSpeed;
+                const newLocalAngle = localAngle + enceladusSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - enceladusOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - enceladusOrbitRadius);
+                
+                basePositions[i3] = saturnX + enceladusOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = saturnZ + enceladusOrbitZ + newLocalZ;
+            }
+            
+            // Rhea orbital motion (orbits around Saturn)
+            if (particleBodyId[i] === -15) {
+                const saturnIdx = 6;
+                const saturnAngle = orbitAngles[saturnIdx];
+                const saturnX = Math.cos(saturnAngle) * BODIES[saturnIdx].orbitR;
+                const saturnZ = Math.sin(saturnAngle) * BODIES[saturnIdx].orbitR;
+                
+                const rheaOrbitRadius = 11.5;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const rheaOrbitX = Math.cos(rheaOrbitAngle) * rheaOrbitRadius;
+                const rheaOrbitZ = Math.sin(rheaOrbitAngle) * rheaOrbitRadius;
+                
+                const rheaSpinSpeed = 0.035;
+                const rheaSpinAngle = time * rheaSpinSpeed;
+                const newLocalAngle = localAngle + rheaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - rheaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - rheaOrbitRadius);
+                
+                basePositions[i3] = saturnX + rheaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = saturnZ + rheaOrbitZ + newLocalZ;
+            }
+            
+            // Iapetus orbital motion (orbits around Saturn)
+            if (particleBodyId[i] === -16) {
+                const saturnIdx = 6;
+                const saturnAngle = orbitAngles[saturnIdx];
+                const saturnX = Math.cos(saturnAngle) * BODIES[saturnIdx].orbitR;
+                const saturnZ = Math.sin(saturnAngle) * BODIES[saturnIdx].orbitR;
+                
+                const iapetusOrbitRadius = 19.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const iapetusOrbitX = Math.cos(iapetusOrbitAngle) * iapetusOrbitRadius;
+                const iapetusOrbitZ = Math.sin(iapetusOrbitAngle) * iapetusOrbitRadius;
+                
+                const iapetusSpinSpeed = 0.02;
+                const iapetusSpinAngle = time * iapetusSpinSpeed;
+                const newLocalAngle = localAngle + iapetusSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - iapetusOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - iapetusOrbitRadius);
+                
+                basePositions[i3] = saturnX + iapetusOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = saturnZ + iapetusOrbitZ + newLocalZ;
+            }
+            
+            // Dione orbital motion (orbits around Saturn)
+            if (particleBodyId[i] === -17) {
+                const saturnIdx = 6;
+                const saturnAngle = orbitAngles[saturnIdx];
+                const saturnX = Math.cos(saturnAngle) * BODIES[saturnIdx].orbitR;
+                const saturnZ = Math.sin(saturnAngle) * BODIES[saturnIdx].orbitR;
+                
+                const dioneOrbitRadius = 10.5;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const dioneOrbitX = Math.cos(dioneOrbitAngle) * dioneOrbitRadius;
+                const dioneOrbitZ = Math.sin(dioneOrbitAngle) * dioneOrbitRadius;
+                
+                const dioneSpinSpeed = 0.04;
+                const dioneSpinAngle = time * dioneSpinSpeed;
+                const newLocalAngle = localAngle + dioneSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - dioneOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - dioneOrbitRadius);
+                
+                basePositions[i3] = saturnX + dioneOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = saturnZ + dioneOrbitZ + newLocalZ;
+            }
+            
+            // Tethys orbital motion (orbits around Saturn)
+            if (particleBodyId[i] === -18) {
+                const saturnIdx = 6;
+                const saturnAngle = orbitAngles[saturnIdx];
+                const saturnX = Math.cos(saturnAngle) * BODIES[saturnIdx].orbitR;
+                const saturnZ = Math.sin(saturnAngle) * BODIES[saturnIdx].orbitR;
+                
+                const tethysOrbitRadius = 10.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const tethysOrbitX = Math.cos(tethysOrbitAngle) * tethysOrbitRadius;
+                const tethysOrbitZ = Math.sin(tethysOrbitAngle) * tethysOrbitRadius;
+                
+                const tethysSpinSpeed = 0.04;
+                const tethysSpinAngle = time * tethysSpinSpeed;
+                const newLocalAngle = localAngle + tethysSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - tethysOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - tethysOrbitRadius);
+                
+                basePositions[i3] = saturnX + tethysOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = saturnZ + tethysOrbitZ + newLocalZ;
+            }
+            
+            // Mimas orbital motion (orbits around Saturn)
+            if (particleBodyId[i] === -19) {
+                const saturnIdx = 6;
+                const saturnAngle = orbitAngles[saturnIdx];
+                const saturnX = Math.cos(saturnAngle) * BODIES[saturnIdx].orbitR;
+                const saturnZ = Math.sin(saturnAngle) * BODIES[saturnIdx].orbitR;
+                
+                const mimasOrbitRadius = 8.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const mimasOrbitX = Math.cos(mimasOrbitAngle) * mimasOrbitRadius;
+                const mimasOrbitZ = Math.sin(mimasOrbitAngle) * mimasOrbitRadius;
+                
+                const mimasSpinSpeed = 0.05;
+                const mimasSpinAngle = time * mimasSpinSpeed;
+                const newLocalAngle = localAngle + mimasSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - mimasOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - mimasOrbitRadius);
+                
+                basePositions[i3] = saturnX + mimasOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = saturnZ + mimasOrbitZ + newLocalZ;
+            }
+            
+            // Miranda orbital motion (orbits around Uranus)
+            if (particleBodyId[i] === -20) {
+                const uranusIdx = 7;
+                const uranusAngle = orbitAngles[uranusIdx];
+                const uranusX = Math.cos(uranusAngle) * BODIES[uranusIdx].orbitR;
+                const uranusZ = Math.sin(uranusAngle) * BODIES[uranusIdx].orbitR;
+                
+                const mirandaOrbitRadius = 6.5;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const mirandaOrbitX = Math.cos(mirandaOrbitAngle) * mirandaOrbitRadius;
+                const mirandaOrbitZ = Math.sin(mirandaOrbitAngle) * mirandaOrbitRadius;
+                
+                const mirandaSpinSpeed = 0.05;
+                const mirandaSpinAngle = time * mirandaSpinSpeed;
+                const newLocalAngle = localAngle + mirandaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - mirandaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - mirandaOrbitRadius);
+                
+                basePositions[i3] = uranusX + mirandaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = uranusZ + mirandaOrbitZ + newLocalZ;
+            }
+            
+            // Ariel orbital motion (orbits around Uranus)
+            if (particleBodyId[i] === -21) {
+                const uranusIdx = 7;
+                const uranusAngle = orbitAngles[uranusIdx];
+                const uranusX = Math.cos(uranusAngle) * BODIES[uranusIdx].orbitR;
+                const uranusZ = Math.sin(uranusAngle) * BODIES[uranusIdx].orbitR;
+                
+                const arielOrbitRadius = 9.5;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const arielOrbitX = Math.cos(arielOrbitAngle) * arielOrbitRadius;
+                const arielOrbitZ = Math.sin(arielOrbitAngle) * arielOrbitRadius;
+                
+                const arielSpinSpeed = 0.04;
+                const arielSpinAngle = time * arielSpinSpeed;
+                const newLocalAngle = localAngle + arielSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - arielOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - arielOrbitRadius);
+                
+                basePositions[i3] = uranusX + arielOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = uranusZ + arielOrbitZ + newLocalZ;
+            }
+            
+            // Umbriel orbital motion (orbits around Uranus)
+            if (particleBodyId[i] === -22) {
+                const uranusIdx = 7;
+                const uranusAngle = orbitAngles[uranusIdx];
+                const uranusX = Math.cos(uranusAngle) * BODIES[uranusIdx].orbitR;
+                const uranusZ = Math.sin(uranusAngle) * BODIES[uranusIdx].orbitR;
+                
+                const umbrielOrbitRadius = 13.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const umbrielOrbitX = Math.cos(umbrielOrbitAngle) * umbrielOrbitRadius;
+                const umbrielOrbitZ = Math.sin(umbrielOrbitAngle) * umbrielOrbitRadius;
+                
+                const umbrielSpinSpeed = 0.03;
+                const umbrielSpinAngle = time * umbrielSpinSpeed;
+                const newLocalAngle = localAngle + umbrielSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - umbrielOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - umbrielOrbitRadius);
+                
+                basePositions[i3] = uranusX + umbrielOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = uranusZ + umbrielOrbitZ + newLocalZ;
+            }
+            
+            // Titania orbital motion (orbits around Uranus)
+            if (particleBodyId[i] === -23) {
+                const uranusIdx = 7;
+                const uranusAngle = orbitAngles[uranusIdx];
+                const uranusX = Math.cos(uranusAngle) * BODIES[uranusIdx].orbitR;
+                const uranusZ = Math.sin(uranusAngle) * BODIES[uranusIdx].orbitR;
+                
+                const titaniaOrbitRadius = 17.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const titaniaOrbitX = Math.cos(titaniaOrbitAngle) * titaniaOrbitRadius;
+                const titaniaOrbitZ = Math.sin(titaniaOrbitAngle) * titaniaOrbitRadius;
+                
+                const titaniaSpinSpeed = 0.035;
+                const titaniaSpinAngle = time * titaniaSpinSpeed;
+                const newLocalAngle = localAngle + titaniaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - titaniaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - titaniaOrbitRadius);
+                
+                basePositions[i3] = uranusX + titaniaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = uranusZ + titaniaOrbitZ + newLocalZ;
+            }
+            
+            // Oberon orbital motion (orbits around Uranus)
+            if (particleBodyId[i] === -24) {
+                const uranusIdx = 7;
+                const uranusAngle = orbitAngles[uranusIdx];
+                const uranusX = Math.cos(uranusAngle) * BODIES[uranusIdx].orbitR;
+                const uranusZ = Math.sin(uranusAngle) * BODIES[uranusIdx].orbitR;
+                
+                const oberonOrbitRadius = 23.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const oberonOrbitX = Math.cos(oberonOrbitAngle) * oberonOrbitRadius;
+                const oberonOrbitZ = Math.sin(oberonOrbitAngle) * oberonOrbitRadius;
+                
+                const oberonSpinSpeed = 0.025;
+                const oberonSpinAngle = time * oberonSpinSpeed;
+                const newLocalAngle = localAngle + oberonSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - oberonOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - oberonOrbitRadius);
+                
+                basePositions[i3] = uranusX + oberonOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = uranusZ + oberonOrbitZ + newLocalZ;
+            }
+            
+            // === NEPTUNE MOONS ORBITAL MOTION ===
+            
+            // Triton orbital motion (orbits around Neptune - retrograde)
+            if (particleBodyId[i] === -25) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const tritonOrbitRadius = 15.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const tritonOrbitX = Math.cos(tritonOrbitAngle) * tritonOrbitRadius;
+                const tritonOrbitZ = Math.sin(tritonOrbitAngle) * tritonOrbitRadius;
+                
+                const tritonSpinSpeed = 0.04;
+                const tritonSpinAngle = time * tritonSpinSpeed;
+                const newLocalAngle = localAngle + tritonSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - tritonOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - tritonOrbitRadius);
+                
+                basePositions[i3] = neptuneX + tritonOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + tritonOrbitZ + newLocalZ;
+            }
+            
+            // Proteus orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -26) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const proteusOrbitRadius = 22.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const proteusOrbitX = Math.cos(proteusOrbitAngle) * proteusOrbitRadius;
+                const proteusOrbitZ = Math.sin(proteusOrbitAngle) * proteusOrbitRadius;
+                
+                const proteusSpinSpeed = 0.06;
+                const proteusSpinAngle = time * proteusSpinSpeed;
+                const newLocalAngle = localAngle + proteusSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - proteusOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - proteusOrbitRadius);
+                
+                basePositions[i3] = neptuneX + proteusOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + proteusOrbitZ + newLocalZ;
+            }
+            
+            // Nereid orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -27) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const nereidOrbitRadius = 28.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const nereidOrbitX = Math.cos(nereidOrbitAngle) * nereidOrbitRadius;
+                const nereidOrbitZ = Math.sin(nereidOrbitAngle) * nereidOrbitRadius;
+                
+                const nereidSpinSpeed = 0.01;
+                const nereidSpinAngle = time * nereidSpinSpeed;
+                const newLocalAngle = localAngle + nereidSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - nereidOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - nereidOrbitRadius);
+                
+                basePositions[i3] = neptuneX + nereidOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + nereidOrbitZ + newLocalZ;
+            }
+            
+            // Larissa orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -28) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const larissaOrbitRadius = 12.5;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const larissaOrbitX = Math.cos(larissaOrbitAngle) * larissaOrbitRadius;
+                const larissaOrbitZ = Math.sin(larissaOrbitAngle) * larissaOrbitRadius;
+                
+                const larissaSpinSpeed = 0.08;
+                const larissaSpinAngle = time * larissaSpinSpeed;
+                const newLocalAngle = localAngle + larissaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - larissaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - larissaOrbitRadius);
+                
+                basePositions[i3] = neptuneX + larissaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + larissaOrbitZ + newLocalZ;
+            }
+            
+            // Despina orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -29) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const despinaOrbitRadius = 10.5;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const despinaOrbitX = Math.cos(despinaOrbitAngle) * despinaOrbitRadius;
+                const despinaOrbitZ = Math.sin(despinaOrbitAngle) * despinaOrbitRadius;
+                
+                const despinaSpinSpeed = 0.09;
+                const despinaSpinAngle = time * despinaSpinSpeed;
+                const newLocalAngle = localAngle + despinaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - despinaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - despinaOrbitRadius);
+                
+                basePositions[i3] = neptuneX + despinaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + despinaOrbitZ + newLocalZ;
+            }
+            
+            // Galatea orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -30) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const galateaOrbitRadius = 11.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const galateaOrbitX = Math.cos(galateaOrbitAngle) * galateaOrbitRadius;
+                const galateaOrbitZ = Math.sin(galateaOrbitAngle) * galateaOrbitRadius;
+                
+                const galateaSpinSpeed = 0.07;
+                const galateaSpinAngle = time * galateaSpinSpeed;
+                const newLocalAngle = localAngle + galateaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - galateaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - galateaOrbitRadius);
+                
+                basePositions[i3] = neptuneX + galateaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + galateaOrbitZ + newLocalZ;
+            }
+            
+            // Thalassa orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -31) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const thalassaOrbitRadius = 9.5;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const thalassaOrbitX = Math.cos(thalassaOrbitAngle) * thalassaOrbitRadius;
+                const thalassaOrbitZ = Math.sin(thalassaOrbitAngle) * thalassaOrbitRadius;
+                
+                const thalassaSpinSpeed = 0.10;
+                const thalassaSpinAngle = time * thalassaSpinSpeed;
+                const newLocalAngle = localAngle + thalassaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - thalassaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - thalassaOrbitRadius);
+                
+                basePositions[i3] = neptuneX + thalassaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + thalassaOrbitZ + newLocalZ;
+            }
+            
+            // Naiad orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -32) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const naiadOrbitRadius = 8.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const naiadOrbitX = Math.cos(naiadOrbitAngle) * naiadOrbitRadius;
+                const naiadOrbitZ = Math.sin(naiadOrbitAngle) * naiadOrbitRadius;
+                
+                const naiadSpinSpeed = 0.11;
+                const naiadSpinAngle = time * naiadSpinSpeed;
+                const newLocalAngle = localAngle + naiadSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - naiadOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - naiadOrbitRadius);
+                
+                basePositions[i3] = neptuneX + naiadOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + naiadOrbitZ + newLocalZ;
+            }
+            
+            // Hippocamp orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -33) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const hippocampOrbitRadius = 18.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const hippocampOrbitX = Math.cos(hippocampOrbitAngle) * hippocampOrbitRadius;
+                const hippocampOrbitZ = Math.sin(hippocampOrbitAngle) * hippocampOrbitRadius;
+                
+                const hippocampSpinSpeed = 0.05;
+                const hippocampSpinAngle = time * hippocampSpinSpeed;
+                const newLocalAngle = localAngle + hippocampSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - hippocampOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - hippocampOrbitRadius);
+                
+                basePositions[i3] = neptuneX + hippocampOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + hippocampOrbitZ + newLocalZ;
+            }
+            
+            // Halimede orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -34) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const halimedeOrbitRadius = 32.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const halimedeOrbitX = Math.cos(halimedeOrbitAngle) * halimedeOrbitRadius;
+                const halimedeOrbitZ = Math.sin(halimedeOrbitAngle) * halimedeOrbitRadius;
+                
+                const halimedeSpinSpeed = 0.006;
+                const halimedeSpinAngle = time * halimedeSpinSpeed;
+                const newLocalAngle = localAngle + halimedeSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - halimedeOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - halimedeOrbitRadius);
+                
+                basePositions[i3] = neptuneX + halimedeOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + halimedeOrbitZ + newLocalZ;
+            }
+            
+            // Sao orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -35) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const saoOrbitRadius = 36.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const saoOrbitX = Math.cos(saoOrbitAngle) * saoOrbitRadius;
+                const saoOrbitZ = Math.sin(saoOrbitAngle) * saoOrbitRadius;
+                
+                const saoSpinSpeed = 0.005;
+                const saoSpinAngle = time * saoSpinSpeed;
+                const newLocalAngle = localAngle + saoSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - saoOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - saoOrbitRadius);
+                
+                basePositions[i3] = neptuneX + saoOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + saoOrbitZ + newLocalZ;
+            }
+            
+            // Laomedeia orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -36) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const laomedeiaOrbitRadius = 40.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const laomedeiaOrbitX = Math.cos(laomedeiaOrbitAngle) * laomedeiaOrbitRadius;
+                const laomedeiaOrbitZ = Math.sin(laomedeiaOrbitAngle) * laomedeiaOrbitRadius;
+                
+                const laomedeiaSpinSpeed = 0.006;
+                const laomedeiaSpinAngle = time * laomedeiaSpinSpeed;
+                const newLocalAngle = localAngle + laomedeiaSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - laomedeiaOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - laomedeiaOrbitRadius);
+                
+                basePositions[i3] = neptuneX + laomedeiaOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + laomedeiaOrbitZ + newLocalZ;
+            }
+            
+            // Psamathe orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -37) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const psamatheOrbitRadius = 44.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const psamatheOrbitX = Math.cos(psamatheOrbitAngle) * psamatheOrbitRadius;
+                const psamatheOrbitZ = Math.sin(psamatheOrbitAngle) * psamatheOrbitRadius;
+                
+                const psamatheSpinSpeed = 0.004;
+                const psamatheSpinAngle = time * psamatheSpinSpeed;
+                const newLocalAngle = localAngle + psamatheSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - psamatheOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - psamatheOrbitRadius);
+                
+                basePositions[i3] = neptuneX + psamatheOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + psamatheOrbitZ + newLocalZ;
+            }
+            
+            // Neso orbital motion (orbits around Neptune)
+            if (particleBodyId[i] === -38) {
+                const neptuneIdx = 8;
+                const neptuneAngle = orbitAngles[neptuneIdx];
+                const neptuneX = Math.cos(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                const neptuneZ = Math.sin(neptuneAngle) * BODIES[neptuneIdx].orbitR;
+                
+                const nesoOrbitRadius = 50.0;
+                const localRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3+2] * localOffsets[i3+2]);
+                const localAngle = Math.atan2(localOffsets[i3+2], localOffsets[i3]);
+                
+                const nesoOrbitX = Math.cos(nesoOrbitAngle) * nesoOrbitRadius;
+                const nesoOrbitZ = Math.sin(nesoOrbitAngle) * nesoOrbitRadius;
+                
+                const nesoSpinSpeed = 0.003;
+                const nesoSpinAngle = time * nesoSpinSpeed;
+                const newLocalAngle = localAngle + nesoSpinAngle;
+                const newLocalX = Math.cos(newLocalAngle) * (localRadius - nesoOrbitRadius);
+                const newLocalZ = Math.sin(newLocalAngle) * (localRadius - nesoOrbitRadius);
+                
+                basePositions[i3] = neptuneX + nesoOrbitX + newLocalX;
+                basePositions[i3+1] = localOffsets[i3+1];
+                basePositions[i3+2] = neptuneZ + nesoOrbitZ + newLocalZ;
+            }
         }
         geometry.attributes.color.needsUpdate = true;
     }
@@ -975,6 +3515,270 @@ function animate() {
                 targetZ = Math.sin(angle) * scaledRadius;
             } else if (bodyId === -5) {
                 // Saturn's rings - scale with Saturn's orbit but keep ring structure
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -6) {
+                // Moon - scale with Earth's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -7) {
+                // Phobos - scale with Mars' orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -8) {
+                // Deimos - scale with Mars' orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -9) {
+                // Io - scale with Jupiter's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -10) {
+                // Europa - scale with Jupiter's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -11) {
+                // Ganymede - scale with Jupiter's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -12) {
+                // Callisto - scale with Jupiter's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -13) {
+                // Titan - scale with Saturn's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -14) {
+                // Enceladus - scale with Saturn's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -15) {
+                // Rhea - scale with Saturn's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -16) {
+                // Iapetus - scale with Saturn's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -17) {
+                // Dione - scale with Saturn's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -18) {
+                // Tethys - scale with Saturn's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -19) {
+                // Mimas - scale with Saturn's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -20) {
+                // Miranda - scale with Uranus's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -21) {
+                // Ariel - scale with Uranus's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -22) {
+                // Umbriel - scale with Uranus's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -23) {
+                // Titania - scale with Uranus's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -24) {
+                // Oberon - scale with Uranus's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -25) {
+                // Triton - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -26) {
+                // Proteus - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -27) {
+                // Nereid - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -28) {
+                // Larissa - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -29) {
+                // Despina - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -30) {
+                // Galatea - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -31) {
+                // Thalassa - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -32) {
+                // Naiad - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -33) {
+                // Hippocamp - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -34) {
+                // Halimede - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -35) {
+                // Sao - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -36) {
+                // Laomedeia - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -37) {
+                // Psamathe - scale with Neptune's orbit distance
+                const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
+                const angle = Math.atan2(vz, vx);
+                const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
+                targetX = Math.cos(angle) * scaledRadius;
+                targetY = vy;
+                targetZ = Math.sin(angle) * scaledRadius;
+            } else if (bodyId === -38) {
+                // Neso - scale with Neptune's orbit distance
                 const orbitalRadius = Math.sqrt(vx * vx + vz * vz);
                 const angle = Math.atan2(vz, vx);
                 const scaledRadius = orbitalRadius * (1 + activeExpansion * 1.5);
