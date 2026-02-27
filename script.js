@@ -106,7 +106,7 @@ scene.add(particleSystem);
 // Deep vivid colors for maximum visibility
 const BODIES = [
     { name: "Sun",     orbitR: 0,   r: 13,  speed: 0,    clrs: [0xff4400, 0xff7700, 0xffbb00, 0xffdd22] },
-    { name: "Mercury", orbitR: 20,  r: 1.8, speed: 0.48, clrs: [0x9b9b9b, 0xb8b8b8, 0x888888, 0xa5a5a5] },
+    { name: "Mercury", orbitR: 20,  r: 1.8, speed: 0.48, clrs: [0x8c7e72, 0xa09488, 0x6e6258, 0xb0a29a] },
     { name: "Venus",   orbitR: 30,  r: 2.6, speed: 0.35, clrs: [0xffcc55, 0xeea830, 0xdd9922] },
     { name: "Earth",   orbitR: 40,  r: 3.0, speed: 0.30, clrs: [0x0066ff, 0x0099ff, 0x00cc44, 0x0055ee] },
     { name: "Mars",    orbitR: 50,  r: 2.2, speed: 0.24, clrs: [0xff2200, 0xee3300, 0xdd2200, 0xcc1100] },
@@ -194,18 +194,62 @@ let nesoOrbitAngle = Math.random() * Math.PI * 2; // Neso's orbit around Neptune
 let bodyRanges = [];
 
 // --- 4. INDIVIDUAL PLANET VIEW DATA (for fist-switch cycling) ---
+// Each planet has its natural satellites embedded with real colors
 const PLANET_VIEWS = [
     { name: "Solar System", isSolarSystem: true },
     { name: "Sun",     radius: 50, main: 0xff5500, second: 0xffbb00, third: 0xff2200 },
-    { name: "Mercury", radius: 15, main: 0x9b9b9b, second: 0xb8b8b8, third: 0xa5a5a5 },
+    { name: "Mercury", radius: 15, main: 0x8c7e72, second: 0xa09488, third: 0x6e6258 },
     { name: "Venus",   radius: 22, main: 0xffcc55, second: 0xeea830 },
-    { name: "Earth",   radius: 25, main: 0x0066ff, second: 0x00cc44 },
-    { name: "Mars",    radius: 18, main: 0xff2200, second: 0xee3300 },
-    { name: "Jupiter", radius: 45, main: 0xeeaa55, second: 0xcc7733, third: 0xffcc88 },
-    { name: "Saturn",  radius: 38, main: 0xffdd77, hasRings: true, ringClr: 0xeedd88 },
-    { name: "Uranus",  radius: 30, main: 0x22ccff, second: 0x55eeff },
-    { name: "Neptune", radius: 28, main: 0x2255ff, second: 0x3377ff }
+    { name: "Earth",   radius: 25, main: 0x0066ff, second: 0x00cc44, moons: [
+        { name: "Moon", orbitR: 42, r: 4.5, speed: 0.04, main: 0xADA89E, second: 0x8C8478, third: 0xC2BDB5, particles: 1800 }
+    ]},
+    { name: "Mars",    radius: 18, main: 0xff2200, second: 0xee3300, moons: [
+        { name: "Phobos", orbitR: 28, r: 2.2, speed: 0.08, main: 0x6B5B4D, second: 0x544838, third: 0x7A6A58, particles: 800 },
+        { name: "Deimos", orbitR: 40, r: 1.8, speed: 0.03, main: 0x7A6850, second: 0x635540, third: 0x8B7960, particles: 600 }
+    ]},
+    { name: "Jupiter", radius: 45, main: 0xeeaa55, second: 0xcc7733, third: 0xffcc88, moons: [
+        { name: "Io",       orbitR: 62, r: 3.0, speed: 0.10, main: 0xE8D040, second: 0xE09828, third: 0xF8F0C0, particles: 1000 },
+        { name: "Europa",   orbitR: 76, r: 2.5, speed: 0.06, main: 0xF0E8D0, second: 0xC4AA78, third: 0xE0D4B8, particles: 900 },
+        { name: "Ganymede", orbitR: 92, r: 3.5, speed: 0.04, main: 0x908474, second: 0xB8AC9C, third: 0x685C4C, particles: 1200 },
+        { name: "Callisto", orbitR: 115, r: 3.2, speed: 0.025, main: 0x4A3C30, second: 0x5C4E42, third: 0x3A2C22, particles: 1100 }
+    ]},
+    { name: "Saturn",  radius: 38, main: 0xffdd77, hasRings: true, ringClr: 0xeedd88, moons: [
+        { name: "Mimas",     orbitR: 100, r: 1.5, speed: 0.12, main: 0xD4D0C8, second: 0xC0BCB4, third: 0xDEDAD2, particles: 500 },
+        { name: "Enceladus", orbitR: 112, r: 1.8, speed: 0.08, main: 0xFCFCFA, second: 0xF0F6FF, third: 0xE8F0F8, particles: 600 },
+        { name: "Tethys",    orbitR: 124, r: 2.0, speed: 0.06, main: 0xEAE6E0, second: 0xDCD8D2, third: 0xF0ECE6, particles: 650 },
+        { name: "Dione",     orbitR: 136, r: 2.0, speed: 0.05, main: 0xDCD8D0, second: 0xC4C0B8, third: 0xE4E0D8, particles: 650 },
+        { name: "Rhea",      orbitR: 150, r: 2.3, speed: 0.035, main: 0xD0CCC4, second: 0xC0BCB4, third: 0xDCD8D0, particles: 750 },
+        { name: "Titan",     orbitR: 175, r: 3.5, speed: 0.025, main: 0xCC8030, second: 0xE09838, third: 0xA86820, particles: 1200 },
+        { name: "Iapetus",   orbitR: 210, r: 2.2, speed: 0.015, main: 0x28201A, second: 0xE0D8D0, third: 0x1A1410, particles: 700 }
+    ]},
+    { name: "Uranus",  radius: 30, main: 0x22ccff, second: 0x55eeff, moons: [
+        { name: "Miranda", orbitR: 44, r: 1.8, speed: 0.10, main: 0x908880, second: 0x706860, third: 0xB0A8A0, particles: 550 },
+        { name: "Ariel",   orbitR: 55, r: 2.5, speed: 0.07, main: 0xBCB4AC, second: 0xCCC4BC, third: 0xA49C94, particles: 800 },
+        { name: "Umbriel", orbitR: 66, r: 2.5, speed: 0.05, main: 0x444038, second: 0x545048, third: 0x363228, particles: 800 },
+        { name: "Titania", orbitR: 80, r: 3.2, speed: 0.035, main: 0x887C74, second: 0x9C9088, third: 0x746860, particles: 1000 },
+        { name: "Oberon",  orbitR: 96, r: 3.0, speed: 0.025, main: 0x6C6058, second: 0x7C6450, third: 0x5C5048, particles: 950 }
+    ]},
+    { name: "Neptune", radius: 28, main: 0x2255ff, second: 0x3377ff, moons: [
+        { name: "Naiad",     orbitR: 38, r: 1.2, speed: 0.22, main: 0x383634, second: 0x424040, third: 0x2E2C2A, particles: 350 },
+        { name: "Thalassa",  orbitR: 42, r: 1.3, speed: 0.20, main: 0x3A3836, second: 0x444242, third: 0x302E2C, particles: 350 },
+        { name: "Despina",   orbitR: 47, r: 1.4, speed: 0.18, main: 0x3E3C3A, second: 0x484644, third: 0x343230, particles: 400 },
+        { name: "Galatea",   orbitR: 52, r: 1.4, speed: 0.14, main: 0x3C3A38, second: 0x464442, third: 0x32302E, particles: 400 },
+        { name: "Larissa",   orbitR: 58, r: 1.5, speed: 0.15, main: 0x464442, second: 0x504E4C, third: 0x3C3A38, particles: 450 },
+        { name: "Hippocamp", orbitR: 65, r: 1.0, speed: 0.10, main: 0x343230, second: 0x3E3C3A, third: 0x2A2826, particles: 300 },
+        { name: "Proteus",   orbitR: 74, r: 2.5, speed: 0.12, main: 0x3E3C38, second: 0x484644, third: 0x343230, particles: 800 },
+        { name: "Triton",    orbitR: 90, r: 3.2, speed: -0.04, main: 0xE4CCC0, second: 0xD4B8A8, third: 0xF0DED4, particles: 1100 },
+        { name: "Nereid",    orbitR: 112, r: 1.8, speed: 0.008, main: 0x646060, second: 0x747070, third: 0x545050, particles: 500 },
+        { name: "Halimede",  orbitR: 132, r: 1.2, speed: 0.005, main: 0x585858, second: 0x686868, third: 0x484848, particles: 300 },
+        { name: "Sao",       orbitR: 148, r: 1.2, speed: 0.004, main: 0x565454, second: 0x666262, third: 0x484646, particles: 300 },
+        { name: "Laomedeia", orbitR: 162, r: 1.0, speed: 0.005, main: 0x545050, second: 0x646060, third: 0x464242, particles: 280 },
+        { name: "Psamathe",  orbitR: 176, r: 1.0, speed: 0.003, main: 0x525050, second: 0x626060, third: 0x444242, particles: 280 },
+        { name: "Neso",      orbitR: 192, r: 1.2, speed: 0.002, main: 0x505050, second: 0x606060, third: 0x424242, particles: 300 }
+    ]}
 ];
+
+// Moon orbit state for planet view animation
+let planetViewMoonAngles = [];
+let currentPlanetViewMoons = [];
 
 let currentViewIndex = 0;
 let isSolarSystemView = true;
@@ -2121,40 +2165,24 @@ function generateSolarSystem() {
 function generatePlanetView(view) {
     isSolarSystemView = false;
     bodyRanges = [];
+    currentPlanetViewMoons = [];
+    planetViewMoonAngles = [];
 
-    const PLANET_PARTICLES = Math.floor(PARTICLE_COUNT * 0.75);
-    const STAR_PARTICLES = PARTICLE_COUNT - PLANET_PARTICLES;
+    const moons = view.moons || [];
+    const totalMoonParticles = moons.reduce((sum, m) => sum + m.particles, 0);
+    const STAR_PARTICLES = Math.floor(PARTICLE_COUNT * 0.25);
+    const AVAILABLE_FOR_BODIES = PARTICLE_COUNT - STAR_PARTICLES;
+    const PLANET_PARTICLES = AVAILABLE_FOR_BODIES - totalMoonParticles;
 
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const i3 = i * 3;
-        particleBodyId[i] = -1;
+    let idx = 0;
 
-        // Background stars for planet views
-        if (i >= PLANET_PARTICLES) {
-            const sr = 200 + Math.random()*400;
-            const st = Math.random()*Math.PI*2;
-            const sp = Math.random()*Math.PI;
-            basePositions[i3]   = sr*Math.sin(sp)*Math.cos(st);
-            basePositions[i3+1] = sr*Math.sin(sp)*Math.sin(st);
-            basePositions[i3+2] = sr*Math.cos(sp);
-            const brightness = 0.3 + Math.random()*0.7;
-            colors[i3]=brightness; colors[i3+1]=brightness;
-            colors[i3+2]=brightness*(0.9+Math.random()*0.1);
-            continue;
-        }
+    // --- Generate planet sphere ---
+    const planetEnd = view.hasRings ? Math.floor(PLANET_PARTICLES * 0.7) : PLANET_PARTICLES;
+    for (let i = 0; i < planetEnd && idx < PARTICLE_COUNT; i++) {
+        const i3 = idx * 3;
+        particleBodyId[idx] = -1;
 
-        if (view.hasRings && i > PLANET_PARTICLES * 0.7) {
-            const angle = Math.random() * Math.PI * 2;
-            const r = view.radius * 1.5 + Math.random() * view.radius * 1.2;
-            basePositions[i3]     = Math.cos(angle) * r;
-            basePositions[i3 + 1] = (Math.random() - 0.5) * 2;
-            basePositions[i3 + 2] = Math.sin(angle) * r;
-            const ringColor = new THREE.Color(view.ringClr || 0xaaaaaa).lerp(new THREE.Color(0x555555), Math.random());
-            colors[i3] = ringColor.r * 1.5; colors[i3+1] = ringColor.g * 1.5; colors[i3+2] = ringColor.b * 1.5;
-            continue;
-        }
-
-        const total = view.hasRings ? PLANET_PARTICLES * 0.7 : PLANET_PARTICLES;
+        const total = planetEnd;
         const phi   = Math.acos(-1 + (2 * i) / total);
         const theta = Math.sqrt(total * Math.PI) * phi;
 
@@ -2162,10 +2190,13 @@ function generatePlanetView(view) {
         const y = view.radius * Math.sin(theta) * Math.sin(phi);
         const z = view.radius * Math.cos(phi);
 
-        const noise = 1 + (Math.random() - 0.5) * 0.03; // Less noise for rounder planets
+        const noise = 1 + (Math.random() - 0.5) * 0.03;
         basePositions[i3]     = x * noise;
         basePositions[i3 + 1] = y * noise;
         basePositions[i3 + 2] = z * noise;
+        localOffsets[i3] = x * noise;
+        localOffsets[i3 + 1] = y * noise;
+        localOffsets[i3 + 2] = z * noise;
 
         let pColor = new THREE.Color(view.main);
         if (view.second) {
@@ -2176,17 +2207,11 @@ function generatePlanetView(view) {
             pColor.lerp(new THREE.Color(view.third), Math.random() * 0.3);
         }
         
-        // Add multi-layer surface details for individual planet view
         const lat = phi;
         const lon = theta;
-        
-        // Latitude bands
         const latBand = Math.sin(lat * 10 + lon * 0.2) * 0.09;
-        // Crater and terrain detail
         const craterNoise = (Math.random() > 0.86) ? -0.2 : (Math.random() - 0.5) * 0.07;
-        // Fine texture
         const fineDetail = (Math.random() - 0.5) * 0.05;
-        // Polar variation
         const polarEffect = Math.abs(Math.cos(lat)) * 0.1 * (Math.random() > 0.5 ? 1 : -1);
         
         const totalDetail = latBand + craterNoise + fineDetail + polarEffect;
@@ -2194,13 +2219,144 @@ function generatePlanetView(view) {
         pColor.g = Math.max(0, Math.min(1, pColor.g + totalDetail));
         pColor.b = Math.max(0, Math.min(1, pColor.b + totalDetail));
         
-        let intensity = (view.name === "Sun") ? 4.5 : 1.6; // Natural colors with visible detail
+        let intensity = (view.name === "Sun") ? 4.5 : 1.6;
         colors[i3] = pColor.r * intensity; 
         colors[i3 + 1] = pColor.g * intensity; 
         colors[i3 + 2] = pColor.b * intensity;
+        sizes[idx] = 1.0;
+        idx++;
+    }
+
+    // --- Generate Saturn-like rings ---
+    if (view.hasRings) {
+        const ringCount = PLANET_PARTICLES - planetEnd;
+        for (let i = 0; i < ringCount && idx < PARTICLE_COUNT; i++) {
+            const i3 = idx * 3;
+            particleBodyId[idx] = -1;
+            const angle = Math.random() * Math.PI * 2;
+            const r = view.radius * 1.3 + Math.random() * view.radius * 1.1;
+            basePositions[i3]     = Math.cos(angle) * r;
+            basePositions[i3 + 1] = (Math.random() - 0.5) * 2;
+            basePositions[i3 + 2] = Math.sin(angle) * r;
+            localOffsets[i3] = basePositions[i3];
+            localOffsets[i3 + 1] = basePositions[i3 + 1];
+            localOffsets[i3 + 2] = basePositions[i3 + 2];
+            const ringColor = new THREE.Color(view.ringClr || 0xaaaaaa).lerp(new THREE.Color(0x555555), Math.random());
+            colors[i3] = ringColor.r * 1.5; colors[i3+1] = ringColor.g * 1.5; colors[i3+2] = ringColor.b * 1.5;
+            sizes[idx] = 1.0;
+            idx++;
+        }
+    }
+
+    // --- Generate orbiting moons ---
+    for (let m = 0; m < moons.length; m++) {
+        const moon = moons[m];
+        const moonAngle = (Math.PI * 2 * m / moons.length) + Math.random() * 0.5; // Spread moons around orbit
+        planetViewMoonAngles.push(moonAngle);
+        
+        const moonStartIdx = idx;
+        const moonCenterX = Math.cos(moonAngle) * moon.orbitR;
+        const moonCenterZ = Math.sin(moonAngle) * moon.orbitR;
+
+        for (let p = 0; p < moon.particles && idx < PARTICLE_COUNT; p++) {
+            const i3 = idx * 3;
+            const phi = Math.acos(-1 + (2 * p) / moon.particles);
+            const theta = Math.sqrt(moon.particles * Math.PI) * phi;
+            const n = 1 + (Math.random() - 0.5) * 0.05;
+
+            const lx = moon.r * Math.cos(theta) * Math.sin(phi) * n;
+            const ly = moon.r * Math.sin(theta) * Math.sin(phi) * n;
+            const lz = moon.r * Math.cos(phi) * n;
+
+            // Store local offset relative to moon center
+            localOffsets[i3] = lx;
+            localOffsets[i3 + 1] = ly;
+            localOffsets[i3 + 2] = lz;
+
+            basePositions[i3]     = moonCenterX + lx;
+            basePositions[i3 + 1] = ly;
+            basePositions[i3 + 2] = moonCenterZ + lz;
+
+            particleBodyId[idx] = -50 - m; // Unique moon ID for animation
+
+            // Moon coloring with surface detail
+            let mColor = new THREE.Color(moon.main);
+            if (moon.second) {
+                mColor.lerp(new THREE.Color(moon.second), Math.random() * 0.5);
+            }
+            if (moon.third) {
+                mColor.lerp(new THREE.Color(moon.third), Math.random() * 0.3);
+            }
+
+            // Surface details
+            const lat = phi;
+            const craterDetail = (Math.random() > 0.85) ? -0.2 : (Math.random() - 0.5) * 0.08;
+            const fineDetail = (Math.random() - 0.5) * 0.06;
+            const totalDetail = craterDetail + fineDetail;
+            mColor.r = Math.max(0, Math.min(1, mColor.r + totalDetail));
+            mColor.g = Math.max(0, Math.min(1, mColor.g + totalDetail));
+            mColor.b = Math.max(0, Math.min(1, mColor.b + totalDetail));
+
+            const intensity = 1.4;
+            colors[i3] = mColor.r * intensity;
+            colors[i3 + 1] = mColor.g * intensity;
+            colors[i3 + 2] = mColor.b * intensity;
+            sizes[idx] = 1.0;
+            idx++;
+        }
+
+        currentPlanetViewMoons.push({
+            startIdx: moonStartIdx,
+            endIdx: idx,
+            orbitR: moon.orbitR,
+            speed: moon.speed,
+            moonIdx: m
+        });
+    }
+
+    // --- Generate moon orbit path lines ---
+    for (let m = 0; m < moons.length; m++) {
+        const orbitPts = Math.min(80, Math.floor((PARTICLE_COUNT - idx - STAR_PARTICLES) / Math.max(1, moons.length)));
+        if (orbitPts <= 0) break;
+        for (let p = 0; p < orbitPts && idx < PARTICLE_COUNT - STAR_PARTICLES; p++) {
+            const i3 = idx * 3;
+            const a = (p / orbitPts) * Math.PI * 2;
+            basePositions[i3]     = Math.cos(a) * moons[m].orbitR;
+            basePositions[i3 + 1] = (Math.random() - 0.5) * 0.15;
+            basePositions[i3 + 2] = Math.sin(a) * moons[m].orbitR;
+            localOffsets[i3] = basePositions[i3];
+            localOffsets[i3 + 1] = basePositions[i3 + 1];
+            localOffsets[i3 + 2] = basePositions[i3 + 2];
+            particleBodyId[idx] = -1;
+            colors[i3] = 0.25; colors[i3+1] = 0.35; colors[i3+2] = 0.55;
+            sizes[idx] = 0.6;
+            idx++;
+        }
+    }
+
+    // --- Background stars ---
+    while (idx < PARTICLE_COUNT) {
+        const i3 = idx * 3;
+        particleBodyId[idx] = -1;
+        const sr = 200 + Math.random()*400;
+        const st = Math.random()*Math.PI*2;
+        const sp = Math.random()*Math.PI;
+        basePositions[i3]   = sr*Math.sin(sp)*Math.cos(st);
+        basePositions[i3+1] = sr*Math.sin(sp)*Math.sin(st);
+        basePositions[i3+2] = sr*Math.cos(sp);
+        localOffsets[i3] = basePositions[i3];
+        localOffsets[i3+1] = basePositions[i3+1];
+        localOffsets[i3+2] = basePositions[i3+2];
+        const brightness = 0.3 + Math.random()*0.7;
+        colors[i3]=brightness; colors[i3+1]=brightness;
+        colors[i3+2]=brightness*(0.9+Math.random()*0.1);
+        sizes[idx] = 0.5 + Math.random() * 1.0;
+        idx++;
     }
 
     geometry.attributes.color.needsUpdate = true;
+    geometry.attributes.size.needsUpdate = true;
+    
     document.getElementById('planet-name').innerText = view.name;
 }
 
@@ -2490,6 +2646,26 @@ function animate() {
             basePositions[i3]     = localOffsets[i3] * pulse;
             basePositions[i3 + 1] = localOffsets[i3 + 1] * pulse;
             basePositions[i3 + 2] = localOffsets[i3 + 2] * pulse;
+        }
+    }
+
+    // Animate moons orbiting in individual planet view
+    if (!isSolarSystemView && currentPlanetViewMoons.length > 0) {
+        for (let m = 0; m < currentPlanetViewMoons.length; m++) {
+            const moonData = currentPlanetViewMoons[m];
+            // Update orbit angle
+            planetViewMoonAngles[m] += moonData.speed * 0.008;
+            const angle = planetViewMoonAngles[m];
+            const moonCenterX = Math.cos(angle) * moonData.orbitR;
+            const moonCenterZ = Math.sin(angle) * moonData.orbitR;
+            
+            // Update all particles belonging to this moon
+            for (let idx = moonData.startIdx; idx < moonData.endIdx; idx++) {
+                const i3 = idx * 3;
+                basePositions[i3]     = moonCenterX + localOffsets[i3];
+                basePositions[i3 + 1] = localOffsets[i3 + 1];
+                basePositions[i3 + 2] = moonCenterZ + localOffsets[i3 + 2];
+            }
         }
     }
 
@@ -3429,7 +3605,16 @@ function animate() {
     }
 
     // Smooth camera zoom: pull back for solar system, closer for planets
-    const targetCamZ = isSolarSystemView ? (isMobile ? 350 : 280) : (isMobile ? 180 : 150);
+    // For planet views with moons, zoom out further to show the full moon system
+    let planetViewCamZ = isMobile ? 180 : 150;
+    if (!isSolarSystemView) {
+        const view = PLANET_VIEWS[currentViewIndex];
+        if (view && view.moons && view.moons.length > 0) {
+            const farthestMoonOrbit = Math.max(...view.moons.map(m => m.orbitR + m.r));
+            planetViewCamZ = Math.max(planetViewCamZ, farthestMoonOrbit * (isMobile ? 2.2 : 1.8));
+        }
+    }
+    const targetCamZ = isSolarSystemView ? (isMobile ? 350 : 280) : planetViewCamZ;
     camera.position.z += (targetCamZ - camera.position.z) * 0.03;
 
     // Use touch controls on mobile, hand tracking on desktop
@@ -3458,8 +3643,13 @@ function animate() {
             material.size = 1.8 + (activeExpansion * 0.7) + detailBoost;
         }
     } else {
-        bloomPass.strength = 0.85;
-        material.size = 1.8;
+        // Planet view: enhance detail when zooming in
+        bloomPass.strength = 0.85 + (activeExpansion * 0.4);
+        material.size = 1.8 + (activeExpansion * 0.5);
+        if (activeExpansion > 0.3) {
+            const detailBoost = Math.min(activeExpansion * 0.4, 0.8);
+            material.size = 1.8 + (activeExpansion * 0.5) + detailBoost;
+        }
     }
 
     const pos = geometry.attributes.position.array;
