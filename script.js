@@ -961,9 +961,6 @@ let touchExpansion = 0;
 let lastTapTime = 0;
 
 if (isMobile) {
-    // Hide webcam on mobile as camera might not be accessible/needed
-    document.getElementById('webcam').style.display = 'none';
-    
     // Touch drag for rotation
     renderer.domElement.addEventListener('touchstart', (e) => {
         if (e.touches.length === 1) {
@@ -1200,17 +1197,14 @@ hands.onResults((results) => {
     }
 });
 
-// Initialize camera and hand tracking only on desktop
-if (!isMobile) {
-    const cameraUtils = new Camera(videoElement, {
-        onFrame: async () => { await hands.send({ image: videoElement }); },
-        width: 320, height: 240
-    });
-    cameraUtils.start();
-} else {
-    // Hide loading message on mobile since we're not loading camera
-    document.getElementById('loading').style.display = 'none';
-}
+// Initialize camera and hand tracking on all devices
+const cameraUtils = new Camera(videoElement, {
+    onFrame: async () => { await hands.send({ image: videoElement }); },
+    width: isMobile ? 240 : 320,
+    height: isMobile ? 180 : 240,
+    facingMode: 'user'
+});
+cameraUtils.start();
 
 // --- 10. ANIMATION LOOP ---
 const clock = new THREE.Clock();
