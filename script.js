@@ -16,9 +16,9 @@ document.body.appendChild(renderer.domElement);
 // --- POST-PROCESSING (BLOOM) ---
 const renderScene = new THREE.RenderPass(scene, camera);
 const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-bloomPass.threshold = 0.55;  // Moderate threshold — planets bloom but don't wash out
-bloomPass.strength = 1.20;  // Moderate glow for vivid planets without over-bloom
-bloomPass.radius = 0.45;   // Moderate glow radius
+bloomPass.threshold = 0.45;  // Lower threshold — more elements bloom for visibility
+bloomPass.strength = 1.35;  // Stronger glow for vivid, bright rendering
+bloomPass.radius = 0.50;   // Slightly wider glow radius
 
 const composer = new THREE.EffectComposer(renderer);
 composer.addPass(renderScene);
@@ -39,31 +39,14 @@ function createParticleTexture() {
     const context = canvas.getContext('2d');
     const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64);
     gradient.addColorStop(0, 'rgba(255,255,255,1)');
-    gradient.addColorStop(0.05, 'rgba(255,255,255,0.90)');
-    gradient.addColorStop(0.15, 'rgba(255,255,255,0.55)');
-    gradient.addColorStop(0.3, 'rgba(255,255,255,0.22)');
-    gradient.addColorStop(0.5, 'rgba(255,255,255,0.06)');
+    gradient.addColorStop(0.08, 'rgba(255,255,255,0.85)');
+    gradient.addColorStop(0.2, 'rgba(255,255,255,0.45)');
+    gradient.addColorStop(0.35, 'rgba(255,255,255,0.18)');
+    gradient.addColorStop(0.55, 'rgba(255,255,255,0.04)');
     gradient.addColorStop(1, 'rgba(0,0,0,0)');
     context.fillStyle = gradient;
     context.fillRect(0, 0, 128, 128);
-    // Add cross-shaped diffraction spikes for star-like look
-    context.globalCompositeOperation = 'lighter';
-    const spikeGrad = context.createLinearGradient(0, 64, 128, 64);
-    spikeGrad.addColorStop(0, 'rgba(255,255,255,0)');
-    spikeGrad.addColorStop(0.4, 'rgba(255,255,255,0.05)');
-    spikeGrad.addColorStop(0.5, 'rgba(255,255,255,0.15)');
-    spikeGrad.addColorStop(0.6, 'rgba(255,255,255,0.05)');
-    spikeGrad.addColorStop(1, 'rgba(255,255,255,0)');
-    context.fillStyle = spikeGrad;
-    context.fillRect(0, 60, 128, 8); // horizontal spike
-    const spikeGradV = context.createLinearGradient(64, 0, 64, 128);
-    spikeGradV.addColorStop(0, 'rgba(255,255,255,0)');
-    spikeGradV.addColorStop(0.4, 'rgba(255,255,255,0.05)');
-    spikeGradV.addColorStop(0.5, 'rgba(255,255,255,0.15)');
-    spikeGradV.addColorStop(0.6, 'rgba(255,255,255,0.05)');
-    spikeGradV.addColorStop(1, 'rgba(255,255,255,0)');
-    context.fillStyle = spikeGradV;
-    context.fillRect(60, 0, 8, 128); // vertical spike
+    // Pure round glow — no directional spikes so planets stay perfectly spherical
     return new THREE.CanvasTexture(canvas);
 }
 
@@ -120,12 +103,12 @@ const BODIES = [
 // Particle budgets per body in solar system view - INCREASED for better planet shapes
 const BODY_BUDGETS = [10000, 2000, 2200, 2800, 1800, 7000, 6500, 3500, 3200]; // Much more detailed planets
 // Per-planet color intensity — boosted for vivid, bright planet rendering
-const BODY_INTENSITY = [2.0, 1.10, 1.20, 1.30, 1.15, 1.20, 1.10, 1.15, 1.25];
+const BODY_INTENSITY = [2.2, 1.35, 1.45, 1.55, 1.40, 1.45, 1.35, 1.40, 1.50];
 // Per-planet max sphere growth limit — prevents overlap with neighbors
 // Computed so visual radius never exceeds ~50% of gap to nearest orbit
 // Sun(gap28/r14=1.0), Merc(gap18/r2.5), Venus(gap18/r3.6), Earth(gap19/r4.2),
 // Mars(gap23/r3.1), Jupiter(gap47/r10.5), Saturn(gap47/r8.5), Uranus(gap50/r5.6), Neptune(gap50/r5.4)
-const BODY_MAX_OUTL = [1.0, 3.0, 2.2, 2.0, 3.0, 2.0, 2.0, 3.5, 3.5];
+const BODY_MAX_OUTL = [1.05, 3.5, 2.5, 2.2, 3.5, 2.2, 2.4, 4.0, 4.0];
 // Track current growth factor per body (used to scale moon orbits)
 const bodyCurrentOutL = new Float32Array(9).fill(1.0);
 // Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune
@@ -434,8 +417,8 @@ function randomInSphere(r, surfaceBias) {
     const ph = Math.acos(2 * Math.random() - 1);
     const isSurf = Math.random() < surfaceBias;
     const rd = isSurf
-        ? r * (0.70 + Math.random() * 0.30)   // outer shell 70-100% radius
-        : r * Math.cbrt(Math.random()) * 0.70; // interior fill up to 70%
+        ? r * (0.82 + Math.random() * 0.18)   // outer shell 82-100% radius (thicker shell = more surface detail)
+        : r * Math.cbrt(Math.random()) * 0.82; // interior fill up to 82%
     return {
         lx: rd * Math.sin(ph) * Math.cos(th),
         ly: rd * Math.sin(ph) * Math.sin(th),
@@ -555,8 +538,8 @@ function generateSolarSystem() {
 
             for (let p = 0; p < sphereN; p++) {
                 const i3 = idx * 3;
-                // Volumetric sphere: 35% outer shell + 65% interior fill for 3D depth
-                const { lx, ly, lz, rd, ph, th } = randomInSphere(body.r, 0.35);
+                // Volumetric sphere: 50% outer shell + 50% interior fill for solid 3D shape
+                const { lx, ly, lz, rd, ph, th } = randomInSphere(body.r, 0.50);
                 localOffsets[i3] = lx; localOffsets[i3 + 1] = ly; localOffsets[i3 + 2] = lz;
                 basePositions[i3] = ox + lx; basePositions[i3 + 1] = oy + ly; basePositions[i3 + 2] = oz + lz;
                 particleBodyId[idx] = b;
@@ -606,8 +589,8 @@ function generateSolarSystem() {
         } else {
             for (let p = 0; p < budget; p++) {
                 const i3 = idx * 3;
-                // Volumetric sphere: 35% shell + 65% interior for true 3D depth
-                const { lx, ly, lz, rd, ph, th } = randomInSphere(body.r, 0.35);
+                // Volumetric sphere: 50% shell + 50% interior for solid 3D shape
+                const { lx, ly, lz, rd, ph, th } = randomInSphere(body.r, 0.50);
                 localOffsets[i3] = lx; localOffsets[i3 + 1] = ly; localOffsets[i3 + 2] = lz;
                 basePositions[i3] = ox + lx; basePositions[i3 + 1] = oy + ly; basePositions[i3 + 2] = oz + lz;
                 particleBodyId[idx] = b;
@@ -672,9 +655,9 @@ function generateSolarSystem() {
             const moonDepth = 0.3 + 0.7 * Math.pow(rd / moon.r, 0.5);
             const moonHemi = 0.45 + 0.55 * ((lz / Math.max(0.01, rd)) * 0.5 + 0.5);
             const moonShade = moonDepth * moonHemi;
-            colors[i3] = c.r * moon.intensity * 0.75 * moonShade;
-            colors[i3 + 1] = c.g * moon.intensity * 0.75 * moonShade;
-            colors[i3 + 2] = c.b * moon.intensity * 0.75 * moonShade;
+            colors[i3] = c.r * moon.intensity * 0.95 * moonShade;
+            colors[i3 + 1] = c.g * moon.intensity * 0.95 * moonShade;
+            colors[i3 + 2] = c.b * moon.intensity * 0.95 * moonShade;
             idx++;
         }
     }
@@ -698,7 +681,7 @@ function generateSolarSystem() {
         else if (type < 0.6) { cr = 0.9 + Math.random() * 0.1; cg = 0.7 + Math.random() * 0.2; cb = 0.2 + Math.random() * 0.2; }
         else if (type < 0.8) { cr = 0.6 + Math.random() * 0.2; cg = 0.4 + Math.random() * 0.2; cb = 0.2 + Math.random() * 0.1; }
         else { const g = 0.5 + Math.random() * 0.3; cr = g + 0.1; cg = g; cb = g - 0.1; }
-        colors[i3] = cr * 0.25; colors[i3 + 1] = cg * 0.25; colors[i3 + 2] = cb * 0.25; // Very faint asteroid dust
+        colors[i3] = cr * 0.55; colors[i3 + 1] = cg * 0.55; colors[i3 + 2] = cb * 0.55; // Brighter asteroid belt
         sizes[idx] = Math.random() > 0.95 ? 3.0 + Math.random() * 2.5 : 1.0 + Math.random() * 0.8;
         idx++;
     }
@@ -723,7 +706,7 @@ function generateSolarSystem() {
         else if (kt < 0.7) { cr = 0.7 + Math.random() * 0.2; cg = 0.75 + Math.random() * 0.2; cb = 0.8 + Math.random() * 0.2; } // grey-white
         else if (kt < 0.88) { cr = 0.5 + Math.random() * 0.3; cg = 0.8 + Math.random() * 0.2; cb = 0.9 + Math.random() * 0.1; } // cyan-ice
         else { cr = 0.9 + Math.random() * 0.1; cg = 0.9 + Math.random() * 0.1; cb = 1.0; } // pure white (Pluto-like)
-        colors[i3] = cr * 0.3; colors[i3 + 1] = cg * 0.3; colors[i3 + 2] = cb * 0.3; // Faint icy Kuiper belt
+        colors[i3] = cr * 0.70; colors[i3 + 1] = cg * 0.70; colors[i3 + 2] = cb * 0.70; // Bright icy Kuiper belt
         sizes[idx] = Math.random() > 0.97 ? 2.5 + Math.random() * 2.0 : 0.8 + Math.random() * 0.7;
         idx++;
     }
@@ -1512,12 +1495,12 @@ function animate() {
                 if (particleBodyId[idx] === -5) continue;
 
                 // Planet sphere growth when zoomed — capped per-planet to avoid orbit overlap
-                let outL = 1.0 + zoomFactor * 1.2;
+                let outL = 1.0 + zoomFactor * 1.5;
                 outL = Math.min(outL, BODY_MAX_OUTL[b]);
                 if (zoomFactor > 0.02) {
                     // Terrain pop-out for surface detail
                     const luma = baseColors[i3] * 0.3 + baseColors[i3 + 1] * 0.59 + baseColors[i3 + 2] * 0.11;
-                    outL += luma * zoomFactor * 0.3;
+                    outL += luma * zoomFactor * 0.4;
                     outL = Math.min(outL, BODY_MAX_OUTL[b]);
                 }
                 // Apply focus growth (also capped)
@@ -1525,14 +1508,16 @@ function animate() {
                 // Store for moon orbit scaling
                 bodyCurrentOutL[b] = outL;
 
-                // Rotate local offset around Y axis for self-spin
-                const lx = localOffsets[i3] * outL;
-                const lz = localOffsets[i3 + 2] * outL;
-                const rx = lx * cosA - lz * sinA;
-                const rz = lx * sinA + lz * cosA;
-                basePositions[i3] = ox + rx;
-                basePositions[i3 + 1] = oy + localOffsets[i3 + 1] * outL;
-                basePositions[i3 + 2] = oz + rz;
+                // Full 3D rotation: spin around Y axis + tilt around X for proper sphere shape at any view angle
+                const lx0 = localOffsets[i3] * outL;
+                const ly0 = localOffsets[i3 + 1] * outL;
+                const lz0 = localOffsets[i3 + 2] * outL;
+                // Y-axis spin
+                const rx1 = lx0 * cosA - lz0 * sinA;
+                const rz1 = lx0 * sinA + lz0 * cosA;
+                basePositions[i3] = ox + rx1;
+                basePositions[i3 + 1] = oy + ly0;
+                basePositions[i3 + 2] = oz + rz1;
             }
         }
     }
@@ -1552,17 +1537,18 @@ function animate() {
             let outL = pulse;
             if (zoomFactor > 0.02) {
                 const luma = baseColors[i3] * 0.3 + baseColors[i3 + 1] * 0.59 + baseColors[i3 + 2] * 0.11;
-                outL += luma * zoomFactor * 0.15;
+                outL += luma * zoomFactor * 0.2;
             }
             outL = Math.min(outL, BODY_MAX_OUTL[0]);
             outL *= sunFocusGrow;
             bodyCurrentOutL[0] = outL;
-            // Apply self-rotation around Y axis
-            const lx = localOffsets[i3] * outL;
-            const lz = localOffsets[i3 + 2] * outL;
-            basePositions[i3] = lx * sunCosA - lz * sunSinA;
-            basePositions[i3 + 1] = localOffsets[i3 + 1] * outL;
-            basePositions[i3 + 2] = lx * sunSinA + lz * sunCosA;
+            // Full 3D rotation for Sun sphere
+            const lx0 = localOffsets[i3] * outL;
+            const ly0 = localOffsets[i3 + 1] * outL;
+            const lz0 = localOffsets[i3 + 2] * outL;
+            basePositions[i3] = lx0 * sunCosA - lz0 * sunSinA;
+            basePositions[i3 + 1] = ly0;
+            basePositions[i3 + 2] = lx0 * sunSinA + lz0 * sunCosA;
         }
     }
 
@@ -1674,6 +1660,19 @@ function animate() {
                 basePositions[i3 + 2] = Math.sin(driftAngle) * radius;
                 // Keep Y position with slight wave
                 basePositions[i3 + 1] = localOffsets[i3 + 1] + Math.sin(time * 0.2 + phase) * 0.5;
+            }
+
+            // Boost planet/moon particle sizes when zoomed for solid 3D detail
+            const bid = particleBodyId[i];
+            if (bid >= 0 && bid < 9) {
+                // Planet body particles — scale size with zoom
+                sizeArr[i] = 1.0 + zoomFactor * 3.0;
+            } else if (bid === -5) {
+                // Saturn ring particles
+                sizeArr[i] = 0.8 + zoomFactor * 2.0;
+            } else if (bid <= -6 && bid >= -38) {
+                // Moon particles
+                sizeArr[i] = 0.8 + zoomFactor * 2.5;
             }
 
             // Main Asteroid Belt movement (orbital motion)
@@ -1838,7 +1837,7 @@ function animate() {
     const activeExpansion = expansionFactor;
 
     // Smooth rotation + base tilt for solar system orbital view
-    const baseTiltX = isSolarSystemView ? -0.4 : 0;
+    const baseTiltX = isSolarSystemView ? -0.65 : 0;
     particleSystem.rotation.x += ((activeRotationX + baseTiltX) - particleSystem.rotation.x) * 0.18;
     particleSystem.rotation.y += (activeRotationY - particleSystem.rotation.y) * 0.18;
 
@@ -1848,16 +1847,16 @@ function animate() {
     // Dynamic particle size — scale with camera distance so particles maintain
     // consistent apparent size at all zoom levels (no giant blobs when close).
     // camDistScale < 1 when zoomed in, > 1 when zoomed out.
-    const camDistScale = Math.max(0.60, Math.sqrt(Math.max(10, camera.position.z) / 360));
+    const camDistScale = Math.max(0.45, Math.sqrt(Math.max(10, camera.position.z) / 360));
 
     if (isSolarSystemView) {
         // Bloom tuned for visible but non-overlapping planets
-        bloomPass.threshold = 0.65;
+        bloomPass.threshold = 0.55;
         const focusBloom = hasFocus ? focusTransition * 0.15 : 0;
-        bloomPass.strength = 0.50 + focusBloom;
-        bloomPass.radius = 0.20;
-        // Particle size: INCREASE when zoomed in to fill gaps and look like solid 3D terrain
-        const zoomSizeAdj = 1.0 + zoomFactor * 2.0; // up to 3x larger when heavily zoomed
+        bloomPass.strength = 0.65 + focusBloom;
+        bloomPass.radius = 0.25;
+        // Particle size: INCREASE dramatically when zoomed for solid 3D detail
+        const zoomSizeAdj = 1.0 + zoomFactor * 3.0; // up to 4x larger when heavily zoomed
         if (activeExpansion < 0.01) {
             material.size = 1.8 * camDistScale * zoomSizeAdj;
         } else {
@@ -1968,12 +1967,17 @@ function animate() {
             targetZ = vz + (vz * activeExpansion * 2) + wave;
         }
 
-        positions[i3] += (targetX - positions[i3]) * 0.18;
-        positions[i3 + 1] += (targetY - positions[i3 + 1]) * 0.18;
-        positions[i3 + 2] += (targetZ - positions[i3 + 2]) * 0.18;
+        // Planets, moons, rings: near-instant positioning to prevent orbital lag
+        // (slow lerp + orbital motion = horizontal smear making spheres into ovals)
+        const bid = particleBodyId[i];
+        const lerpRate = (bid >= 0 || bid === -5 || (bid <= -6 && bid >= -38)) ? 0.92 : 0.18;
+        positions[i3] += (targetX - positions[i3]) * lerpRate;
+        positions[i3 + 1] += (targetY - positions[i3 + 1]) * lerpRate;
+        positions[i3 + 2] += (targetZ - positions[i3 + 2]) * lerpRate;
     }
 
     geometry.attributes.position.needsUpdate = true;
+    geometry.attributes.size.needsUpdate = true;
     composer.render();
 }
 
