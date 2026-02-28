@@ -681,7 +681,7 @@ function generateSolarSystem() {
         else if (type < 0.6) { cr = 0.9 + Math.random() * 0.1; cg = 0.7 + Math.random() * 0.2; cb = 0.2 + Math.random() * 0.2; }
         else if (type < 0.8) { cr = 0.6 + Math.random() * 0.2; cg = 0.4 + Math.random() * 0.2; cb = 0.2 + Math.random() * 0.1; }
         else { const g = 0.5 + Math.random() * 0.3; cr = g + 0.1; cg = g; cb = g - 0.1; }
-        colors[i3] = cr * 0.55; colors[i3 + 1] = cg * 0.55; colors[i3 + 2] = cb * 0.55; // Brighter asteroid belt
+        colors[i3] = cr * 2.75; colors[i3 + 1] = cg * 2.75; colors[i3 + 2] = cb * 2.75; // 5x boosted asteroid belt
         sizes[idx] = Math.random() > 0.95 ? 3.0 + Math.random() * 2.5 : 1.0 + Math.random() * 0.8;
         idx++;
     }
@@ -706,7 +706,7 @@ function generateSolarSystem() {
         else if (kt < 0.7) { cr = 0.7 + Math.random() * 0.2; cg = 0.75 + Math.random() * 0.2; cb = 0.8 + Math.random() * 0.2; } // grey-white
         else if (kt < 0.88) { cr = 0.5 + Math.random() * 0.3; cg = 0.8 + Math.random() * 0.2; cb = 0.9 + Math.random() * 0.1; } // cyan-ice
         else { cr = 0.9 + Math.random() * 0.1; cg = 0.9 + Math.random() * 0.1; cb = 1.0; } // pure white (Pluto-like)
-        colors[i3] = cr * 0.70; colors[i3 + 1] = cg * 0.70; colors[i3 + 2] = cb * 0.70; // Bright icy Kuiper belt
+        colors[i3] = cr * 3.50; colors[i3 + 1] = cg * 3.50; colors[i3 + 2] = cb * 3.50; // 5x boosted icy Kuiper belt
         sizes[idx] = Math.random() > 0.97 ? 2.5 + Math.random() * 2.0 : 0.8 + Math.random() * 0.7;
         idx++;
     }
