@@ -2,10 +2,10 @@
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x000005); // Deep space background
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1500);
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2500);
 // Detect mobile device for better initial view
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-camera.position.z = isMobile ? 350 : 280; // Zoom out more to see wider solar system
+camera.position.z = isMobile ? 420 : 360; // Zoom out more to see wider solar system
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -16,9 +16,9 @@ document.body.appendChild(renderer.domElement);
 // --- POST-PROCESSING (BLOOM) ---
 const renderScene = new THREE.RenderPass(scene, camera);
 const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-bloomPass.threshold = 0.92;  // Only Sun and brightest stars glow — dark space feel
-bloomPass.strength = 0.35;  // Subtle glow — planets are lit by reflected light, not self-luminous
-bloomPass.radius = 0.15;  // Very tight glow for sharp planet edges
+bloomPass.threshold = 0.55;  // Moderate threshold — planets bloom but don't wash out
+bloomPass.strength = 1.20;  // Moderate glow for vivid planets without over-bloom
+bloomPass.radius = 0.45;   // Moderate glow radius
 
 const composer = new THREE.EffectComposer(renderer);
 composer.addPass(renderScene);
@@ -39,10 +39,10 @@ function createParticleTexture() {
     const context = canvas.getContext('2d');
     const gradient = context.createRadialGradient(64, 64, 0, 64, 64, 64);
     gradient.addColorStop(0, 'rgba(255,255,255,1)');
-    gradient.addColorStop(0.05, 'rgba(255,255,255,0.95)');
-    gradient.addColorStop(0.15, 'rgba(255,255,255,0.6)');
-    gradient.addColorStop(0.3, 'rgba(255,255,255,0.25)');
-    gradient.addColorStop(0.5, 'rgba(255,255,255,0.07)');
+    gradient.addColorStop(0.05, 'rgba(255,255,255,0.90)');
+    gradient.addColorStop(0.15, 'rgba(255,255,255,0.55)');
+    gradient.addColorStop(0.3, 'rgba(255,255,255,0.22)');
+    gradient.addColorStop(0.5, 'rgba(255,255,255,0.06)');
     gradient.addColorStop(1, 'rgba(0,0,0,0)');
     context.fillStyle = gradient;
     context.fillRect(0, 0, 128, 128);
@@ -68,7 +68,7 @@ function createParticleTexture() {
 }
 
 // --- 2. PARTICLE SYSTEM SETUP ---
-const PARTICLE_COUNT = 70000;
+const PARTICLE_COUNT = 90000;
 const geometry = new THREE.BufferGeometry();
 const positions = new Float32Array(PARTICLE_COUNT * 3);
 const colors = new Float32Array(PARTICLE_COUNT * 3);
@@ -91,10 +91,10 @@ sizes.fill(1.0); // Slightly larger for better coverage
 geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
 const material = new THREE.PointsMaterial({
-    size: 1.8, // Increased for better planet shape definition
+    size: 1.8, // Good base size for planet visibility
     vertexColors: true,
     transparent: true,
-    opacity: 0.98, // More opaque for solid-looking planets
+    opacity: 0.95, // Slightly transparent to avoid solid white blobs
     blending: THREE.AdditiveBlending,
     map: createParticleTexture(),
     depthWrite: false
@@ -106,22 +106,28 @@ scene.add(particleSystem);
 // --- 3. SOLAR SYSTEM BODY DATA (for orbital view) ---
 // Real planet colors based on actual astronomical observations
 const BODIES = [
-    { name: "Sun", orbitR: 0, r: 10, speed: 0, inc: 0, clrs: [0xffd700, 0xffa500, 0xffcc00, 0xffe135] },
-    { name: "Mercury", orbitR: 20, r: 1.8, speed: 0.48, inc: 0.122, clrs: [0x8c7853, 0x9c8a6a, 0x7a6a4d, 0xa39787] },
-    { name: "Venus", orbitR: 30, r: 2.6, speed: 0.35, inc: 0.059, clrs: [0xe8d5b7, 0xffc649, 0xe4c998, 0xd4b896] },
-    { name: "Earth", orbitR: 40, r: 3.0, speed: 0.30, inc: 0, clrs: [0x1e4d8b, 0x2e5f99, 0x4a7c3d, 0x6b93d6] },
-    { name: "Mars", orbitR: 50, r: 2.2, speed: 0.24, inc: 0.032, clrs: [0xcd5c5c, 0xa0522d, 0xb87333, 0xc47451] },
-    { name: "Jupiter", orbitR: 85, r: 7.5, speed: 0.13, inc: 0.023, clrs: [0xc88b3a, 0xd4a574, 0xb77731, 0xe0c097] },
-    { name: "Saturn", orbitR: 110, r: 6.0, speed: 0.10, inc: 0.044, clrs: [0xf4e7c3, 0xe6d7b3, 0xfad89d, 0xd5c4a1], hasRings: true, ringClrs: [0xf0e5c9, 0xd9c7a5, 0xc4b28b] },
-    { name: "Uranus", orbitR: 145, r: 4.0, speed: 0.07, inc: 0.014, clrs: [0x4fd0e7, 0x68d4e6, 0x5acbe6, 0x7dd6e8] },
-    { name: "Neptune", orbitR: 165, r: 3.8, speed: 0.05, inc: 0.032, clrs: [0x4169e1, 0x4f86f7, 0x5a7fcb, 0x4682b4] }
+    { name: "Sun", orbitR: 0, r: 14, speed: 0, inc: 0, clrs: [0xffd700, 0xffa500, 0xffcc00, 0xffe135] },
+    { name: "Mercury", orbitR: 28, r: 2.5, speed: 0.48, inc: 0.122, clrs: [0x8c7853, 0x9c8a6a, 0x7a6a4d, 0xa39787] },
+    { name: "Venus", orbitR: 46, r: 3.6, speed: 0.35, inc: 0.059, clrs: [0xe8d5b7, 0xffc649, 0xe4c998, 0xd4b896] },
+    { name: "Earth", orbitR: 65, r: 4.2, speed: 0.30, inc: 0, clrs: [0x1e4d8b, 0x2e5f99, 0x4a7c3d, 0x6b93d6] },
+    { name: "Mars", orbitR: 88, r: 3.1, speed: 0.24, inc: 0.032, clrs: [0xcd5c5c, 0xa0522d, 0xb87333, 0xc47451] },
+    { name: "Jupiter", orbitR: 135, r: 10.5, speed: 0.13, inc: 0.023, clrs: [0xc88b3a, 0xd4a574, 0xb77731, 0xe0c097] },
+    { name: "Saturn", orbitR: 182, r: 8.5, speed: 0.10, inc: 0.044, clrs: [0xf4e7c3, 0xe6d7b3, 0xfad89d, 0xd5c4a1], hasRings: true, ringClrs: [0xf0e5c9, 0xd9c7a5, 0xc4b28b] },
+    { name: "Uranus", orbitR: 235, r: 5.6, speed: 0.07, inc: 0.014, clrs: [0x4fd0e7, 0x68d4e6, 0x5acbe6, 0x7dd6e8] },
+    { name: "Neptune", orbitR: 285, r: 5.4, speed: 0.05, inc: 0.032, clrs: [0x4169e1, 0x4f86f7, 0x5a7fcb, 0x4682b4] }
 ];
 
 // Particle budgets per body in solar system view - INCREASED for better planet shapes
-const BODY_BUDGETS = [8000, 1200, 1500, 1800, 1000, 5000, 4500, 2500, 2200]; // Much more detailed planets
-// Per-planet color intensity — calibrated for AdditiveBlending:
-// Low per-particle intensity so overlapping particles produce colored centers (not white)
-const BODY_INTENSITY = [1.0, 0.22, 0.15, 0.40, 0.28, 0.28, 0.18, 0.32, 0.40];
+const BODY_BUDGETS = [10000, 2000, 2200, 2800, 1800, 7000, 6500, 3500, 3200]; // Much more detailed planets
+// Per-planet color intensity — boosted for vivid, bright planet rendering
+const BODY_INTENSITY = [2.0, 1.10, 1.20, 1.30, 1.15, 1.20, 1.10, 1.15, 1.25];
+// Per-planet max sphere growth limit — prevents overlap with neighbors
+// Computed so visual radius never exceeds ~50% of gap to nearest orbit
+// Sun(gap28/r14=1.0), Merc(gap18/r2.5), Venus(gap18/r3.6), Earth(gap19/r4.2),
+// Mars(gap23/r3.1), Jupiter(gap47/r10.5), Saturn(gap47/r8.5), Uranus(gap50/r5.6), Neptune(gap50/r5.4)
+const BODY_MAX_OUTL = [1.0, 3.0, 2.2, 2.0, 3.0, 2.0, 2.0, 3.5, 3.5];
+// Track current growth factor per body (used to scale moon orbits)
+const bodyCurrentOutL = new Float32Array(9).fill(1.0);
 // Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune
 const MOON_BUDGET = 400;            // Earth's Moon
 const PHOBOS_BUDGET = 200;          // Mars' moon Phobos
@@ -160,7 +166,7 @@ const ASTEROID_BUDGET = 12000;      // Main belt (Mars–Jupiter)
 const KUIPER_BUDGET = 5000;         // Kuiper belt (beyond Neptune)
 const SCATTERED_BUDGET = 2500;      // Rogue/scattered asteroids throughout space
 const ORBIT_LINE_BUDGET = 3000;
-const STAR_BUDGET = 25300; // massive star field for realistic look
+const STAR_BUDGET = 28000; // massive star field for realistic look
 
 let orbitAngles = BODIES.map(() => Math.random() * Math.PI * 2);
 let moonOrbitAngle = Math.random() * Math.PI * 2; // Moon's orbit around Earth
@@ -204,141 +210,141 @@ let bodyRanges = [];
 const SOLAR_SYSTEM_MOONS = [
     // Earth (parentIdx 3)
     {
-        parentIdx: 3, bodyId: -6, orbitR: 7.0, r: 0.9, orbitSpeed: 0.04, spinSpeed: 0.02,
+        parentIdx: 3, bodyId: -6, orbitR: 10.0, r: 1.2, orbitSpeed: 0.04, spinSpeed: 0.02,
         budget: MOON_BUDGET, colors: [0xcccccc, 0xbbbbbb, 0xaaaaaa, 0xdddddd], intensity: 1.3
     },
     // Mars (parentIdx 4)
     {
-        parentIdx: 4, bodyId: -7, orbitR: 5.0, r: 0.45, orbitSpeed: 0.08, spinSpeed: 0.05,
+        parentIdx: 4, bodyId: -7, orbitR: 7.0, r: 0.60, orbitSpeed: 0.08, spinSpeed: 0.05,
         budget: PHOBOS_BUDGET, colors: [0x8b7355, 0x6b5d4f, 0x7a6a5a, 0x5c4f42], intensity: 1.2
     },
     {
-        parentIdx: 4, bodyId: -8, orbitR: 7.0, r: 0.35, orbitSpeed: 0.03, spinSpeed: 0.03,
+        parentIdx: 4, bodyId: -8, orbitR: 10.0, r: 0.48, orbitSpeed: 0.03, spinSpeed: 0.03,
         budget: DEIMOS_BUDGET, colors: [0x9a8975, 0xa89580, 0x8d7d6b, 0xb0a090], intensity: 1.2
     },
-    // Jupiter (parentIdx 5) - planet r=7.5, moons well outside
+    // Jupiter (parentIdx 5) - planet r=10.5, moons well outside
     {
-        parentIdx: 5, bodyId: -9, orbitR: 14.0, r: 1.0, orbitSpeed: 0.10, spinSpeed: 0.06,
+        parentIdx: 5, bodyId: -9, orbitR: 19.5, r: 1.3, orbitSpeed: 0.10, spinSpeed: 0.06,
         budget: IO_BUDGET, colors: [0xffdd44, 0xffaa22, 0xff8800, 0xffcc33], intensity: 1.4
     },
     {
-        parentIdx: 5, bodyId: -10, orbitR: 18.0, r: 0.85, orbitSpeed: 0.06, spinSpeed: 0.04,
+        parentIdx: 5, bodyId: -10, orbitR: 25.0, r: 1.1, orbitSpeed: 0.06, spinSpeed: 0.04,
         budget: EUROPA_BUDGET, colors: [0xeeeeff, 0xddeeff, 0xccddff, 0xffffff], intensity: 1.5
     },
     {
-        parentIdx: 5, bodyId: -11, orbitR: 23.0, r: 1.2, orbitSpeed: 0.04, spinSpeed: 0.035,
+        parentIdx: 5, bodyId: -11, orbitR: 32.0, r: 1.55, orbitSpeed: 0.04, spinSpeed: 0.035,
         budget: GANYMEDE_BUDGET, colors: [0x998877, 0xaa9988, 0x887766, 0xbbaa99], intensity: 1.3
     },
     {
-        parentIdx: 5, bodyId: -12, orbitR: 28.0, r: 1.1, orbitSpeed: 0.025, spinSpeed: 0.025,
+        parentIdx: 5, bodyId: -12, orbitR: 39.0, r: 1.45, orbitSpeed: 0.025, spinSpeed: 0.025,
         budget: CALLISTO_BUDGET, colors: [0x6b5d50, 0x7a6d5f, 0x5c4f42, 0x8a7d6f], intensity: 1.2
     },
-    // Saturn (parentIdx 6) - r=6, rings extend to ~r*2.55=~15.3, moons clearly outside
+    // Saturn (parentIdx 6) - r=8.5, rings extend to ~r*2.55=~21.7, moons clearly outside
     {
-        parentIdx: 6, bodyId: -19, orbitR: 17.0, r: 0.48, orbitSpeed: 0.12, spinSpeed: 0.05,
+        parentIdx: 6, bodyId: -19, orbitR: 24.0, r: 0.65, orbitSpeed: 0.12, spinSpeed: 0.05,
         budget: MIMAS_BUDGET, colors: [0xc0c0c0, 0xb0b0b0, 0xd0d0d0, 0xa8a8a8], intensity: 1.3
     },
     {
-        parentIdx: 6, bodyId: -14, orbitR: 19.0, r: 0.55, orbitSpeed: 0.08, spinSpeed: 0.045,
+        parentIdx: 6, bodyId: -14, orbitR: 27.0, r: 0.75, orbitSpeed: 0.08, spinSpeed: 0.045,
         budget: ENCELADUS_BUDGET, colors: [0xffffff, 0xf0f8ff, 0xe8f4ff, 0xfcfcfc], intensity: 1.6
     },
     {
-        parentIdx: 6, bodyId: -18, orbitR: 21.0, r: 0.60, orbitSpeed: 0.06, spinSpeed: 0.04,
+        parentIdx: 6, bodyId: -18, orbitR: 30.0, r: 0.82, orbitSpeed: 0.06, spinSpeed: 0.04,
         budget: TETHYS_BUDGET, colors: [0xfafafa, 0xf0f0f0, 0xffffff, 0xe8e8e8], intensity: 1.5
     },
     {
-        parentIdx: 6, bodyId: -17, orbitR: 24.0, r: 0.62, orbitSpeed: 0.05, spinSpeed: 0.04,
+        parentIdx: 6, bodyId: -17, orbitR: 34.0, r: 0.85, orbitSpeed: 0.05, spinSpeed: 0.04,
         budget: DIONE_BUDGET, colors: [0xe8e8e8, 0xd8d8d8, 0xf0f0f0, 0xc8c8c8], intensity: 1.45
     },
     {
-        parentIdx: 6, bodyId: -15, orbitR: 27.0, r: 0.75, orbitSpeed: 0.035, spinSpeed: 0.035,
+        parentIdx: 6, bodyId: -15, orbitR: 38.0, r: 1.02, orbitSpeed: 0.035, spinSpeed: 0.035,
         budget: RHEA_BUDGET, colors: [0xd0d0d0, 0xc8c8c8, 0xe0e0e0, 0xb8b8b8], intensity: 1.4
     },
     {
-        parentIdx: 6, bodyId: -13, orbitR: 34.0, r: 1.15, orbitSpeed: 0.025, spinSpeed: 0.03,
+        parentIdx: 6, bodyId: -13, orbitR: 48.0, r: 1.55, orbitSpeed: 0.025, spinSpeed: 0.03,
         budget: TITAN_BUDGET, colors: [0xdd8844, 0xcc7733, 0xee9955, 0xbb6622], intensity: 1.3
     },
     {
-        parentIdx: 6, bodyId: -16, orbitR: 44.0, r: 0.72, orbitSpeed: 0.015, spinSpeed: 0.02,
+        parentIdx: 6, bodyId: -16, orbitR: 62.0, r: 0.98, orbitSpeed: 0.015, spinSpeed: 0.02,
         budget: IAPETUS_BUDGET, colors: [0x3a3a3a, 0x2a2a2a, 0xe8e8e8, 0xd8d8d8], intensity: 1.3
     },
-    // Uranus (parentIdx 7) - r=4.0, moons well outside
+    // Uranus (parentIdx 7) - r=5.6, moons well outside
     {
-        parentIdx: 7, bodyId: -20, orbitR: 9.0, r: 0.50, orbitSpeed: 0.10, spinSpeed: 0.05,
+        parentIdx: 7, bodyId: -20, orbitR: 12.5, r: 0.68, orbitSpeed: 0.10, spinSpeed: 0.05,
         budget: MIRANDA_BUDGET, colors: [0x9a8b7a, 0x8a7a6a, 0xa59585, 0x7a6a5a], intensity: 1.25
     },
     {
-        parentIdx: 7, bodyId: -21, orbitR: 12.5, r: 0.85, orbitSpeed: 0.07, spinSpeed: 0.04,
+        parentIdx: 7, bodyId: -21, orbitR: 17.5, r: 1.15, orbitSpeed: 0.07, spinSpeed: 0.04,
         budget: ARIEL_BUDGET, colors: [0xe8e8e8, 0xf0f0f0, 0xd0d0d0, 0xc8c8c8], intensity: 1.4
     },
     {
-        parentIdx: 7, bodyId: -22, orbitR: 16.0, r: 0.85, orbitSpeed: 0.05, spinSpeed: 0.03,
+        parentIdx: 7, bodyId: -22, orbitR: 22.5, r: 1.15, orbitSpeed: 0.05, spinSpeed: 0.03,
         budget: UMBRIEL_BUDGET, colors: [0x4a4a4a, 0x555555, 0x3f3f3f, 0x606060], intensity: 1.2
     },
     {
-        parentIdx: 7, bodyId: -23, orbitR: 20.0, r: 1.15, orbitSpeed: 0.035, spinSpeed: 0.035,
+        parentIdx: 7, bodyId: -23, orbitR: 28.0, r: 1.55, orbitSpeed: 0.035, spinSpeed: 0.035,
         budget: TITANIA_BUDGET, colors: [0xa89888, 0x988878, 0xb8a898, 0x887868], intensity: 1.3
     },
     {
-        parentIdx: 7, bodyId: -24, orbitR: 26.0, r: 1.10, orbitSpeed: 0.025, spinSpeed: 0.025,
+        parentIdx: 7, bodyId: -24, orbitR: 36.5, r: 1.48, orbitSpeed: 0.025, spinSpeed: 0.025,
         budget: OBERON_BUDGET, colors: [0x786868, 0x685858, 0x887878, 0x584848], intensity: 1.25
     },
-    // Neptune (parentIdx 8) - r=3.8, moons clearly outside
+    // Neptune (parentIdx 8) - r=5.4, moons clearly outside with bright visible colors
     {
-        parentIdx: 8, bodyId: -32, orbitR: 9.0, r: 0.48, orbitSpeed: 0.22, spinSpeed: 0.11,
-        budget: NAIAD_BUDGET, colors: [0x444444, 0x4e4e4e, 0x3c3c3c, 0x585858], intensity: 1.1
+        parentIdx: 8, bodyId: -32, orbitR: 13.0, r: 0.65, orbitSpeed: 0.22, spinSpeed: 0.11,
+        budget: NAIAD_BUDGET, colors: [0x8a8a8a, 0x949494, 0x808080, 0xa0a0a0], intensity: 1.7
     },
     {
-        parentIdx: 8, bodyId: -31, orbitR: 11.0, r: 0.51, orbitSpeed: 0.20, spinSpeed: 0.10,
-        budget: THALASSA_BUDGET, colors: [0x464646, 0x505050, 0x3e3e3e, 0x5a5a5a], intensity: 1.15
+        parentIdx: 8, bodyId: -31, orbitR: 15.5, r: 0.68, orbitSpeed: 0.20, spinSpeed: 0.10,
+        budget: THALASSA_BUDGET, colors: [0x8c8c8c, 0x969696, 0x828282, 0xa2a2a2], intensity: 1.7
     },
     {
-        parentIdx: 8, bodyId: -29, orbitR: 12.5, r: 0.55, orbitSpeed: 0.18, spinSpeed: 0.09,
-        budget: DESPINA_BUDGET, colors: [0x484848, 0x525252, 0x404040, 0x5c5c5c], intensity: 1.15
+        parentIdx: 8, bodyId: -29, orbitR: 18.0, r: 0.72, orbitSpeed: 0.18, spinSpeed: 0.09,
+        budget: DESPINA_BUDGET, colors: [0x909090, 0x9a9a9a, 0x868686, 0xa6a6a6], intensity: 1.7
     },
     {
-        parentIdx: 8, bodyId: -30, orbitR: 14.0, r: 0.53, orbitSpeed: 0.14, spinSpeed: 0.07,
-        budget: GALATEA_BUDGET, colors: [0x4a4a4a, 0x545454, 0x424242, 0x5e5e5e], intensity: 1.15
+        parentIdx: 8, bodyId: -30, orbitR: 20.0, r: 0.70, orbitSpeed: 0.14, spinSpeed: 0.07,
+        budget: GALATEA_BUDGET, colors: [0x8e8e8e, 0x989898, 0x848484, 0xa4a4a4], intensity: 1.7
     },
     {
-        parentIdx: 8, bodyId: -28, orbitR: 16.0, r: 0.60, orbitSpeed: 0.15, spinSpeed: 0.08,
-        budget: LARISSA_BUDGET, colors: [0x505050, 0x5a5a5a, 0x484848, 0x606060], intensity: 1.15
+        parentIdx: 8, bodyId: -28, orbitR: 23.0, r: 0.80, orbitSpeed: 0.15, spinSpeed: 0.08,
+        budget: LARISSA_BUDGET, colors: [0x949494, 0x9e9e9e, 0x8a8a8a, 0xaaaaaa], intensity: 1.7
     },
     {
-        parentIdx: 8, bodyId: -25, orbitR: 20.0, r: 1.20, orbitSpeed: -0.04, spinSpeed: 0.04,
-        budget: TRITON_BUDGET, colors: [0xf5d5d5, 0xedc5c5, 0xffdada, 0xe8c0c0], intensity: 1.45
+        parentIdx: 8, bodyId: -25, orbitR: 28.0, r: 1.55, orbitSpeed: -0.04, spinSpeed: 0.04,
+        budget: TRITON_BUDGET, colors: [0xf5d5d5, 0xedc5c5, 0xffdada, 0xe8c0c0], intensity: 1.8
     },
     {
-        parentIdx: 8, bodyId: -33, orbitR: 24.0, r: 0.35, orbitSpeed: 0.10, spinSpeed: 0.05,
-        budget: HIPPOCAMP_BUDGET, colors: [0x606060, 0x6a6a6a, 0x585858, 0x707070], intensity: 1.1
+        parentIdx: 8, bodyId: -33, orbitR: 34.0, r: 0.48, orbitSpeed: 0.10, spinSpeed: 0.05,
+        budget: HIPPOCAMP_BUDGET, colors: [0x999999, 0xa3a3a3, 0x909090, 0xb0b0b0], intensity: 1.6
     },
     {
-        parentIdx: 8, bodyId: -26, orbitR: 28.0, r: 0.95, orbitSpeed: 0.12, spinSpeed: 0.06,
-        budget: PROTEUS_BUDGET, colors: [0x3a3a3a, 0x454545, 0x303030, 0x505050], intensity: 1.1
+        parentIdx: 8, bodyId: -26, orbitR: 40.0, r: 1.25, orbitSpeed: 0.12, spinSpeed: 0.06,
+        budget: PROTEUS_BUDGET, colors: [0x808080, 0x8a8a8a, 0x767676, 0x969696], intensity: 1.7
     },
     {
-        parentIdx: 8, bodyId: -27, orbitR: 34.0, r: 0.58, orbitSpeed: 0.008, spinSpeed: 0.01,
-        budget: NEREID_BUDGET, colors: [0x888888, 0x7a7a7a, 0x959595, 0x6c6c6c], intensity: 1.2
+        parentIdx: 8, bodyId: -27, orbitR: 48.0, r: 0.76, orbitSpeed: 0.008, spinSpeed: 0.01,
+        budget: NEREID_BUDGET, colors: [0xa0a0a0, 0x969696, 0xababab, 0x8c8c8c], intensity: 1.6
     },
     {
-        parentIdx: 8, bodyId: -34, orbitR: 40.0, r: 0.40, orbitSpeed: 0.005, spinSpeed: 0.006,
-        budget: HALIMEDE_BUDGET, colors: [0x707070, 0x7a7a7a, 0x686868, 0x808080], intensity: 1.1
+        parentIdx: 8, bodyId: -34, orbitR: 57.0, r: 0.55, orbitSpeed: 0.005, spinSpeed: 0.006,
+        budget: HALIMEDE_BUDGET, colors: [0x909090, 0x9a9a9a, 0x888888, 0xa2a2a2], intensity: 1.5
     },
     {
-        parentIdx: 8, bodyId: -35, orbitR: 46.0, r: 0.38, orbitSpeed: 0.004, spinSpeed: 0.005,
-        budget: SAO_BUDGET, colors: [0x6e6e6e, 0x787878, 0x666666, 0x7e7e7e], intensity: 1.1
+        parentIdx: 8, bodyId: -35, orbitR: 65.0, r: 0.52, orbitSpeed: 0.004, spinSpeed: 0.005,
+        budget: SAO_BUDGET, colors: [0x8e8e8e, 0x989898, 0x868686, 0xa0a0a0], intensity: 1.5
     },
     {
-        parentIdx: 8, bodyId: -36, orbitR: 52.0, r: 0.36, orbitSpeed: 0.005, spinSpeed: 0.006,
-        budget: LAOMEDEIA_BUDGET, colors: [0x6c6c6c, 0x767676, 0x646464, 0x7c7c7c], intensity: 1.1
+        parentIdx: 8, bodyId: -36, orbitR: 74.0, r: 0.50, orbitSpeed: 0.005, spinSpeed: 0.006,
+        budget: LAOMEDEIA_BUDGET, colors: [0x8c8c8c, 0x969696, 0x848484, 0x9e9e9e], intensity: 1.5
     },
     {
-        parentIdx: 8, bodyId: -37, orbitR: 58.0, r: 0.36, orbitSpeed: 0.003, spinSpeed: 0.004,
-        budget: PSAMATHE_BUDGET, colors: [0x6a6a6a, 0x747474, 0x626262, 0x7a7a7a], intensity: 1.1
+        parentIdx: 8, bodyId: -37, orbitR: 82.0, r: 0.50, orbitSpeed: 0.003, spinSpeed: 0.004,
+        budget: PSAMATHE_BUDGET, colors: [0x8a8a8a, 0x949494, 0x828282, 0x9c9c9c], intensity: 1.5
     },
     {
-        parentIdx: 8, bodyId: -38, orbitR: 65.0, r: 0.38, orbitSpeed: 0.002, spinSpeed: 0.003,
-        budget: NESO_BUDGET, colors: [0x686868, 0x727272, 0x606060, 0x787878], intensity: 1.1
+        parentIdx: 8, bodyId: -38, orbitR: 92.0, r: 0.52, orbitSpeed: 0.002, spinSpeed: 0.003,
+        budget: NESO_BUDGET, colors: [0x888888, 0x929292, 0x808080, 0x9a9a9a], intensity: 1.5
     },
 ];
 // Initialize moon orbit angles (random start positions)
@@ -352,64 +358,64 @@ SOLAR_SYSTEM_MOONS.forEach(m => { moonDataByBodyId[m.bodyId] = m; });
 // Each planet has its natural satellites embedded with real colors
 const PLANET_VIEWS = [
     { name: "Solar System", isSolarSystem: true },
-    { name: "Sun", radius: 50, main: 0xff5500, second: 0xffbb00, third: 0xff2200 },
-    { name: "Mercury", radius: 15, main: 0x8c7e72, second: 0xa09488, third: 0x6e6258 },
-    { name: "Venus", radius: 22, main: 0xffcc55, second: 0xeea830 },
+    { name: "Sun", radius: 65, main: 0xff5500, second: 0xffbb00, third: 0xff2200 },
+    { name: "Mercury", radius: 20, main: 0x8c7e72, second: 0xa09488, third: 0x6e6258 },
+    { name: "Venus", radius: 30, main: 0xffcc55, second: 0xeea830 },
     {
-        name: "Earth", radius: 25, main: 0x0066ff, second: 0x00cc44, moons: [
-            { name: "Moon", orbitR: 42, r: 4.5, speed: 0.04, main: 0xADA89E, second: 0x8C8478, third: 0xC2BDB5, particles: 1800 }
+        name: "Earth", radius: 35, main: 0x0066ff, second: 0x00cc44, moons: [
+            { name: "Moon", orbitR: 58, r: 6.0, speed: 0.04, main: 0xADA89E, second: 0x8C8478, third: 0xC2BDB5, particles: 1800 }
         ]
     },
     {
-        name: "Mars", radius: 18, main: 0xff2200, second: 0xee3300, moons: [
-            { name: "Phobos", orbitR: 28, r: 2.2, speed: 0.08, main: 0x6B5B4D, second: 0x544838, third: 0x7A6A58, particles: 800 },
-            { name: "Deimos", orbitR: 40, r: 1.8, speed: 0.03, main: 0x7A6850, second: 0x635540, third: 0x8B7960, particles: 600 }
+        name: "Mars", radius: 25, main: 0xff2200, second: 0xee3300, moons: [
+            { name: "Phobos", orbitR: 39, r: 3.0, speed: 0.08, main: 0x6B5B4D, second: 0x544838, third: 0x7A6A58, particles: 800 },
+            { name: "Deimos", orbitR: 56, r: 2.5, speed: 0.03, main: 0x7A6850, second: 0x635540, third: 0x8B7960, particles: 600 }
         ]
     },
     {
-        name: "Jupiter", radius: 45, main: 0xeeaa55, second: 0xcc7733, third: 0xffcc88, moons: [
-            { name: "Io", orbitR: 70, r: 3.0, speed: 0.10, main: 0xE8D040, second: 0xE09828, third: 0xF8F0C0, particles: 800 },
-            { name: "Europa", orbitR: 88, r: 2.5, speed: 0.06, main: 0xF0E8D0, second: 0xC4AA78, third: 0xE0D4B8, particles: 700 },
-            { name: "Ganymede", orbitR: 110, r: 3.5, speed: 0.04, main: 0x908474, second: 0xB8AC9C, third: 0x685C4C, particles: 900 },
-            { name: "Callisto", orbitR: 135, r: 3.2, speed: 0.025, main: 0x4A3C30, second: 0x5C4E42, third: 0x3A2C22, particles: 850 }
+        name: "Jupiter", radius: 60, main: 0xeeaa55, second: 0xcc7733, third: 0xffcc88, moons: [
+            { name: "Io", orbitR: 93, r: 4.0, speed: 0.10, main: 0xE8D040, second: 0xE09828, third: 0xF8F0C0, particles: 800 },
+            { name: "Europa", orbitR: 117, r: 3.3, speed: 0.06, main: 0xF0E8D0, second: 0xC4AA78, third: 0xE0D4B8, particles: 700 },
+            { name: "Ganymede", orbitR: 146, r: 4.6, speed: 0.04, main: 0x908474, second: 0xB8AC9C, third: 0x685C4C, particles: 900 },
+            { name: "Callisto", orbitR: 180, r: 4.2, speed: 0.025, main: 0x4A3C30, second: 0x5C4E42, third: 0x3A2C22, particles: 850 }
         ]
     },
     {
-        name: "Saturn", radius: 38, main: 0xffdd77, hasRings: true, ringClr: 0xeedd88, moons: [
-            { name: "Mimas", orbitR: 105, r: 1.5, speed: 0.12, main: 0xD4D0C8, second: 0xC0BCB4, third: 0xDEDAD2, particles: 350 },
-            { name: "Enceladus", orbitR: 118, r: 1.8, speed: 0.08, main: 0xFCFCFA, second: 0xF0F6FF, third: 0xE8F0F8, particles: 400 },
-            { name: "Tethys", orbitR: 132, r: 2.0, speed: 0.06, main: 0xEAE6E0, second: 0xDCD8D2, third: 0xF0ECE6, particles: 450 },
-            { name: "Dione", orbitR: 148, r: 2.0, speed: 0.05, main: 0xDCD8D0, second: 0xC4C0B8, third: 0xE4E0D8, particles: 450 },
-            { name: "Rhea", orbitR: 165, r: 2.3, speed: 0.035, main: 0xD0CCC4, second: 0xC0BCB4, third: 0xDCD8D0, particles: 550 },
-            { name: "Titan", orbitR: 195, r: 3.5, speed: 0.025, main: 0xCC8030, second: 0xE09838, third: 0xA86820, particles: 900 },
-            { name: "Iapetus", orbitR: 235, r: 2.2, speed: 0.015, main: 0x28201A, second: 0xE0D8D0, third: 0x1A1410, particles: 500 }
+        name: "Saturn", radius: 52, main: 0xffdd77, hasRings: true, ringClr: 0xeedd88, moons: [
+            { name: "Mimas", orbitR: 144, r: 2.0, speed: 0.12, main: 0xD4D0C8, second: 0xC0BCB4, third: 0xDEDAD2, particles: 350 },
+            { name: "Enceladus", orbitR: 162, r: 2.4, speed: 0.08, main: 0xFCFCFA, second: 0xF0F6FF, third: 0xE8F0F8, particles: 400 },
+            { name: "Tethys", orbitR: 181, r: 2.7, speed: 0.06, main: 0xEAE6E0, second: 0xDCD8D2, third: 0xF0ECE6, particles: 450 },
+            { name: "Dione", orbitR: 203, r: 2.7, speed: 0.05, main: 0xDCD8D0, second: 0xC4C0B8, third: 0xE4E0D8, particles: 450 },
+            { name: "Rhea", orbitR: 226, r: 3.1, speed: 0.035, main: 0xD0CCC4, second: 0xC0BCB4, third: 0xDCD8D0, particles: 550 },
+            { name: "Titan", orbitR: 267, r: 4.8, speed: 0.025, main: 0xCC8030, second: 0xE09838, third: 0xA86820, particles: 900 },
+            { name: "Iapetus", orbitR: 322, r: 3.0, speed: 0.015, main: 0x28201A, second: 0xE0D8D0, third: 0x1A1410, particles: 500 }
         ]
     },
     {
-        name: "Uranus", radius: 30, main: 0x22ccff, second: 0x55eeff, moons: [
-            { name: "Miranda", orbitR: 50, r: 1.8, speed: 0.10, main: 0x908880, second: 0x706860, third: 0xB0A8A0, particles: 450 },
-            { name: "Ariel", orbitR: 65, r: 2.5, speed: 0.07, main: 0xBCB4AC, second: 0xCCC4BC, third: 0xA49C94, particles: 600 },
-            { name: "Umbriel", orbitR: 80, r: 2.5, speed: 0.05, main: 0x444038, second: 0x545048, third: 0x363228, particles: 600 },
-            { name: "Titania", orbitR: 100, r: 3.2, speed: 0.035, main: 0x887C74, second: 0x9C9088, third: 0x746860, particles: 750 },
-            { name: "Oberon", orbitR: 120, r: 3.0, speed: 0.025, main: 0x6C6058, second: 0x7C6450, third: 0x5C5048, particles: 700 }
+        name: "Uranus", radius: 42, main: 0x22ccff, second: 0x55eeff, moons: [
+            { name: "Miranda", orbitR: 70, r: 2.5, speed: 0.10, main: 0x908880, second: 0x706860, third: 0xB0A8A0, particles: 450 },
+            { name: "Ariel", orbitR: 91, r: 3.5, speed: 0.07, main: 0xBCB4AC, second: 0xCCC4BC, third: 0xA49C94, particles: 600 },
+            { name: "Umbriel", orbitR: 112, r: 3.5, speed: 0.05, main: 0x444038, second: 0x545048, third: 0x363228, particles: 600 },
+            { name: "Titania", orbitR: 140, r: 4.5, speed: 0.035, main: 0x887C74, second: 0x9C9088, third: 0x746860, particles: 750 },
+            { name: "Oberon", orbitR: 168, r: 4.2, speed: 0.025, main: 0x6C6058, second: 0x7C6450, third: 0x5C5048, particles: 700 }
         ]
     },
     {
-        name: "Neptune", radius: 28, main: 0x2255ff, second: 0x3377ff, moons: [
-            { name: "Naiad", orbitR: 42, r: 1.2, speed: 0.22, main: 0x383634, second: 0x424040, third: 0x2E2C2A, particles: 200 },
-            { name: "Thalassa", orbitR: 48, r: 1.3, speed: 0.20, main: 0x3A3836, second: 0x444242, third: 0x302E2C, particles: 200 },
-            { name: "Despina", orbitR: 55, r: 1.4, speed: 0.18, main: 0x3E3C3A, second: 0x484644, third: 0x343230, particles: 250 },
-            { name: "Galatea", orbitR: 62, r: 1.4, speed: 0.14, main: 0x3C3A38, second: 0x464442, third: 0x32302E, particles: 250 },
-            { name: "Larissa", orbitR: 70, r: 1.5, speed: 0.15, main: 0x464442, second: 0x504E4C, third: 0x3C3A38, particles: 280 },
-            { name: "Hippocamp", orbitR: 80, r: 1.0, speed: 0.10, main: 0x343230, second: 0x3E3C3A, third: 0x2A2826, particles: 180 },
-            { name: "Proteus", orbitR: 92, r: 2.5, speed: 0.12, main: 0x3E3C38, second: 0x484644, third: 0x343230, particles: 500 },
-            { name: "Triton", orbitR: 110, r: 3.2, speed: -0.04, main: 0xE4CCC0, second: 0xD4B8A8, third: 0xF0DED4, particles: 800 },
-            { name: "Nereid", orbitR: 135, r: 1.8, speed: 0.008, main: 0x646060, second: 0x747070, third: 0x545050, particles: 350 },
-            { name: "Halimede", orbitR: 160, r: 1.2, speed: 0.005, main: 0x585858, second: 0x686868, third: 0x484848, particles: 200 },
-            { name: "Sao", orbitR: 180, r: 1.2, speed: 0.004, main: 0x565454, second: 0x666262, third: 0x484646, particles: 200 },
-            { name: "Laomedeia", orbitR: 200, r: 1.0, speed: 0.005, main: 0x545050, second: 0x646060, third: 0x464242, particles: 180 },
-            { name: "Psamathe", orbitR: 220, r: 1.0, speed: 0.003, main: 0x525050, second: 0x626060, third: 0x444242, particles: 180 },
-            { name: "Neso", orbitR: 240, r: 1.2, speed: 0.002, main: 0x505050, second: 0x606060, third: 0x424242, particles: 200 }
+        name: "Neptune", radius: 40, main: 0x2255ff, second: 0x3377ff, moons: [
+            { name: "Naiad", orbitR: 60, r: 1.8, speed: 0.22, main: 0x7A7878, second: 0x8A8888, third: 0x6E6C6C, particles: 250 },
+            { name: "Thalassa", orbitR: 68, r: 1.9, speed: 0.20, main: 0x7C7A7A, second: 0x8C8A8A, third: 0x706E6E, particles: 250 },
+            { name: "Despina", orbitR: 78, r: 2.0, speed: 0.18, main: 0x808080, second: 0x909090, third: 0x747474, particles: 300 },
+            { name: "Galatea", orbitR: 88, r: 2.0, speed: 0.14, main: 0x7E7E7E, second: 0x8E8E8E, third: 0x727272, particles: 300 },
+            { name: "Larissa", orbitR: 100, r: 2.2, speed: 0.15, main: 0x868686, second: 0x969696, third: 0x7A7A7A, particles: 350 },
+            { name: "Hippocamp", orbitR: 114, r: 1.5, speed: 0.10, main: 0x787878, second: 0x888888, third: 0x6C6C6C, particles: 220 },
+            { name: "Proteus", orbitR: 131, r: 3.5, speed: 0.12, main: 0x808080, second: 0x909090, third: 0x747474, particles: 600 },
+            { name: "Triton", orbitR: 157, r: 4.5, speed: -0.04, main: 0xE4CCC0, second: 0xD4B8A8, third: 0xF0DED4, particles: 1000 },
+            { name: "Nereid", orbitR: 192, r: 2.5, speed: 0.008, main: 0x8C8888, second: 0x9C9898, third: 0x7C7878, particles: 450 },
+            { name: "Halimede", orbitR: 228, r: 1.8, speed: 0.005, main: 0x888888, second: 0x989898, third: 0x787878, particles: 250 },
+            { name: "Sao", orbitR: 257, r: 1.8, speed: 0.004, main: 0x868686, second: 0x969696, third: 0x787878, particles: 250 },
+            { name: "Laomedeia", orbitR: 285, r: 1.5, speed: 0.005, main: 0x848484, second: 0x949494, third: 0x767676, particles: 220 },
+            { name: "Psamathe", orbitR: 314, r: 1.5, speed: 0.003, main: 0x828282, second: 0x929292, third: 0x747474, particles: 220 },
+            { name: "Neso", orbitR: 342, r: 1.8, speed: 0.002, main: 0x808080, second: 0x909090, third: 0x727272, particles: 250 }
         ]
     }
 ];
@@ -594,7 +600,7 @@ function generateSolarSystem() {
                 basePositions[i3] = ox + flatX; basePositions[i3 + 1] = oy + tiltedY; basePositions[i3 + 2] = oz + tiltedZ;
                 particleBodyId[idx] = -5; // Special ID for Saturn's rings
                 const c = new THREE.Color(body.ringClrs[Math.floor(Math.random() * body.ringClrs.length)]);
-                colors[i3] = c.r * 0.35; colors[i3 + 1] = c.g * 0.35; colors[i3 + 2] = c.b * 0.35;
+                colors[i3] = c.r * 0.80; colors[i3 + 1] = c.g * 0.80; colors[i3 + 2] = c.b * 0.80;
                 idx++;
             }
         } else {
@@ -666,18 +672,18 @@ function generateSolarSystem() {
             const moonDepth = 0.3 + 0.7 * Math.pow(rd / moon.r, 0.5);
             const moonHemi = 0.45 + 0.55 * ((lz / Math.max(0.01, rd)) * 0.5 + 0.5);
             const moonShade = moonDepth * moonHemi;
-            colors[i3] = c.r * moon.intensity * 0.15 * moonShade;
-            colors[i3 + 1] = c.g * moon.intensity * 0.15 * moonShade;
-            colors[i3 + 2] = c.b * moon.intensity * 0.15 * moonShade;
+            colors[i3] = c.r * moon.intensity * 0.75 * moonShade;
+            colors[i3 + 1] = c.g * moon.intensity * 0.75 * moonShade;
+            colors[i3 + 2] = c.b * moon.intensity * 0.75 * moonShade;
             idx++;
         }
     }
 
-    // --- MAIN Asteroid Belt (between Mars r=50 and Jupiter r=85) ---
+    // --- MAIN Asteroid Belt (between Mars r=88 and Jupiter r=135) ---
     for (let p = 0; p < ASTEROID_BUDGET; p++) {
         const i3 = idx * 3;
         const a = Math.random() * Math.PI * 2;
-        const r = 57 + Math.random() * 20;
+        const r = 98 + Math.random() * 28;
         const clump = Math.sin(a * 5) * 3 + Math.sin(a * 11) * 1.5; // denser clumping
         const spread = (Math.random() > 0.85) ? 9.0 : 2.0;
         const lx = Math.cos(a) * (r + clump) + (Math.random() - 0.5) * spread;
@@ -697,11 +703,11 @@ function generateSolarSystem() {
         idx++;
     }
 
-    // --- KUIPER BELT (beyond Neptune r=165) ---
+    // --- KUIPER BELT (beyond Neptune r=285) ---
     for (let p = 0; p < KUIPER_BUDGET; p++) {
         const i3 = idx * 3;
         const a = Math.random() * Math.PI * 2;
-        const r = 175 + Math.random() * 45; // 175–220 range
+        const r = 300 + Math.random() * 80; // 300–380 range
         const clump = Math.sin(a * 3) * 5;
         const spread = (Math.random() > 0.8) ? 12.0 : 3.5;
         const lx = Math.cos(a) * (r + clump) + (Math.random() - 0.5) * spread;
@@ -725,9 +731,9 @@ function generateSolarSystem() {
     // --- DEEP SPACE ASTEROIDS (far outside the solar system, among the stars) ---
     for (let p = 0; p < SCATTERED_BUDGET; p++) {
         const i3 = idx * 3;
-        // Placed deep in space beyond the solar system (radius 180–450)
+        // Placed deep in space beyond the solar system (radius 320–650)
         // Mixed at all angles, inclinations — fully 3D scatter like a real starfield
-        const dist = 180 + Math.random() * 270;
+        const dist = 320 + Math.random() * 330;
         const a = Math.random() * Math.PI * 2;
         const elev = (Math.random() - 0.5) * Math.PI; // full 3D sphere
         const lx = dist * Math.cos(elev) * Math.cos(a);
@@ -793,13 +799,13 @@ function generateSolarSystem() {
 
         let sr;
         if (isMega) {
-            sr = 120 + Math.random() * 180; // Closest, most prominent
+            sr = 450 + Math.random() * 250; // Well outside solar system (planets end at r=285, Kuiper at 380)
         } else if (isBright) {
-            sr = 150 + Math.random() * 250;
+            sr = 500 + Math.random() * 300;
         } else if (isMedium) {
-            sr = 200 + Math.random() * 300;
+            sr = 500 + Math.random() * 400;
         } else {
-            sr = 200 + Math.random() * 500; // Far away dust
+            sr = 500 + Math.random() * 600; // Far away dust
         }
 
         const st = Math.random() * Math.PI * 2;
@@ -869,6 +875,10 @@ function generateSolarSystem() {
     // Store base colors for zoom-based brightness boost
     baseColors.set(colors);
 
+    // INSTANT planet formation — copy base positions directly so planets appear immediately
+    positions.set(basePositions);
+
+    geometry.attributes.position.needsUpdate = true;
     geometry.attributes.color.needsUpdate = true;
     geometry.attributes.size.needsUpdate = true;
     document.getElementById('planet-name').innerText = "Solar System";
@@ -956,7 +966,7 @@ function generatePlanetView(view) {
             localOffsets[i3 + 1] = basePositions[i3 + 1];
             localOffsets[i3 + 2] = basePositions[i3 + 2];
             const ringColor = new THREE.Color(view.ringClr || 0xaaaaaa).lerp(new THREE.Color(0x555555), Math.random());
-            colors[i3] = ringColor.r * 0.4; colors[i3 + 1] = ringColor.g * 0.4; colors[i3 + 2] = ringColor.b * 0.4;
+            colors[i3] = ringColor.r * 0.85; colors[i3 + 1] = ringColor.g * 0.85; colors[i3 + 2] = ringColor.b * 0.85;
             sizes[idx] = 1.0;
             idx++;
         }
@@ -1014,7 +1024,7 @@ function generatePlanetView(view) {
             // Hemisphere shading for 3D moon appearance
             const mHemiZ = lz / Math.max(0.01, moon.r);
             const mHemiShade = 0.4 + 0.6 * (mHemiZ * 0.5 + 0.5);
-            const intensity = 0.5; // Reduced for additive blending
+            const intensity = 0.65; // Brighter moons for better visibility
             colors[i3] = mColor.r * intensity * mHemiShade;
             colors[i3 + 1] = mColor.g * intensity * mHemiShade;
             colors[i3 + 2] = mColor.b * intensity * mHemiShade;
@@ -1074,6 +1084,10 @@ function generatePlanetView(view) {
     // Store base colors for zoom-based brightness boost
     baseColors.set(colors);
 
+    // INSTANT planet formation — copy base positions directly so planet appears immediately
+    positions.set(basePositions);
+
+    geometry.attributes.position.needsUpdate = true;
     geometry.attributes.color.needsUpdate = true;
     geometry.attributes.size.needsUpdate = true;
 
@@ -1209,7 +1223,7 @@ window.addEventListener('wheel', (e) => {
     e.preventDefault();
     userZoomOffset += e.deltaY * 0.25;
     // Clamp: max zoom-out +300, max zoom-in -240 (keeps min cam dist ~40)
-    userZoomOffset = Math.max(-240, Math.min(300, userZoomOffset));
+    userZoomOffset = Math.max(-290, Math.min(400, userZoomOffset));
 }, { passive: false });
 
 // --- PLANET FOCUS/ZOOM SYSTEM ---
@@ -1217,7 +1231,7 @@ window.addEventListener('wheel', (e) => {
 let focusedPlanetIdx = -1;         // -1 = no focus (full solar system), 0-8 = focused on BODIES[idx]
 let focusTransition = 0;           // 0 = fully unfocused, 1 = fully focused (smooth lerp)
 let cameraTargetX = 0, cameraTargetY = 0; // camera look-at target for focused planet
-const FOCUS_CAM_DISTANCE = 30;     // How close camera gets to focused planet
+const FOCUS_CAM_DISTANCE = 60;     // How close camera gets to focused planet — far enough to see whole planet
 const FOCUS_TRANSITION_SPEED = 0.04; // Smooth transition speed
 
 // Project a 3D world position to 2D screen coordinates
@@ -1464,8 +1478,8 @@ function animate() {
     const time = clock.getElapsedTime();
 
     // Compute zoomFactor based on camera distance AND hand expansion to trigger 3D zoom details
-    const defaultCamZ = isMobile ? 350 : 280;
-    const cameraZoomFactor = Math.max(0, Math.min(1, (defaultCamZ - camera.position.z) / (defaultCamZ - 40)));
+    const defaultCamZ = isMobile ? 420 : 360;
+    const cameraZoomFactor = Math.max(0, Math.min(1, (defaultCamZ - camera.position.z) / (defaultCamZ - 60)));
     // Hand expansion also contributes to zoom (expansionFactor 0-5 maps to 0-1)
     const handZoomFactor = Math.max(0, Math.min(1, expansionFactor / 2.5));
     // Use whichever zoom source is stronger
@@ -1488,24 +1502,28 @@ function animate() {
             const oz = Math.sin(a) * body.orbitR;
             const oy = Math.sin(a) * body.orbitR * Math.sin(body.inc || 0);
 
-            // Focus-based growth: focused planet grows 2.5x, others stay normal
+            // Focus-based growth: focused planet grows slightly, others stay normal
             const isFocused = (focusedPlanetIdx === b);
-            const focusGrow = isFocused ? (1.0 + focusTransition * 1.5) : 1.0;
+            const focusGrow = isFocused ? (1.0 + focusTransition * 0.3) : 1.0;
 
             for (let idx = range.start; idx < range.end; idx++) {
                 const i3 = idx * 3;
                 // Skip ring particles (they have their own rotation logic)
                 if (particleBodyId[idx] === -5) continue;
 
-                // Planet sphere growth when zoomed — gentle growth, never overlap orbits
-                let outL = 1.0 + zoomFactor * 0.3;
+                // Planet sphere growth when zoomed — capped per-planet to avoid orbit overlap
+                let outL = 1.0 + zoomFactor * 1.2;
+                outL = Math.min(outL, BODY_MAX_OUTL[b]);
                 if (zoomFactor > 0.02) {
-                    // Subtle terrain pop-out for surface detail
+                    // Terrain pop-out for surface detail
                     const luma = baseColors[i3] * 0.3 + baseColors[i3 + 1] * 0.59 + baseColors[i3 + 2] * 0.11;
-                    outL += luma * zoomFactor * 0.15;
+                    outL += luma * zoomFactor * 0.3;
+                    outL = Math.min(outL, BODY_MAX_OUTL[b]);
                 }
-                // Apply focus growth
+                // Apply focus growth (also capped)
                 outL *= focusGrow;
+                // Store for moon orbit scaling
+                bodyCurrentOutL[b] = outL;
 
                 // Rotate local offset around Y axis for self-spin
                 const lx = localOffsets[i3] * outL;
@@ -1524,19 +1542,21 @@ function animate() {
         const sunRange = bodyRanges[0];
         const pulse = Math.sin(time * 2) * 0.025 + 1.01; // Gentle size pulsation
         const sunFocused = (focusedPlanetIdx === 0);
-        const sunFocusGrow = sunFocused ? (1.0 + focusTransition * 1.5) : 1.0;
+        const sunFocusGrow = sunFocused ? (1.0 + focusTransition * 0.3) : 1.0;
         const sunSpin = time * 0.03; // Slow self-rotation
         const sunCosA = Math.cos(sunSpin);
         const sunSinA = Math.sin(sunSpin);
         for (let idx = sunRange.start; idx < sunRange.end; idx++) {
             const i3 = idx * 3;
-            // Sun grows same as planets + its own pulse
-            let outL = pulse + zoomFactor * 0.3;
+            // Sun grows very little — capped to never cover Mercury orbit
+            let outL = pulse;
             if (zoomFactor > 0.02) {
                 const luma = baseColors[i3] * 0.3 + baseColors[i3 + 1] * 0.59 + baseColors[i3 + 2] * 0.11;
                 outL += luma * zoomFactor * 0.15;
             }
+            outL = Math.min(outL, BODY_MAX_OUTL[0]);
             outL *= sunFocusGrow;
+            bodyCurrentOutL[0] = outL;
             // Apply self-rotation around Y axis
             const lx = localOffsets[i3] * outL;
             const lz = localOffsets[i3 + 2] * outL;
@@ -1687,10 +1707,10 @@ function animate() {
                 const saturnZ = Math.sin(saturnAngle) * BODIES[6].orbitR;
                 const saturnY = Math.sin(saturnAngle) * BODIES[6].orbitR * Math.sin(BODIES[6].inc || 0);
 
-                // Rotate in the FLAT ring plane first — rings grow gently with zoom + focus
+                // Rotate in the FLAT ring plane first — rings grow with planet, capped
                 const saturnFocused = (focusedPlanetIdx === 6);
-                const ringFocusGrow = saturnFocused ? (1.0 + focusTransition * 2.0) : 1.0;
-                const ringGrow = (1.0 + zoomFactor * 0.3) * ringFocusGrow;
+                const ringFocusGrow = saturnFocused ? (1.0 + focusTransition * 0.3) : 1.0;
+                const ringGrow = Math.min(1.0 + zoomFactor * 1.2, BODY_MAX_OUTL[6]) * ringFocusGrow;
                 const flatRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3 + 2] * localOffsets[i3 + 2]) * ringGrow;
                 const flatBaseAngle = Math.atan2(localOffsets[i3 + 2], localOffsets[i3]);
                 const ringRotSpeed = 0.08;
@@ -1725,8 +1745,6 @@ function animate() {
                     const parentZ = Math.sin(parentAngle) * parentBody.orbitR;
 
                     const mAngle = moonOrbitAnglesMap[moon.bodyId];
-                    const moonCX = Math.cos(mAngle) * moon.orbitR;
-                    const moonCZ = Math.sin(mAngle) * moon.orbitR;
 
                     // Self-rotation: rotate sphere offset around Y axis
                     const cosS = Math.cos(time * moon.spinSpeed);
@@ -1735,12 +1753,18 @@ function animate() {
                     // Moon sphere growth when zoomed — gentle like planets
                     // Moons of focused planet also grow
                     const moonParentFocused = (focusedPlanetIdx === moon.parentIdx);
-                    const moonFocusGrow = moonParentFocused ? (1.0 + focusTransition * 1.5) : 1.0;
-                    let outL = (1.0 + zoomFactor * 0.3) * moonFocusGrow;
+                    const moonFocusGrow = moonParentFocused ? (1.0 + focusTransition * 0.5) : 1.0;
+                    let outL = (1.0 + zoomFactor * 0.8) * moonFocusGrow;
                     if (zoomFactor > 0.02) {
                         const luma = baseColors[i3] * 0.3 + baseColors[i3 + 1] * 0.59 + baseColors[i3 + 2] * 0.11;
-                        outL += luma * zoomFactor * 0.15;
+                        outL += luma * zoomFactor * 0.3;
                     }
+
+                    // Scale moon orbit radius by parent planet's growth so moon stays OUTSIDE planet
+                    const parentOutL = bodyCurrentOutL[moon.parentIdx] || 1.0;
+                    const scaledOrbitR = moon.orbitR * parentOutL;
+                    const moonCX = Math.cos(mAngle) * scaledOrbitR;
+                    const moonCZ = Math.sin(mAngle) * scaledOrbitR;
 
                     const slx = localOffsets[i3] * outL;
                     const slz = localOffsets[i3 + 2] * outL;
@@ -1766,7 +1790,7 @@ function animate() {
             planetViewCamZ = Math.max(planetViewCamZ, farthestMoonOrbit * (isMobile ? 2.2 : 1.8));
         }
     }
-    const baseCamZ = isSolarSystemView ? (isMobile ? 350 : 280) : planetViewCamZ;
+    const baseCamZ = isSolarSystemView ? (isMobile ? 420 : 360) : planetViewCamZ;
 
     // --- PLANET FOCUS CAMERA ---
     if (isSolarSystemView && focusedPlanetIdx >= 0) {
@@ -1781,7 +1805,7 @@ function animate() {
             cameraTargetY = worldPos.y;
             // Calculate zoom distance based on planet size + hand gesture
             const planetR = BODIES[focusedPlanetIdx].r;
-            const focusDist = FOCUS_CAM_DISTANCE + planetR * 3;
+            const focusDist = FOCUS_CAM_DISTANCE + planetR * 5;
             // Hand gesture (expansion) zooms toward focused planet — more responsive
             const handFocusZoom = Math.min(expansionFactor * 35, 100);
             const targetCamZ = baseCamZ * (1 - focusTransition) + (worldPos.z + focusDist - handFocusZoom) * focusTransition + userZoomOffset * (1 - focusTransition * 0.7);
@@ -1824,27 +1848,27 @@ function animate() {
     // Dynamic particle size — scale with camera distance so particles maintain
     // consistent apparent size at all zoom levels (no giant blobs when close).
     // camDistScale < 1 when zoomed in, > 1 when zoomed out.
-    const camDistScale = Math.sqrt(Math.max(10, camera.position.z) / 280);
+    const camDistScale = Math.max(0.60, Math.sqrt(Math.max(10, camera.position.z) / 360));
 
     if (isSolarSystemView) {
-        // Constant bloom — no zoom-based changes
-        bloomPass.threshold = 0.92;
+        // Bloom tuned for visible but non-overlapping planets
+        bloomPass.threshold = 0.65;
         const focusBloom = hasFocus ? focusTransition * 0.15 : 0;
-        bloomPass.strength = 0.35 + focusBloom;
-        bloomPass.radius = 0.15;
+        bloomPass.strength = 0.50 + focusBloom;
+        bloomPass.radius = 0.20;
         // Particle size: INCREASE when zoomed in to fill gaps and look like solid 3D terrain
-        const zoomSizeAdj = 1.0 + zoomFactor * 1.8; // up to 2.8x larger when heavily zoomed
+        const zoomSizeAdj = 1.0 + zoomFactor * 2.0; // up to 3x larger when heavily zoomed
         if (activeExpansion < 0.01) {
             material.size = 1.8 * camDistScale * zoomSizeAdj;
         } else {
             const ramp = Math.min(activeExpansion / 0.5, 1.0);
             const shrink = Math.max(0, (activeExpansion - 0.5) * 0.55);
-            material.size = (1.8 + ramp * 0.9 - shrink) * camDistScale * zoomSizeAdj;
+            material.size = (1.8 + ramp * 0.8 - shrink) * camDistScale * zoomSizeAdj;
         }
     } else {
-        // Planet view: much lower bloom for crisp, colorful planets
-        bloomPass.strength = 0.25;
-        bloomPass.threshold = 1.2; // Only Sun self-glow passes — planets stay sharp & colorful
+        // Planet view: controlled bloom so planet stays sharp and identifiable
+        bloomPass.strength = 0.20;
+        bloomPass.threshold = 1.0; // High threshold — only brightest spots bloom
         // Increase point size for high-res solid appearance when zoomed in
         const pointScale = 1.0 + zoomFactor * 1.8;
         const baseSize = 1.8 + (activeExpansion * 0.5);
@@ -1944,9 +1968,9 @@ function animate() {
             targetZ = vz + (vz * activeExpansion * 2) + wave;
         }
 
-        positions[i3] += (targetX - positions[i3]) * 0.05;
-        positions[i3 + 1] += (targetY - positions[i3 + 1]) * 0.05;
-        positions[i3 + 2] += (targetZ - positions[i3 + 2]) * 0.05;
+        positions[i3] += (targetX - positions[i3]) * 0.18;
+        positions[i3 + 1] += (targetY - positions[i3 + 1]) * 0.18;
+        positions[i3 + 2] += (targetZ - positions[i3 + 2]) * 0.18;
     }
 
     geometry.attributes.position.needsUpdate = true;
