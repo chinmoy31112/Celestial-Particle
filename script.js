@@ -1396,13 +1396,11 @@ function updateOrbits() {
 
 // --- 9A. MOBILE TOUCH CONTROLS ---
 let touchStartX = 0, touchStartY = 0;
-let tapPositionX = 0, tapPositionY = 0; // set ONLY in touchstart — never dirtied by touchmove
 let touchRotationX = 0, touchRotationY = 0;
 let initialPinchDistance = 0;
 let touchExpansion = 0;
 let lastTapTime = 0;
-let focusBeforeTap = -1;     // snapshot before first tap — restored on double-tap (mirrors desktop focusBeforeSequence)
-let focusBeforeFirstTap = -1; // snapshot at the very start of a tap sequence (mirrors desktop focusBeforeSequence)
+let focusBeforeTap = -1; // snapshot of focusedPlanetIdx before the first tap, so double-tap can revert it
 
 if (isMobile) {
     // Touch drag for rotation
@@ -1410,10 +1408,6 @@ if (isMobile) {
         if (e.touches.length === 1) {
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
-            // Capture clean tap position here — touchmove will shift touchStartX/Y
-            // but must never touch tapPositionX/Y so findClickedPlanet stays accurate
-            tapPositionX = touchStartX;
-            tapPositionY = touchStartY;
         } else if (e.touches.length === 2) {
             const dx = e.touches[0].clientX - e.touches[1].clientX;
             const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -1451,24 +1445,33 @@ if (isMobile) {
 
             if (now - lastTapTime < 350) {
                 // --- DOUBLE TAP ---
-                // Revert the focus-zoom the first tap started (mirrors desktop dblclick reverting focusBeforeClick)
+                // Revert the focus-zoom that the first tap may have started
                 focusedPlanetIdx = focusBeforeTap;
                 focusTransition = 0;
-
                 if (isSolarSystemView) {
-                    // Use tapPositionX/Y — captured cleanly at touchstart, never dirtied by touchmove
-                    const clickedIdx = findClickedPlanet(tapPositionX, tapPositionY);
+                    // Navigate to the tapped planet, just like desktop dblclick
+                    const clickedIdx = findClickedPlanet(tapX, tapY);
                     if (clickedIdx >= 0 && clickedIdx < BODY_TO_PLANET_VIEW.length) {
-                        // Navigate to that planet's view — same as desktop dblclick
                         focusedPlanetIdx = -1;
                         focusTransition = 0;
                         lastPlanetViewIndex = clickedIdx;
                         currentViewIndex = BODY_TO_PLANET_VIEW[clickedIdx];
                         switchView(currentViewIndex);
+                    } else {
+                        // Tapped empty space — cycle views
+                        currentViewIndex = (currentViewIndex + 1) % PLANET_VIEWS.length;
+                        focusedPlanetIdx = -1;
+                        focusTransition = 0;
+                        if (PLANET_VIEWS[currentViewIndex].isSolarSystem) {
+                            handRotation.x = 0; handRotation.y = 0;
+                            handVelocity.x = 0; handVelocity.y = 0;
+                            userZoomOffset = 0;
+                            touchRotationX = 0; touchRotationY = 0;
+                        }
+                        switchView(currentViewIndex);
                     }
-                    // empty-space double-tap does nothing (matches desktop behaviour)
                 } else {
-                    // In planet view — double-tap returns to solar system (same as desktop dblclick)
+                    // In planet view — double-tap returns to solar system
                     focusTransition = 0;
                     userZoomOffset = 0;
                     handRotation.x = 0; handRotation.y = 0;
@@ -1476,19 +1479,14 @@ if (isMobile) {
                     touchRotationX = 0; touchRotationY = 0;
                     currentViewIndex = 0;
                     switchView(0);
-                    // Restore the focus state from before the whole tap sequence began
-                    // (mirrors desktop: focusedPlanetIdx = focusBeforeSequence)
-                    focusedPlanetIdx = focusBeforeFirstTap;
+                    focusedPlanetIdx = -1;
                 }
                 lastTapTime = 0; // reset so next tap starts fresh
             } else {
                 // --- SINGLE TAP: planet focus ---
-                // Snapshot focus state at the START of a new tap sequence
-                focusBeforeFirstTap = focusedPlanetIdx;
-                focusBeforeTap = focusedPlanetIdx; // also per-tap snapshot so double-tap can revert
-                if (isSolarSystemView) {
-                    // Use tapPositionX/Y — clean touchstart position, not shifted by micro-movements
-                    const clickedIdx = findClickedPlanet(tapPositionX, tapPositionY);
+                focusBeforeTap = focusedPlanetIdx; // snapshot before changing, so double-tap can revert
+                if (isSolarSystemView && tapX && tapY) {
+                    const clickedIdx = findClickedPlanet(tapX, tapY);
                     if (clickedIdx >= 0) {
                         if (focusedPlanetIdx !== clickedIdx) focusTransition = 0;
                         focusedPlanetIdx = clickedIdx;
@@ -1605,6 +1603,7 @@ let lastClickTimestamp = 0;
 const DBLCLICK_THRESHOLD_MS = 300;
 
 renderer.domElement.addEventListener('click', (e) => {
+    if (isMobile) return; // touch devices use touchend handler — ignore synthetic click events
     if (!isSolarSystemView) return;
     const now = Date.now();
     // New sequence (not a rapid double-click) — snapshot pre-sequence focus state.
@@ -1628,6 +1627,7 @@ renderer.domElement.addEventListener('click', (e) => {
 // Double-click: in solar system → go to planet view; in planet view → go back to solar system
 let lastPlanetViewIndex = 0; // Remember which planet we were viewing (BODIES index)
 renderer.domElement.addEventListener('dblclick', (e) => {
+    if (isMobile) return; // touch devices use touchend handler — ignore synthetic dblclick events
     // Revert the focus change made by the preceding click events so we enter
     // the planet view from a clean state (no partial focus zoom in progress).
     focusedPlanetIdx = focusBeforeClick;
