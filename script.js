@@ -1368,16 +1368,19 @@ function switchView(index) {
 switchView(0); // Start with Solar System
 
 // --- 8. UPDATE SOLAR SYSTEM ORBITS ---
-function updateOrbits() {
+function updateOrbits(dt) {
     if (!isSolarSystemView) return;
+    // Normalize to 60fps baseline so orbit speed is frame-rate independent.
+    // Cap at 3× to absorb rare spikes (tab switching, first frame, etc.)
+    const dtScale = Math.min(dt * 60, 3);
 
     for (let b = 0; b < BODIES.length; b++) {
-        orbitAngles[b] += BODIES[b].speed * 0.008; // Increased speed
+        orbitAngles[b] += BODIES[b].speed * 0.008 * dtScale;
     }
 
     // Update all moon orbits — data-driven, single source of truth
     for (const moon of SOLAR_SYSTEM_MOONS) {
-        moonOrbitAnglesMap[moon.bodyId] += moon.orbitSpeed;
+        moonOrbitAnglesMap[moon.bodyId] += moon.orbitSpeed * dtScale;
     }
 
     for (const range of bodyRanges) {
@@ -1424,6 +1427,14 @@ if (isMobile) {
             const deltaY = e.touches[0].clientY - touchStartY;
             touchRotationY += deltaX * 0.01;
             touchRotationX += deltaY * 0.01;
+            // Drive scene rotation directly — touchRotation* kept only for reset logic
+            const tSens = 0.012;
+            handRotation.y += deltaX * tSens;
+            handRotation.x += deltaY * tSens;
+            handVelocity.y = handVelocity.y * 0.5 + (deltaX * tSens) * 0.5;
+            handVelocity.x = handVelocity.x * 0.5 + (deltaY * tSens) * 0.5;
+            handVelocity.x = Math.sign(handVelocity.x) * Math.min(Math.abs(handVelocity.x), handMaxVelocity);
+            handVelocity.y = Math.sign(handVelocity.y) * Math.min(Math.abs(handVelocity.y), handMaxVelocity);
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
         } else if (e.touches.length === 2) {
@@ -1509,6 +1520,43 @@ if (isMobile) {
     });
 }
 
+// --- 9A2. DESKTOP MOUSE DRAG ROTATION ---
+let isMouseDragging = false; // module-scope so hover cursor listener can check it
+if (!isMobile) {
+    let lastMouseX = 0, lastMouseY = 0;
+    const mouseSensitivity = 0.008;
+
+    renderer.domElement.addEventListener('mousedown', (e) => {
+        if (e.button === 0) { // left button only
+            isMouseDragging = true;
+            lastMouseX = e.clientX;
+            lastMouseY = e.clientY;
+            renderer.domElement.style.cursor = 'grabbing';
+        }
+    });
+
+    renderer.domElement.addEventListener('mousemove', (e) => {
+        if (!isMouseDragging) return;
+        const deltaX = e.clientX - lastMouseX;
+        const deltaY = e.clientY - lastMouseY;
+        handRotation.y += deltaX * mouseSensitivity;
+        handRotation.x += deltaY * mouseSensitivity;
+        handVelocity.y = handVelocity.y * 0.5 + (deltaX * mouseSensitivity) * 0.5;
+        handVelocity.x = handVelocity.x * 0.5 + (deltaY * mouseSensitivity) * 0.5;
+        handVelocity.x = Math.sign(handVelocity.x) * Math.min(Math.abs(handVelocity.x), handMaxVelocity);
+        handVelocity.y = Math.sign(handVelocity.y) * Math.min(Math.abs(handVelocity.y), handMaxVelocity);
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    });
+
+    const stopMouseDrag = () => {
+        isMouseDragging = false;
+        renderer.domElement.style.cursor = 'default';
+    };
+    window.addEventListener('mouseup', stopMouseDrag);
+    renderer.domElement.addEventListener('mouseleave', stopMouseDrag);
+}
+
 // --- 9C. GYROSCOPE DISABLED — hand tracking used on all devices ---
 let gyroEnabled = false;
 let gyroRotationX = 0, gyroRotationY = 0;
@@ -1520,7 +1568,10 @@ let handRotation = { x: 0, y: 0 };
 let handVelocity = { x: 0, y: 0 };  // inertia: coasts after hand leaves
 let lastHandPos = null;             // previous wrist position for delta calc
 let smoothedWrist = null;             // EMA-smoothed wrist for jitter removal
-const wristSmooth = isMobile ? 0.45 : 0.3; // EMA factor (higher = smoother but laggier)
+const wristSmooth     = isMobile ? 0.28 : 0.10; // EMA smoothing — kept low so solar system snaps feel instant
+const handDeadZone    = isMobile ? 0.005 : 0.003; // jitter cutoff — mobile cams are noisier
+const handSensitivity = isMobile ? 9    : 13;     // rotation speed — desktop cams more precise
+const handMaxVelocity = 0.30;                      // velocity cap — prevents runaway spins
 let expansionFactor = 0;
 let smoothedExpansion = 0;
 let lastSwitchTime = 0;
@@ -1598,7 +1649,7 @@ function findClickedPlanet(screenX, screenY) {
 
 // Hover cursor change — pointer when over a planet in solar system view
 renderer.domElement.addEventListener('mousemove', (e) => {
-    if (!isSolarSystemView) return;
+    if (!isSolarSystemView || isMouseDragging) return; // don't override grab cursor during drag
     const hovered = findClickedPlanet(e.clientX, e.clientY);
     renderer.domElement.style.cursor = hovered >= 0 ? 'pointer' : 'default';
 });
@@ -1730,21 +1781,21 @@ hands.onResults((results) => {
         if (lastHandPos !== null) {
             const rawDx = wrist.y - lastHandPos.y;  // vertical move   → X rotation
             const rawDy = wrist.x - lastHandPos.x;  // horizontal move → Y rotation
-            const deadZone = 0.004;                 // ignore micro-jitter
-            const sensitivity = 10;                 // higher = faster turns
-            if (Math.abs(rawDx) > deadZone) {
-                const delta = rawDx * sensitivity;
+            if (Math.abs(rawDx) > handDeadZone) {
+                const delta = rawDx * handSensitivity;
                 handRotation.x += delta;
-                handVelocity.x = handVelocity.x * 0.6 + delta * 0.4;
+                handVelocity.x = handVelocity.x * 0.5 + delta * 0.5;
+                handVelocity.x = Math.sign(handVelocity.x) * Math.min(Math.abs(handVelocity.x), handMaxVelocity);
             } else {
-                handVelocity.x *= 0.85;
+                handVelocity.x *= 0.78; // faster decay when hand holds still
             }
-            if (Math.abs(rawDy) > deadZone) {
-                const delta = rawDy * sensitivity;
+            if (Math.abs(rawDy) > handDeadZone) {
+                const delta = rawDy * handSensitivity;
                 handRotation.y += delta;
-                handVelocity.y = handVelocity.y * 0.6 + delta * 0.4;
+                handVelocity.y = handVelocity.y * 0.5 + delta * 0.5;
+                handVelocity.y = Math.sign(handVelocity.y) * Math.min(Math.abs(handVelocity.y), handMaxVelocity);
             } else {
-                handVelocity.y *= 0.85;
+                handVelocity.y *= 0.78;
             }
         }
         lastHandPos = { x: wrist.x, y: wrist.y };
@@ -1804,8 +1855,8 @@ hands.onResults((results) => {
         // Coast with inertia, then decay to rest
         handRotation.x += handVelocity.x;
         handRotation.y += handVelocity.y;
-        handVelocity.x *= 0.88;
-        handVelocity.y *= 0.88;
+        handVelocity.x *= 0.92; // longer coast for natural feel
+        handVelocity.y *= 0.92;
     }
 });
 
@@ -1820,10 +1871,19 @@ cameraUtils.start();
 
 // --- 10. ANIMATION LOOP ---
 const clock = new THREE.Clock();
+let frameCount = 0;
+let prevTime = 0;
 
 function animate() {
     requestAnimationFrame(animate);
     const time = clock.getElapsedTime();
+    // Delta time: capped at 50ms to absorb tab-switch / first-frame spikes
+    const deltaTime = prevTime === 0 ? 1 / 60 : Math.min(time - prevTime, 0.05);
+    prevTime = time;
+    frameCount++;
+    // Slow-changing elements (stars, belts) throttled to every 2nd frame (~30Hz
+    // update rate) — imperceptible, cuts per-frame particle trig work by ~50%.
+    const isHeavyFrame = (frameCount % 2 === 0);
 
     // Compute zoomFactor based on camera distance AND hand expansion to trigger 3D zoom details
     const defaultCamZ = isMobile ? 520 : 450;
@@ -1834,7 +1894,7 @@ function animate() {
     const zoomFactor = Math.max(cameraZoomFactor, handZoomFactor);
 
     // Update planet orbits in solar system view
-    updateOrbits();
+    updateOrbits(deltaTime);
 
     // Per-planet self-rotation in solar system view
     if (isSolarSystemView && bodyRanges.length > 0) {
@@ -1931,8 +1991,8 @@ function animate() {
     if (!isSolarSystemView && currentPlanetViewMoons.length > 0) {
         for (let m = 0; m < currentPlanetViewMoons.length; m++) {
             const moonData = currentPlanetViewMoons[m];
-            // Update orbit angle
-            planetViewMoonAngles[m] += moonData.speed * 0.008;
+            // Update orbit angle — delta-time scaled so speed is frame-rate independent
+            planetViewMoonAngles[m] += moonData.speed * 0.008 * Math.min(deltaTime * 60, 3);
             const angle = planetViewMoonAngles[m];
             const moonCenterX = Math.cos(angle) * moonData.orbitR;
             const moonCenterZ = Math.sin(angle) * moonData.orbitR;
@@ -1998,8 +2058,8 @@ function animate() {
         for (let i = 0; i < PARTICLE_COUNT; i++) {
             const i3 = i * 3;
 
-            // Star twinkling
-            if (particleBodyId[i] === -4) {
+            // Star twinkling — every 2nd frame (30Hz, imperceptible for slow sparkle)
+            if (isHeavyFrame && particleBodyId[i] === -4) {
                 // Each star has unique twinkle speed and phase
                 const speed1 = 2.0 + (i % 7) * 0.5;
                 const speed2 = 3.0 + (i % 5) * 0.7;
@@ -2038,8 +2098,8 @@ function animate() {
                 sizeArr[i] = sizeArr[i] * (1.0 + zoomFactor * 0.3);
             }
 
-            // Main Asteroid Belt movement (orbital motion)
-            if (particleBodyId[i] === -2) {
+            // Main Asteroid Belt movement — every 2nd frame
+            if (isHeavyFrame && particleBodyId[i] === -2) {
                 const orbitSpeed = 0.008 + (i % 13) * 0.002; // varied speeds
                 const phase = i * 23.7;
                 const angle = time * orbitSpeed + phase;
@@ -2050,8 +2110,8 @@ function animate() {
                 basePositions[i3 + 1] = localOffsets[i3 + 1] + Math.sin(time * 0.5 + phase) * 1.5;
             }
 
-            // Kuiper Belt movement (slower orbital motion)
-            if (particleBodyId[i] === -3) {
+            // Kuiper Belt movement — every 2nd frame (moves even slower)
+            if (isHeavyFrame && particleBodyId[i] === -3) {
                 const orbitSpeed = 0.003 + (i % 17) * 0.001; // slower than main belt
                 const phase = i * 31.4;
                 const angle = time * orbitSpeed + phase;
@@ -2062,8 +2122,8 @@ function animate() {
                 basePositions[i3 + 1] = localOffsets[i3 + 1] + Math.sin(time * 0.3 + phase) * 2.0;
             }
 
-            // Wandering stars — bright stars orbiting through the solar system
-            if (particleBodyId[i] === -42) {
+            // Wandering stars — every 2nd frame
+            if (isHeavyFrame && particleBodyId[i] === -42) {
                 const orbitRadius = Math.sqrt(localOffsets[i3] * localOffsets[i3] + localOffsets[i3 + 2] * localOffsets[i3 + 2]);
                 const baseAngle = Math.atan2(localOffsets[i3 + 2], localOffsets[i3]);
                 // Each wandering star has its own speed — some fast, some slow
@@ -2253,15 +2313,15 @@ function animate() {
 
     // Smooth rotation + base tilt for solar system orbital view
     const baseTiltX = isSolarSystemView ? -0.55 : 0; // Default tilt when no hand rotation applied
-    // Solar system: SNAP rotation.x directly every frame (no lerp).
-    // Lerp caused a drift window where rotation.x hovered near 0 (edge-on) after
-    // returning from planet view, making planets look flat for several frames.
+    // Solar system: SNAP both axes directly every frame (no lerp).
+    // Lerp caused visible lag/drift especially on up-down (X axis) hand movement.
     if (isSolarSystemView) {
         particleSystem.rotation.x = activeRotationX + baseTiltX;
+        particleSystem.rotation.y = activeRotationY;
     } else {
-        particleSystem.rotation.x += ((activeRotationX + baseTiltX) - particleSystem.rotation.x) * 0.18;
+        particleSystem.rotation.x += ((activeRotationX + baseTiltX) - particleSystem.rotation.x) * 0.14;
+        particleSystem.rotation.y += (activeRotationY - particleSystem.rotation.y) * 0.14;
     }
-    particleSystem.rotation.y += (activeRotationY - particleSystem.rotation.y) * 0.18;
 
     // Always add a slow ambient spin
     particleSystem.rotation.y += 0.008; // Increased ambient spin
