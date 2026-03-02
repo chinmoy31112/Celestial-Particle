@@ -1400,6 +1400,7 @@ let touchRotationX = 0, touchRotationY = 0;
 let initialPinchDistance = 0;
 let touchExpansion = 0;
 let lastTapTime = 0;
+let focusBeforeTap = -1; // snapshot of focusedPlanetIdx before the first tap, so double-tap can revert it
 
 if (isMobile) {
     // Touch drag for rotation
@@ -1444,6 +1445,9 @@ if (isMobile) {
 
             if (now - lastTapTime < 350) {
                 // --- DOUBLE TAP ---
+                // Revert the focus-zoom that the first tap may have started
+                focusedPlanetIdx = focusBeforeTap;
+                focusTransition = 0;
                 if (isSolarSystemView) {
                     // Navigate to the tapped planet, just like desktop dblclick
                     const clickedIdx = findClickedPlanet(tapX, tapY);
@@ -1480,6 +1484,7 @@ if (isMobile) {
                 lastTapTime = 0; // reset so next tap starts fresh
             } else {
                 // --- SINGLE TAP: planet focus ---
+                focusBeforeTap = focusedPlanetIdx; // snapshot before changing, so double-tap can revert
                 if (isSolarSystemView && tapX && tapY) {
                     const clickedIdx = findClickedPlanet(tapX, tapY);
                     if (clickedIdx >= 0) {
