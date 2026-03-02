@@ -1820,14 +1820,21 @@ function animate() {
                 // Skip ring particles (they have their own rotation logic)
                 if (particleBodyId[idx] === -5) continue;
 
-                // Planet sphere growth when zoomed — capped per-planet to avoid orbit overlap
-                let outL = 1.0 + zoomFactor * 0.6;
-                outL = Math.min(outL, BODY_MAX_OUTL[b]);
-                if (zoomFactor > 0.02) {
-                    // Terrain pop-out for surface detail on zoom
-                    const luma = baseColors[i3] * 0.3 + baseColors[i3 + 1] * 0.59 + baseColors[i3 + 2] * 0.11;
-                    outL += luma * zoomFactor * 0.15;
+                // Planet sphere growth when zoomed — only when NO planet is focused.
+                // When focused, the camera is already moved close by the focus system;
+                // growing the world-space sphere on top of perspective zoom double-compounds
+                // the effect and makes selected planets look huge when zoomed out.
+                const focusActive = focusedPlanetIdx >= 0 && focusTransition > 0.01;
+                let outL = 1.0;
+                if (!focusActive) {
+                    outL = 1.0 + zoomFactor * 0.6;
                     outL = Math.min(outL, BODY_MAX_OUTL[b]);
+                    if (zoomFactor > 0.02) {
+                        // Terrain pop-out for surface detail on zoom
+                        const luma = baseColors[i3] * 0.3 + baseColors[i3 + 1] * 0.59 + baseColors[i3 + 2] * 0.11;
+                        outL += luma * zoomFactor * 0.15;
+                        outL = Math.min(outL, BODY_MAX_OUTL[b]);
+                    }
                 }
                 // Apply focus growth (also capped)
                 outL *= focusGrow;
@@ -1857,11 +1864,14 @@ function animate() {
         const sunSpin = time * 0.03; // Slow self-rotation
         const sunCosA = Math.cos(sunSpin);
         const sunSinA = Math.sin(sunSpin);
+        // When any focus is active, skip zoomFactor-driven sphere expansion for the same
+        // reason as planets — camera is already positioned close, no world-space growth needed.
+        const sunFocusActive = focusedPlanetIdx >= 0 && focusTransition > 0.01;
         for (let idx = sunRange.start; idx < sunRange.end; idx++) {
             const i3 = idx * 3;
             // Sun grows very little — capped to never cover Mercury orbit
             let outL = pulse;
-            if (zoomFactor > 0.02) {
+            if (!sunFocusActive && zoomFactor > 0.02) {
                 const luma = baseColors[i3] * 0.3 + baseColors[i3 + 1] * 0.59 + baseColors[i3 + 2] * 0.11;
                 outL += luma * zoomFactor * 0.15;
             }
@@ -1903,27 +1913,41 @@ function animate() {
         }
     }
 
-    // === BRIGHTNESS: always use exact base colors — no zoom boost, no focus dimming ===
+    // === BRIGHTNESS: gently compensate for camera distance so perceived brightness stays consistent ===
+    // When a planet is focused the camera is intentionally close; we anchor the brightness reference
+    // to that nominal focus distance so zooming in/out while focused doesn't shift the whole scene's
+    // brightness. Without this, a focused close camera triggers a large brightness spike.
+    const isFocusMode = focusedPlanetIdx >= 0 && focusTransition > 0.3;
+    // Use the actual camera Z normally, but floor it at the focus camera distance when focused
+    // so brightness doesn't climb as the user scrolls in toward the selected planet.
+    const nominalFocusDist = isFocusMode ? (FOCUS_CAM_DISTANCE + BODIES[focusedPlanetIdx].r * 5) : 0;
+    const effectiveCamZ = isFocusMode ? Math.max(camera.position.z, nominalFocusDist * 0.8) : camera.position.z;
+    const camRatio = Math.max(0.15, effectiveCamZ / defaultCamZ);
+    // Power 0.22 gives gentle correction: ~1.0 at default, ~1.13 at mid zoom, ~1.22 at full close zoom.
+    // Cap at 1.25 so colours never blow out — lower cap when focused to avoid scene-wide brightness spike.
+    const brightCap = isFocusMode ? 1.1 : 1.25;
+    const zoomBrightComp = Math.min(brightCap, Math.pow(1.0 / camRatio, 0.22));
+
     const hasFocus = focusedPlanetIdx >= 0 && focusTransition > 0.01;
     if (isSolarSystemView) {
-        // Planets & bodies — use stored base colors exactly as generated
+        // Planets & bodies — apply zoom-brightness compensation to keep perceived brightness constant
         for (const range of bodyRanges) {
             for (let idx = range.start; idx < range.end; idx++) {
                 const i3 = idx * 3;
                 if (particleBodyId[idx] === -4) continue;
-                colors[i3]     = baseColors[i3];
-                colors[i3 + 1] = baseColors[i3 + 1];
-                colors[i3 + 2] = baseColors[i3 + 2];
+                colors[i3]     = baseColors[i3]     * zoomBrightComp;
+                colors[i3 + 1] = baseColors[i3 + 1] * zoomBrightComp;
+                colors[i3 + 2] = baseColors[i3 + 2] * zoomBrightComp;
             }
         }
-        // Moons and Saturn's rings — same, exact base colors
+        // Moons and Saturn's rings — same compensation
         for (let i = 0; i < PARTICLE_COUNT; i++) {
             const bid = particleBodyId[i];
             if (bid === -5 || (bid <= -6 && bid >= -38)) {
                 const i3 = i * 3;
-                colors[i3]     = baseColors[i3];
-                colors[i3 + 1] = baseColors[i3 + 1];
-                colors[i3 + 2] = baseColors[i3 + 2];
+                colors[i3]     = baseColors[i3]     * zoomBrightComp;
+                colors[i3 + 1] = baseColors[i3 + 1] * zoomBrightComp;
+                colors[i3 + 2] = baseColors[i3 + 2] * zoomBrightComp;
             }
         }
         geometry.attributes.color.needsUpdate = true;
@@ -2156,7 +2180,10 @@ function animate() {
             const focusDist = FOCUS_CAM_DISTANCE + planetR * 5;
             // Hand gesture (expansion) zooms toward focused planet — more responsive
             const handFocusZoom = Math.min(expansionFactor * 35, 100);
-            const targetCamZ = baseCamZ * (1 - focusTransition) + (worldPos.z + focusDist - handFocusZoom) * focusTransition + userZoomOffset * (1 - focusTransition * 0.7);
+            // Give userZoomOffset FULL effect when focused so zoom-out actually moves the camera
+            // away from the selected planet. Previously it was dampened to 30% (1 - 0.7*focusT)
+            // which caused the camera to barely move, making the planet appear stuck-large.
+            const targetCamZ = baseCamZ * (1 - focusTransition) + (worldPos.z + focusDist - handFocusZoom) * focusTransition + userZoomOffset;
             camera.position.z += (targetCamZ - camera.position.z) * 0.08;
             // Smooth camera X/Y to look at focused planet — faster tracking
             camera.position.x += (cameraTargetX * focusTransition - camera.position.x) * 0.06;
