@@ -187,6 +187,10 @@ let psamatheOrbitAngle = Math.random() * Math.PI * 2; // Psamathe's orbit around
 let nesoOrbitAngle = Math.random() * Math.PI * 2; // Neso's orbit around Neptune
 let bodyRanges = [];
 
+// Maps BODIES array index (0-8) to PLANET_VIEWS index.
+// Moon occupies PLANET_VIEWS[5] (between Earth and Mars), so Mars and beyond are offset.
+const BODY_TO_PLANET_VIEW = [1, 2, 3, 4, 6, 7, 8, 9, 10];
+
 // --- SOLAR SYSTEM MOONS DATA (data-driven for consistent generation + animation) ---
 // Every moon uses a SINGLE source of truth for orbit radius, ensuring no mismatch.
 // localOffsets stores ONLY sphere-local offset (lx, ly, lz), NOT orbit position.
@@ -1348,6 +1352,13 @@ function switchView(index) {
     currentViewIndex = index;
     const view = PLANET_VIEWS[index];
     if (view.isSolarSystem) {
+        // Snap tilt and camera so planets are never viewed edge-on on the first
+        // frame after returning to the solar system.
+        particleSystem.rotation.x = -0.55;
+        particleSystem.rotation.y = 0;
+        camera.position.z = isMobile ? 520 : 450;
+        camera.position.x = 0;
+        camera.position.y = 0;
         generateSolarSystem();
     } else {
         generatePlanetView(view);
@@ -1545,42 +1556,71 @@ renderer.domElement.addEventListener('mousemove', (e) => {
 });
 
 // Click handler for planet focus
+// focusBeforeSequence: snapshot of focusedPlanetIdx at the START of a click sequence,
+// so returning from a planet view can restore the planet that was selected beforehand.
+let focusBeforeSequence = -1;
+let focusBeforeClick = -1;
+let lastClickTimestamp = 0;
+const DBLCLICK_THRESHOLD_MS = 300;
+
 renderer.domElement.addEventListener('click', (e) => {
     if (!isSolarSystemView) return;
+    const now = Date.now();
+    // New sequence (not a rapid double-click) — snapshot pre-sequence focus state.
+    if (now - lastClickTimestamp > DBLCLICK_THRESHOLD_MS) {
+        focusBeforeSequence = focusedPlanetIdx;
+    }
+    lastClickTimestamp = now;
+    focusBeforeClick = focusedPlanetIdx; // per-click snapshot so dblclick can revert
     const clickedIdx = findClickedPlanet(e.clientX, e.clientY);
-
     if (clickedIdx >= 0) {
-        if (focusedPlanetIdx === clickedIdx) {
-            // Clicking same planet again = unfocus
-            focusedPlanetIdx = -1;
-        } else {
-            focusedPlanetIdx = clickedIdx;
-        }
-    } else if (focusedPlanetIdx >= 0) {
-        // Clicking empty space = unfocus
+        // Always focus the clicked planet — never toggle off on same-planet click
+        // (toggling caused zoom-in → zoom-out stutter on double-click).
+        if (focusedPlanetIdx !== clickedIdx) focusTransition = 0; // fresh transition when switching
+        focusedPlanetIdx = clickedIdx;
+    } else {
+        // Clicked empty space — unfocus.
         focusedPlanetIdx = -1;
     }
 });
 
 // Double-click: in solar system → go to planet view; in planet view → go back to solar system
-let lastPlanetViewIndex = 0; // Remember which planet we were viewing
+let lastPlanetViewIndex = 0; // Remember which planet we were viewing (BODIES index)
 renderer.domElement.addEventListener('dblclick', (e) => {
+    // Revert the focus change made by the preceding click events so we enter
+    // the planet view from a clean state (no partial focus zoom in progress).
+    focusedPlanetIdx = focusBeforeClick;
+
     if (isSolarSystemView) {
+        // Re-derive the clicked planet directly from cursor position — independent of focusedPlanetIdx.
         const clickedIdx = findClickedPlanet(e.clientX, e.clientY);
-        if (clickedIdx >= 0 && clickedIdx < PLANET_VIEWS.length - 1) {
-            // Switch to individual planet view (index 0 = solar system, so planet index = clickedIdx + 1)
+        if (clickedIdx >= 0 && clickedIdx < BODY_TO_PLANET_VIEW.length) {
+            // Use BODY_TO_PLANET_VIEW so Mars → PLANET_VIEWS[6], not Moon at [5].
             focusedPlanetIdx = -1;
             focusTransition = 0;
-            lastPlanetViewIndex = clickedIdx; // Remember the focused planet
-            currentViewIndex = clickedIdx + 1;
+            lastPlanetViewIndex = clickedIdx;
+            currentViewIndex = BODY_TO_PLANET_VIEW[clickedIdx];
             switchView(currentViewIndex);
         }
     } else {
-        // In planet view — double-click returns to solar system, focused on that planet
-        focusedPlanetIdx = lastPlanetViewIndex;
-        focusTransition = 0.5; // Start partially transitioned for smooth fly-in
+        // In planet view — double-click returns to solar system.
+        // Reset accumulated state to avoid edge-on/flat-planet issues.
+        focusTransition = 0;
+        userZoomOffset = 0;
+        handRotation.x = 0;
+        handRotation.y = 0;
+        handVelocity.x = 0;
+        handVelocity.y = 0;
+        touchRotationX = 0;
+        touchRotationY = 0;
         currentViewIndex = 0;
         switchView(0);
+        // Restore the focus state from BEFORE the double-click sequence began:
+        //   • Single-clicked a planet first → return with that planet focused.
+        //   • Double-clicked with no prior selection → return to default (no focus).
+        // focusTransition stays 0 so camera starts from the default distance and
+        // smoothly flies in — avoids the flat-planet issue.
+        focusedPlanetIdx = focusBeforeSequence;
     }
 });
 
@@ -2163,7 +2203,14 @@ function animate() {
 
     // Smooth rotation + base tilt for solar system orbital view
     const baseTiltX = isSolarSystemView ? -0.55 : 0; // Moderate tilt — see planets as spheres, not edge-on
-    particleSystem.rotation.x += ((activeRotationX + baseTiltX) - particleSystem.rotation.x) * 0.18;
+    // Solar system: SNAP rotation.x directly every frame (no lerp).
+    // Lerp caused a drift window where rotation.x hovered near 0 (edge-on) after
+    // returning from planet view, making planets look flat for several frames.
+    if (isSolarSystemView) {
+        particleSystem.rotation.x = activeRotationX + baseTiltX;
+    } else {
+        particleSystem.rotation.x += ((activeRotationX + baseTiltX) - particleSystem.rotation.x) * 0.18;
+    }
     particleSystem.rotation.y += (activeRotationY - particleSystem.rotation.y) * 0.18;
 
     // Always add a slow ambient spin
