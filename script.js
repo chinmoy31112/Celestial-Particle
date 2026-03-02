@@ -108,7 +108,7 @@ const BODY_INTENSITY = [2.8, 1.9, 1.9, 2.0, 1.9, 1.9, 1.8, 1.9, 2.0];
 // Per-planet max sphere growth limit — prevents overlap with neighbors
 // Safe caps: visual radius (r*outL) stays under 40% of gap to nearest orbit/belt
 // Merc(gap24), Venus(gap26), Earth(gap26), Mars(gap25 to belt), Jupiter(gap20 from belt), Saturn(gap65), Uranus(gap70), Neptune(gap35 to Kuiper)
-const BODY_MAX_OUTL = [1.05, 2.5, 1.8, 1.6, 1.6, 1.3, 1.8, 2.5, 2.0];
+const BODY_MAX_OUTL = [1.55, 2.5, 1.8, 1.6, 1.6, 1.3, 1.8, 2.5, 2.0];
 // Track current growth factor per body (used to scale moon orbits)
 const bodyCurrentOutL = new Float32Array(9).fill(1.0);
 // Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune
@@ -1444,6 +1444,17 @@ if (isMobile) {
                 focusedPlanetIdx = -1;
                 focusTransition = 0;
                 currentViewIndex = (currentViewIndex + 1) % PLANET_VIEWS.length;
+                // Reset accumulated rotation when returning to solar system so the
+                // view always snaps back to the correct tilted orbital perspective.
+                if (PLANET_VIEWS[currentViewIndex].isSolarSystem) {
+                    handRotation.x = 0;
+                    handRotation.y = 0;
+                    handVelocity.x = 0;
+                    handVelocity.y = 0;
+                    userZoomOffset = 0;
+                    touchRotationX = 0;
+                    touchRotationY = 0;
+                }
                 switchView(currentViewIndex);
             } else {
                 // Single tap: planet focus (uses last touch position)
@@ -1732,6 +1743,15 @@ hands.onResults((results) => {
                     }
                     focusedPlanetIdx = -1;
                     focusTransition = 0;
+                    // Reset accumulated rotation when returning to solar system so the
+                    // view always snaps back to the correct tilted orbital perspective.
+                    if (PLANET_VIEWS[currentViewIndex].isSolarSystem) {
+                        handRotation.x = 0;
+                        handRotation.y = 0;
+                        handVelocity.x = 0;
+                        handVelocity.y = 0;
+                        userZoomOffset = 0;
+                    }
                     switchView(currentViewIndex);
                     lastSwitchTime = now;
                 }
@@ -1883,63 +1903,27 @@ function animate() {
         }
     }
 
-    // === BRIGHTNESS: zoom = MORE colorful, brighter, detailed ===
-    // Zoom boost: zooming in makes everything more vivid and visible
-    const zoomBrightBoost = 1.0 + zoomFactor * 0.4; // Up to 1.4x brighter when fully zoomed
+    // === BRIGHTNESS: always use exact base colors — no zoom boost, no focus dimming ===
     const hasFocus = focusedPlanetIdx >= 0 && focusTransition > 0.01;
-    if (isSolarSystemView && hasFocus) {
-        // Focus: selected planet mildly brighter, Sun ALWAYS stays brightest
-        for (const range of bodyRanges) {
-            const bid0 = range.bodyIdx;
-            let focusBright = 1.0;
-            if (bid0 === focusedPlanetIdx) {
-                focusBright = 1.0 + focusTransition * 0.15; // Focused: gentle 1.15x boost — keeps real color
-            } else if (bid0 === 0) {
-                focusBright = Math.max(0.92, 1.0 - focusTransition * 0.08); // Sun: barely dimmed
-            } else {
-                focusBright = 1.0 - focusTransition * 0.25; // Others: dim to 0.75x
-            }
-            for (let idx = range.start; idx < range.end; idx++) {
-                const i3 = idx * 3;
-                if (particleBodyId[idx] === -4) continue;
-                const br = baseColors[i3], bg = baseColors[i3+1], bb = baseColors[i3+2];
-                // Clamp to prevent additive blending from washing out to white
-                colors[i3]     = Math.min(br * focusBright * zoomBrightBoost, 1.0);
-                colors[i3 + 1] = Math.min(bg * focusBright * zoomBrightBoost, 1.0);
-                colors[i3 + 2] = Math.min(bb * focusBright * zoomBrightBoost, 1.0);
-            }
-        }
-        // Moons and rings: zoom brightness + moons of focused planet get slight boost
-        for (let i = 0; i < PARTICLE_COUNT; i++) {
-            const bid = particleBodyId[i];
-            if (bid === -5 || (bid <= -6 && bid >= -38)) {
-                const i3 = i * 3;
-                const moonParentFocused = (bid <= -6 && bid >= -38) && moonDataByBodyId[bid] && moonDataByBodyId[bid].parentIdx === focusedPlanetIdx;
-                const moonFocusBright = moonParentFocused ? (1.0 + focusTransition * 0.1) : 1.0;
-                colors[i3]     = Math.min(baseColors[i3] * zoomBrightBoost * moonFocusBright, 1.0);
-                colors[i3 + 1] = Math.min(baseColors[i3 + 1] * zoomBrightBoost * moonFocusBright, 1.0);
-                colors[i3 + 2] = Math.min(baseColors[i3 + 2] * zoomBrightBoost * moonFocusBright, 1.0);
-            }
-        }
-        geometry.attributes.color.needsUpdate = true;
-    } else if (isSolarSystemView) {
-        // No focus — apply zoom brightness boost (clamped to preserve color)
+    if (isSolarSystemView) {
+        // Planets & bodies — use stored base colors exactly as generated
         for (const range of bodyRanges) {
             for (let idx = range.start; idx < range.end; idx++) {
                 const i3 = idx * 3;
                 if (particleBodyId[idx] === -4) continue;
-                colors[i3]     = Math.min(baseColors[i3] * zoomBrightBoost, 1.0);
-                colors[i3 + 1] = Math.min(baseColors[i3 + 1] * zoomBrightBoost, 1.0);
-                colors[i3 + 2] = Math.min(baseColors[i3 + 2] * zoomBrightBoost, 1.0);
+                colors[i3]     = baseColors[i3];
+                colors[i3 + 1] = baseColors[i3 + 1];
+                colors[i3 + 2] = baseColors[i3 + 2];
             }
         }
+        // Moons and Saturn's rings — same, exact base colors
         for (let i = 0; i < PARTICLE_COUNT; i++) {
             const bid = particleBodyId[i];
             if (bid === -5 || (bid <= -6 && bid >= -38)) {
                 const i3 = i * 3;
-                colors[i3]     = Math.min(baseColors[i3] * zoomBrightBoost, 1.0);
-                colors[i3 + 1] = Math.min(baseColors[i3 + 1] * zoomBrightBoost, 1.0);
-                colors[i3 + 2] = Math.min(baseColors[i3 + 2] * zoomBrightBoost, 1.0);
+                colors[i3]     = baseColors[i3];
+                colors[i3 + 1] = baseColors[i3 + 1];
+                colors[i3 + 2] = baseColors[i3 + 2];
             }
         }
         geometry.attributes.color.needsUpdate = true;
@@ -2202,7 +2186,7 @@ function animate() {
     const activeExpansion = expansionFactor;
 
     // Smooth rotation + base tilt for solar system orbital view
-    const baseTiltX = isSolarSystemView ? -0.55 : 0; // Moderate tilt — see planets as spheres, not edge-on
+    const baseTiltX = isSolarSystemView ? -0.55 : 0; // Default tilt when no hand rotation applied
     // Solar system: SNAP rotation.x directly every frame (no lerp).
     // Lerp caused a drift window where rotation.x hovered near 0 (edge-on) after
     // returning from planet view, making planets look flat for several frames.
@@ -2271,10 +2255,15 @@ function animate() {
                 const localY = localOffsets[i3 + 1];
                 const localZ = localOffsets[i3 + 2];
 
-                // Orbit centre (planet position relative to Sun)
-                const orbitCenterX = vx - localX;
-                const orbitCenterY = vy - localY;
-                const orbitCenterZ = vz - localZ;
+                // Compute orbit centre from orbital parameters rather than vx-localX.
+                // basePositions already has self-rotation applied, so vx-localX is NOT
+                // the orbit centre — it produces a wrong (non-zero) value for the Sun
+                // and a slightly-off value for rotating planets, distorting the sphere.
+                const a = orbitAngles[bodyId];
+                const bd = BODIES[bodyId];
+                const orbitCenterX = Math.cos(a) * bd.orbitR;
+                const orbitCenterY = Math.sin(a) * bd.orbitR * Math.sin(bd.inc || 0);
+                const orbitCenterZ = Math.sin(a) * bd.orbitR;
 
                 // Spread orbits outward with expansion (disabled when focused)
                 const orbitScale = 1 + expansionForSpread * 1.5;
