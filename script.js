@@ -1479,7 +1479,9 @@ if (isMobile) {
                     touchRotationX = 0; touchRotationY = 0;
                     currentViewIndex = 0;
                     switchView(0);
-                    focusedPlanetIdx = -1;
+                    // Restore focus on the planet we came from so the camera
+                    // flies back to it, matching desktop double-click behaviour.
+                    focusedPlanetIdx = lastPlanetViewIndex;
                 }
                 lastTapTime = 0; // reset so next tap starts fresh
             } else {
