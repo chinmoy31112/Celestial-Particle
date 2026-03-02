@@ -1443,13 +1443,32 @@ if (isMobile) {
             const tapX = touchStartX;
             const tapY = touchStartY;
 
-            if (now - lastTapTime < 350) {
-                // --- DOUBLE TAP ---
-                // Revert the focus-zoom that the first tap may have started
+            if (now - lastTapTime > 350) {
+                // ── FIRST TAP  ── mirrors desktop 'click' handler exactly ──────────
+                // New sequence: snapshot focus state BEFORE this sequence begins.
+                focusBeforeSequence = focusedPlanetIdx;
+                // Per-tap snapshot so the second tap can revert this tap's change.
+                focusBeforeTap = focusedPlanetIdx;
+
+                if (isSolarSystemView) {
+                    const clickedIdx = findClickedPlanet(tapX, tapY);
+                    if (clickedIdx >= 0) {
+                        if (focusedPlanetIdx !== clickedIdx) focusTransition = 0;
+                        focusedPlanetIdx = clickedIdx;
+                    } else {
+                        focusedPlanetIdx = -1;
+                    }
+                }
+                lastTapTime = now;
+
+            } else {
+                // ── SECOND TAP (double-tap) ── mirrors desktop 'dblclick' handler exactly ──
+                // Revert the focus change the first tap made — same as dblclick reverts click.
                 focusedPlanetIdx = focusBeforeTap;
                 focusTransition = 0;
+
                 if (isSolarSystemView) {
-                    // Navigate to the tapped planet, just like desktop dblclick
+                    // Navigate into the tapped planet's view.
                     const clickedIdx = findClickedPlanet(tapX, tapY);
                     if (clickedIdx >= 0 && clickedIdx < BODY_TO_PLANET_VIEW.length) {
                         focusedPlanetIdx = -1;
@@ -1458,7 +1477,7 @@ if (isMobile) {
                         currentViewIndex = BODY_TO_PLANET_VIEW[clickedIdx];
                         switchView(currentViewIndex);
                     } else {
-                        // Tapped empty space — cycle views
+                        // Double-tapped empty space — cycle views.
                         currentViewIndex = (currentViewIndex + 1) % PLANET_VIEWS.length;
                         focusedPlanetIdx = -1;
                         focusTransition = 0;
@@ -1471,7 +1490,7 @@ if (isMobile) {
                         switchView(currentViewIndex);
                     }
                 } else {
-                    // In planet view — double-tap returns to solar system
+                    // In planet view — double-tap returns to solar system.
                     focusTransition = 0;
                     userZoomOffset = 0;
                     handRotation.x = 0; handRotation.y = 0;
@@ -1479,24 +1498,12 @@ if (isMobile) {
                     touchRotationX = 0; touchRotationY = 0;
                     currentViewIndex = 0;
                     switchView(0);
-                    // Restore focus on the planet we came from so the camera
-                    // flies back to it, matching desktop double-click behaviour.
-                    focusedPlanetIdx = lastPlanetViewIndex;
+                    // Restore focus to the state BEFORE the sequence began —
+                    // same as desktop dblclick uses focusBeforeSequence.
+                    // This puts the camera back on the planet we double-tapped into.
+                    focusedPlanetIdx = focusBeforeSequence >= 0 ? focusBeforeSequence : lastPlanetViewIndex;
                 }
-                lastTapTime = 0; // reset so next tap starts fresh
-            } else {
-                // --- SINGLE TAP: planet focus ---
-                focusBeforeTap = focusedPlanetIdx; // snapshot before changing, so double-tap can revert
-                if (isSolarSystemView && tapX && tapY) {
-                    const clickedIdx = findClickedPlanet(tapX, tapY);
-                    if (clickedIdx >= 0) {
-                        if (focusedPlanetIdx !== clickedIdx) focusTransition = 0;
-                        focusedPlanetIdx = clickedIdx;
-                    } else if (focusedPlanetIdx >= 0) {
-                        focusedPlanetIdx = -1;
-                    }
-                }
-                lastTapTime = now;
+                lastTapTime = 0; // reset — next tap is a fresh sequence
             }
         }
     });
