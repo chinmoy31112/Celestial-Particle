@@ -1439,35 +1439,58 @@ if (isMobile) {
     renderer.domElement.addEventListener('touchend', (e) => {
         if (e.touches.length === 0) {
             const now = Date.now();
-            if (now - lastTapTime < 300) {
-                // Double tap to cycle views
-                focusedPlanetIdx = -1;
-                focusTransition = 0;
-                currentViewIndex = (currentViewIndex + 1) % PLANET_VIEWS.length;
-                // Reset accumulated rotation when returning to solar system so the
-                // view always snaps back to the correct tilted orbital perspective.
-                if (PLANET_VIEWS[currentViewIndex].isSolarSystem) {
-                    handRotation.x = 0;
-                    handRotation.y = 0;
-                    handVelocity.x = 0;
-                    handVelocity.y = 0;
+            const tapX = touchStartX;
+            const tapY = touchStartY;
+
+            if (now - lastTapTime < 350) {
+                // --- DOUBLE TAP ---
+                if (isSolarSystemView) {
+                    // Navigate to the tapped planet, just like desktop dblclick
+                    const clickedIdx = findClickedPlanet(tapX, tapY);
+                    if (clickedIdx >= 0 && clickedIdx < BODY_TO_PLANET_VIEW.length) {
+                        focusedPlanetIdx = -1;
+                        focusTransition = 0;
+                        lastPlanetViewIndex = clickedIdx;
+                        currentViewIndex = BODY_TO_PLANET_VIEW[clickedIdx];
+                        switchView(currentViewIndex);
+                    } else {
+                        // Tapped empty space — cycle views
+                        currentViewIndex = (currentViewIndex + 1) % PLANET_VIEWS.length;
+                        focusedPlanetIdx = -1;
+                        focusTransition = 0;
+                        if (PLANET_VIEWS[currentViewIndex].isSolarSystem) {
+                            handRotation.x = 0; handRotation.y = 0;
+                            handVelocity.x = 0; handVelocity.y = 0;
+                            userZoomOffset = 0;
+                            touchRotationX = 0; touchRotationY = 0;
+                        }
+                        switchView(currentViewIndex);
+                    }
+                } else {
+                    // In planet view — double-tap returns to solar system
+                    focusTransition = 0;
                     userZoomOffset = 0;
-                    touchRotationX = 0;
-                    touchRotationY = 0;
+                    handRotation.x = 0; handRotation.y = 0;
+                    handVelocity.x = 0; handVelocity.y = 0;
+                    touchRotationX = 0; touchRotationY = 0;
+                    currentViewIndex = 0;
+                    switchView(0);
+                    focusedPlanetIdx = -1;
                 }
-                switchView(currentViewIndex);
+                lastTapTime = 0; // reset so next tap starts fresh
             } else {
-                // Single tap: planet focus (uses last touch position)
-                if (isSolarSystemView && touchStartX && touchStartY) {
-                    const clickedIdx = findClickedPlanet(touchStartX, touchStartY);
+                // --- SINGLE TAP: planet focus ---
+                if (isSolarSystemView && tapX && tapY) {
+                    const clickedIdx = findClickedPlanet(tapX, tapY);
                     if (clickedIdx >= 0) {
-                        focusedPlanetIdx = (focusedPlanetIdx === clickedIdx) ? -1 : clickedIdx;
+                        if (focusedPlanetIdx !== clickedIdx) focusTransition = 0;
+                        focusedPlanetIdx = clickedIdx;
                     } else if (focusedPlanetIdx >= 0) {
                         focusedPlanetIdx = -1;
                     }
                 }
+                lastTapTime = now;
             }
-            lastTapTime = now;
         }
     });
 }
@@ -2199,9 +2222,9 @@ function animate() {
             focusTransition = 0;
         }
         const targetCamZ = Math.max(10, baseCamZ + userZoomOffset);
-        camera.position.z += (targetCamZ - camera.position.z) * 0.06;
-        camera.position.x += (0 - camera.position.x) * 0.04;
-        camera.position.y += (0 - camera.position.y) * 0.04;
+        camera.position.z += (targetCamZ - camera.position.z) * 0.18;
+        camera.position.x += (0 - camera.position.x) * 0.12;
+        camera.position.y += (0 - camera.position.y) * 0.12;
         if (isSolarSystemView && focusTransition < 0.01) {
             document.getElementById('planet-name').innerText = "Solar System";
         }
