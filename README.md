@@ -1,6 +1,5 @@
 # 🌌 Celestial Particle: Hand-Tracked 3D Solar System
 
-![Project Preview](https://via.placeholder.com/1200x600/000000/FFFFFF?text=Celestial+Particle+Preview)
 
 A premium, high-performance 3D solar system visualization built with **Three.js** and powered by **MediaPipe AI** for immersive hand-tracked navigation. Experience the cosmos through a cloud of 130,000+ dynamic particles, procedurally generated celestial bodies, and interactive orbital mechanics.
 
